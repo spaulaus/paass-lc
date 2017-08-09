@@ -7,7 +7,7 @@
 #include <sstream>
 
 #include "PlotsRegister.hpp"
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 #include "Messenger.hpp"
 
 using namespace std;

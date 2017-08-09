@@ -17,7 +17,7 @@
 #include <stdint.h>
 
 #include "Constants.hpp"
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 #include "Messenger.hpp"
 #include "TrapFilterParameters.hpp"
 

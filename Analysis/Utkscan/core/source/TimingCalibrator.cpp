@@ -7,7 +7,7 @@
 #include <sstream>
 #include <cmath>
 
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 #include "TimingCalibrator.hpp"
 #include "XmlInterface.hpp"
 

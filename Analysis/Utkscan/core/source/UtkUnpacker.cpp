@@ -172,16 +172,16 @@ void UtkUnpacker::InitializeDriver(DetectorDriver *driver, DetectorLibrary *detl
 
     try {
         driver->SanityCheck();
-    } catch (GeneralException &e) {
+    } catch (PaassWarning &w) {
+        std::cout << "Warning checking DetectorDriver sanity in "
+                "UtkUnpacker::InitializeDriver" << std::endl;
+        std::cout << "\t" << w.what() << std::endl;
+    } catch (PaassException &e) {
         m.fail();
         std::cout << "Exception checking DetectorDriver sanity in "
                 "UtkUnpacker::InitializeDriver" << std::endl;
         std::cout << "\t" << e.what() << std::endl;
         exit(EXIT_FAILURE);
-    } catch (GeneralWarning &w) {
-        std::cout << "Warning checking DetectorDriver sanity in "
-                "UtkUnpacker::InitializeDriver" << std::endl;
-        std::cout << "\t" << w.what() << std::endl;
     }
 
     ss << "Init at " << times(&systemTimes) << " system time.";

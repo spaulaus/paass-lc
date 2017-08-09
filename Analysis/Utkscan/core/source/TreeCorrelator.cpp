@@ -5,7 +5,7 @@
  * \author K. A. Miernik
  * \date August 19, 2012
  */
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 #include "Globals.hpp"
 #include "Messenger.hpp"
 #include "StringManipulationFunctions.hpp"

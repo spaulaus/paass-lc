@@ -39,7 +39,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
         if (module_number < 0) {
             sstream_ << "MapNodeXmlParser::ParseNode : User requested illegal module number (" << module_number
                      << ") in configuration file.";
-            throw GeneralException(sstream_.str());
+            throw PaassException(sstream_.str());
         }
 
         if (isVerbose) {
@@ -54,13 +54,13 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             if (channelNumber >= Pixie16::maximumNumberOfChannels) {
                 sstream_ << "MapNodeXmlParser::ParseNode : Illegal channel " << "number (" << channelNumber
                          << ") in configuration file.";
-                throw GeneralException(sstream_.str());
+                throw PaassException(sstream_.str());
             }
 
             if (lib->HasValue(module_number, channelNumber)) {
                 sstream_ << "MapNodeXmlParser::ParseNode : Module " << module_number << ", Channel " << channelNumber
                          << " is initialized more than once";
-                throw GeneralException(sstream_.str());
+                throw PaassException(sstream_.str());
             }
 
             ChannelConfiguration chanCfg;

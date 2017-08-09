@@ -18,7 +18,7 @@
 #include "DetectorLibrary.hpp"
 #include "Display.h"
 #include "EventProcessor.hpp"
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 #include "HighResTimingData.hpp"
 #include "RandomInterface.hpp"
 #include "RawEvent.hpp"
@@ -40,16 +40,16 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
     try {
         DetectorDriverXmlParser parser;
         parser.ParseNode(this);
-    } catch (GeneralException &e) {
+    } catch (PaassWarning &w) {
+        cout << "Warning found at DetectorDriver::DetectorDriver" << endl;
+        cout << "\t" << w.what() << endl;
+    } catch (PaassException &e) {
         /// Any exception in registering plots in Processors
         /// and possible other exceptions in creating Processors
         /// will be intercepted here
         cout << "Exception caught at DetectorDriver::DetectorDriver" << endl;
         cout << "\t" << e.what() << endl;
         throw;
-    } catch (GeneralWarning &w) {
-        cout << "Warning found at DetectorDriver::DetectorDriver" << endl;
-        cout << "\t" << w.what() << endl;
     }
 }
 
@@ -115,14 +115,14 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
              it != TreeCorrelator::get()->places_.end(); ++it)
             if ((*it).second->resetable())
                 (*it).second->reset();
-    } catch (GeneralException &e) {
+    } catch (PaassWarning &w) {
+        cout << Display::WarningStr("Warning caught at DetectorDriver::ProcessEvent") << endl;
+        cout << "\t" << Display::WarningStr(w.what()) << endl;
+    } catch (PaassException &e) {
         /// Any exception in activation of basic places, PreProcess and Process
         /// will be intercepted here
         cout << endl << Display::ErrorStr("Exception caught at DetectorDriver::ProcessEvent") << endl;
         throw;
-    } catch (GeneralWarning &w) {
-        cout << Display::WarningStr("Warning caught at DetectorDriver::ProcessEvent") << endl;
-        cout << "\t" << Display::WarningStr(w.what()) << endl;
     }
 }
 
