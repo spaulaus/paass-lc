@@ -13,7 +13,7 @@
 #include <sstream>
 #include <vector>
 
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 
 //!This class outputs nicely formatted messages during configuration loading.
 class Messenger {

@@ -34,7 +34,7 @@ void GlobalsXmlParser::ParseNode(Globals *globals) {
             ParseGlobalNode(root.child("Global"), globals);
             m.done();
         } else
-            throw GeneralException("Globals::Globals : We are missing the Globals node!");
+            throw PaassException("Globals::Globals : We are missing the Globals node!");
 
         if (root.child("Reject")) {
             m.start("Loading Reject Node");

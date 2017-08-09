@@ -8,7 +8,7 @@
 #include <map>
 
 #include "TreeCorrelator.hpp"
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 
 using namespace std;
 
@@ -43,7 +43,7 @@ void Place::addChild(Place *child, bool relation) {
         stringstream ss;
         ss << "Place " << this << " attempted unsuccesfully to add child "
            << child;
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
     }
 }
 
@@ -66,7 +66,7 @@ void PlaceOR::check_(EventData &info) {
         stringstream ss;
         ss << "Place " << this
            << " has no children, however function check() was called.";
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
     }
 }
 
@@ -89,7 +89,7 @@ void PlaceThresholdOR::check_(EventData &info) {
         stringstream ss;
         ss << "Place " << this
            << " has no children, however function check() was called.";
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
     }
 }
 

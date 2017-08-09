@@ -37,7 +37,7 @@ Place *PlaceBuilder::create(std::map<std::string, std::string> &params,
     else {
         stringstream ss;
         ss << "PlaceBuilder: unknown place type" << type;
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
         return NULL;
     }
 }

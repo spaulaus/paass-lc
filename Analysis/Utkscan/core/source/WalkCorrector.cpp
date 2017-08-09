@@ -8,7 +8,7 @@
 #include <cmath>
 
 #include "WalkCorrector.hpp"
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 
 using namespace std;
 
@@ -41,14 +41,14 @@ void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::st
     } else {
         stringstream ss;
         ss << "WalkCorrector: unknown walk model " << model;
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
     }
 
     if (min > max) {
         stringstream ss;
         ss << "WalkCorrector: wrong calibration range, channels "
            << min << " to " << max;
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
     }
 
     cf.min = min;
@@ -64,7 +64,7 @@ void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::st
         ss << "WalkCorrector: selected model needs at least "
            << required_parameters
            << " but only " << cf.parameters.size() << " where found";
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
     }
 
     switch (cf.model) {
@@ -75,7 +75,7 @@ void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::st
                 stringstream ss;
                 ss << "WalkCorrector: Model A, parameter 2 must "
                    << "be larger then 0, value " << par[2] << " was found";
-                throw GeneralException(ss.str());
+                throw PaassException(ss.str());
             }
             break;
         case B1:
@@ -83,7 +83,7 @@ void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::st
                 stringstream ss;
                 ss << "WalkCorrector: Model B1, parameter 3 must "
                    << "be larger then 0, value " << par[2] << " was found";
-                throw GeneralException(ss.str());
+                throw PaassException(ss.str());
             }
             break;
         case B2:
@@ -91,7 +91,7 @@ void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::st
                 stringstream ss;
                 ss << "WalkCorrector: Model B2, parameter 2 must "
                    << "be larger then 0, value " << par[2] << " was found";
-                throw GeneralException(ss.str());
+                throw PaassException(ss.str());
             }
             break;
         default:

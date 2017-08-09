@@ -164,7 +164,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
         else {
             stringstream ss;
             ss << "DetectorDriverXmlParser: Unknown processor : " << name;
-            throw GeneralException(ss.str());
+            throw PaassException(ss.str());
         }
 
         PrintAttributeMessage(processor);
@@ -200,7 +200,7 @@ vector<TraceAnalyzer *> DetectorDriverXmlParser::ParseAnalyzers(const pugi::xml_
         } else {
             stringstream ss;
             ss << "DetectorDriverXmlParser: Unknown analyzer : " << name;
-            throw GeneralException(ss.str());
+            throw PaassException(ss.str());
         }
         PrintAttributeMessage(analyzer);
     }

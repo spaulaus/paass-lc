@@ -17,7 +17,7 @@
 #include "CloverCalibProcessor.hpp"
 #include "DammPlotIds.hpp"
 #include "DetectorLibrary.hpp"
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 #include "Messenger.hpp"
 #include "Plots.hpp"
 #include "PlotsRegister.hpp"
@@ -113,7 +113,7 @@ void CloverCalibProcessor::DeclarePlots(void) {
             ss << "Number of detected clovers is greater than defined"
                << " MAX_CLOVERS = " << dammIds::clover::MAX_CLOVERS << "."
                << " See CloverCalibProcessor.hpp for details.";
-            throw GeneralException(ss.str());
+            throw PaassException(ss.str());
         }
         m.done();
     }

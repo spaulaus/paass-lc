@@ -19,7 +19,7 @@
 #include "DammPlotIds.hpp"
 #include "DetectorLibrary.hpp"
 #include "Display.h"
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 #include "CloverProcessor.hpp"
 #include "Messenger.hpp"
 #include "Notebook.hpp"
@@ -91,7 +91,7 @@ CloverProcessor::CloverProcessor(double gammaThreshold, double lowRatio,
         ss << "Number of requested time resolution spectra is greater then"
            << " MAX_TIMEX = " << MAX_TIMEX << "."
            << " See CloverProcessor.hpp for details.";
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
     }
 
 #ifdef GGATES
@@ -180,7 +180,7 @@ void CloverProcessor::DeclarePlots(void) {
         stringstream ss;
         ss << " There does not appear to be the proper number of"
            << " channels per clover.";
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
     }
 
     if (cloverChans != 0) {
@@ -212,7 +212,7 @@ void CloverProcessor::DeclarePlots(void) {
             ss << "Number of detected clovers is greater than defined"
                << " MAX_CLOVERS = " << dammIds::clover::MAX_CLOVERS << "."
                << " See CloverProcessor.hpp for details.";
-            throw GeneralException(ss.str());
+            throw PaassException(ss.str());
         }
         m.done();
     }

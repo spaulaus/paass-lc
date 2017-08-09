@@ -14,7 +14,7 @@
 
 #include "DammPlotIds.hpp"
 #include "DetectorLibrary.hpp"
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 #include "GeProcessor.hpp"
 #include "Messenger.hpp"
 
