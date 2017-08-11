@@ -275,17 +275,15 @@ PLD_data::PLD_data() : BufferType(DATA, 0) { // 0x41544144 "DATA"
 
 /// Write a pld style data buffer to file.
 bool PLD_data::Write(std::ofstream *file_, char *data_, unsigned int nWords_) {
-    if (!file_ || !file_->is_open() || !file_->good() ||
-        nWords_ == 0) { return false; }
+    if (!file_ || !file_->is_open() || !file_->good() || nWords_ == 0)
+        return false;
 
-    if (debug_mode) {
+    if (debug_mode)
         std::cout << "debug: writing spill of " << nWords_ << " words\n";
-    }
 
     file_->write((char *) &bufftype, 4);
     file_->write((char *) &nWords_, 4);
     file_->write(data_, 4 * nWords_);
-
     file_->write((char *) &buffend, 4); // Close the buffer
 
     return true;
@@ -1007,16 +1005,14 @@ void DATA_buffer::Reset() {
     missing_chunks = 0;
 }
 
-EOF_buffer::EOF_buffer() : BufferType(ENDFILE,
-                                      NO_HEADER_SIZE) {} // 0x20464F45 "EOF "
+EOF_buffer::EOF_buffer() : BufferType(ENDFILE, NO_HEADER_SIZE) {} // 0x20464F45 "EOF "
 
 /// Write an end-of-file buffer (1 word buffer type, 1 word buffer size, and 8192 end of file words).
 bool EOF_buffer::Write(std::ofstream *file_) {
     if (!file_ || !file_->is_open() || !file_->good()) { return false; }
 
     if (debug_mode) {
-        std::cout << "debug: writing " << ACTUAL_BUFF_SIZE * 4
-                  << " byte EOF buffer\n";
+        std::cout << "debug: writing " << ACTUAL_BUFF_SIZE * 4 << " byte EOF buffer\n";
     }
 
     // write 8 bytes (2 words)
@@ -1331,18 +1327,17 @@ int PollOutputFile::SendPacket(Client *cli_) {
 }
 
 /// Close the current file, if one is open, and open a new file for data output
-bool PollOutputFile::OpenNewFile(std::string title_, unsigned int &run_num_,
-                                 std::string prefix,
-                                 std::string output_directory/*="./"*/,
-                                 bool continueRun /*= false*/) {
+bool PollOutputFile::OpenNewFile(std::string title_, unsigned int &run_num_, std::string prefix,
+                                 std::string output_directory/*="./"*/, bool continueRun /*= false*/) {
     CloseFile();
 
     // Restart the spill counter for the new file
     number_spills = 0;
 
-    std::string filename = GetNextFileName(run_num_, prefix, output_directory,
-                                           continueRun);
+    std::string filename = GetNextFileName(run_num_, prefix, output_directory, continueRun);
+
     output_file.open(filename.c_str(), std::ios::binary);
+
     if (!output_file.is_open() || !output_file.good()) {
         output_file.close();
         return false;
@@ -1431,12 +1426,10 @@ void PollOutputFile::CloseFile(float total_run_time_/*=0.0*/) {
     if (!output_file.is_open() || !output_file.good()) { return; }
 
     if (output_format == 0) {
-        dataBuff.Close(
-                &output_file); // Pad the final data buffer with 0xFFFFFFFF
+        dataBuff.Close(&output_file); // Pad the final data buffer with 0xFFFFFFFF
 
         eofBuff.Write(&output_file); // First EOF buffer signals end of run
-        eofBuff.Write(
-                &output_file); // Second EOF buffer signals physical end of file
+        eofBuff.Write(&output_file); // Second EOF buffer signals physical end of file
 
         overwrite_dir(); // Overwrite the total buffer number word and close the file
     } else if (output_format == 1) {
@@ -1453,7 +1446,6 @@ void PollOutputFile::CloseFile(float total_run_time_/*=0.0*/) {
         pldHead.Write(&output_file);
         output_file.close();
     } else if (debug_mode) {
-        std::cout
-                << "debug: invalid output format for PollOutputFile::CloseFile!\n";
+        std::cout << "debug: invalid output format for PollOutputFile::CloseFile!\n";
     }
 }

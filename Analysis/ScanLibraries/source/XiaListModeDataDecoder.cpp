@@ -43,10 +43,11 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         bool hasQdc = false;
         bool hasEnergySums = false;
 
-        pair<unsigned int, unsigned int> lengths =
-                DecodeWordZero(buf[0], *data, mask);
+        pair<unsigned int, unsigned int> lengths = DecodeWordZero(buf[0], *data, mask);
         unsigned int headerLength = lengths.first;
         unsigned int eventLength = lengths.second;
+
+        cout << "Header and Event Length : " << headerLength << " " << eventLength << endl;
 
         data->SetEventTimeLow(buf[1]);
         DecodeWordTwo(buf[2], *data, mask);
@@ -157,6 +158,8 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         }
         events.push_back(data);
     }// while(buf < bufStart + bufLen)
+
+    cout << "Number of Decoded Events: " << events.size() << endl;
     return events;
 }
 
