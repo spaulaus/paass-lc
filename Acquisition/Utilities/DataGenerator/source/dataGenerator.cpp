@@ -51,15 +51,9 @@ int main(int argc, char *argv[]) {
     unsigned int runNumber = 0;
     output_file.OpenNewFile("Here is a title", runNumber, "dataGenTest", "/tmp/");
 
-    const unsigned int totalNumberOfWords = 4;
+    const unsigned int totalNumberOfWords = 6;
     const unsigned int numberOfDataWords = 4;
     const unsigned int moduleNumber = 0;
-    const unsigned int endOfDataWord = 0xFFFFFFFF;
-//    unsigned int dataWord = 0x41544144;
-//    unsigned int numberHeaderWords = 2;
-//
-//    array<char*, 2> dataHeader{reinterpret_cast<char*>(&dataWord), reinterpret_cast<char*>(&numberHeaderWords)};
-//    output_file.Write(dataHeader[0], 2);
 
     for(unsigned int i = 0; i < 2; i++) {
         data.SetEnergy(int(randomEnergy()));
@@ -68,11 +62,15 @@ int main(int argc, char *argv[]) {
         data.SetChannelNumber(randomChannel());
 
         vector<unsigned int> encodedData = encoder.EncodeXiaData(data);
+        encodedData.emplace(encodedData.begin(), numberOfDataWords);
+        encodedData.emplace(encodedData.begin()+1, moduleNumber);
 
         array<char*, totalNumberOfWords> dataArray{reinterpret_cast<char*>(&encodedData[0]),
                                                    reinterpret_cast<char*>(&encodedData[1]),
                                                    reinterpret_cast<char*>(&encodedData[2]),
-                                                   reinterpret_cast<char*>(&encodedData[3])};
+                                                   reinterpret_cast<char*>(&encodedData[3]),
+                                                   reinterpret_cast<char*>(&encodedData[4]),
+                                                   reinterpret_cast<char*>(&encodedData[5])};
         output_file.Write(dataArray[0], totalNumberOfWords);
     }
     output_file.CloseFile();
