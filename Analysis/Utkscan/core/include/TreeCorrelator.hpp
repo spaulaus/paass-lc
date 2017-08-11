@@ -16,7 +16,7 @@
 #include "pugixml.hpp"
 #include "Places.hpp"
 #include "PlaceBuilder.hpp"
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 
 /** \brief Singleton class holding map of all places.*/
 class TreeCorrelator {

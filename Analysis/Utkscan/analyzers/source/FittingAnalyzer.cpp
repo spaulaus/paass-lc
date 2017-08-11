@@ -41,7 +41,7 @@ FittingAnalyzer::FittingAnalyzer(const std::string &s) {
         stringstream ss;
         ss << "FittingAnalyzer::FittingAnalyzer - The driver type \"" << s
            << "\" was unknown. Please choose a valid driver.";
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
     }
 }
 

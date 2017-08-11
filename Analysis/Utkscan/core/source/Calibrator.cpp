@@ -9,7 +9,7 @@
 #include <cmath>
 
 #include "Calibrator.hpp"
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 
 using namespace std;
 
@@ -43,14 +43,14 @@ void Calibrator::AddChannel(const ChannelConfiguration &chanID, const std::strin
     } else {
         stringstream ss;
         ss << "Calibrator: unknown calibration model " << model;
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
     }
 
     if (min > max) {
         stringstream ss;
         ss << "Calibrator: wrong calibration range, channels "
            << min << " to " << max;
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
     }
 
     cf.min = min;
@@ -66,7 +66,7 @@ void Calibrator::AddChannel(const ChannelConfiguration &chanID, const std::strin
         ss << "Calibrator: selected model needs at least "
            << required_parameters
            << " but only " << cf.parameters.size() << " where found";
-        throw GeneralException(ss.str());
+        throw PaassException(ss.str());
     }
 
     if (channels_.find(chanID) != channels_.end()) {

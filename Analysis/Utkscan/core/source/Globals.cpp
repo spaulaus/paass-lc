@@ -9,7 +9,7 @@
 
 #include <unistd.h>
 
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 #include "Globals.hpp"
 #include "GlobalsXmlParser.hpp"
 
@@ -47,7 +47,7 @@ Globals::Globals(const std::string &file) {
         parser.ParseNode(this);
     } catch (invalid_argument &invalidArgument) {
         throw;
-    } catch (GeneralException &ex) {
+    } catch (PaassException &ex) {
         throw;
     }
 }
