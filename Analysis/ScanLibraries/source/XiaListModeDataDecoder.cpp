@@ -47,8 +47,6 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         unsigned int headerLength = lengths.first;
         unsigned int eventLength = lengths.second;
 
-        cout << "Header and Event Length : " << headerLength << " " << eventLength << endl;
-
         data->SetEventTimeLow(buf[1]);
         DecodeWordTwo(buf[2], *data, mask);
         unsigned int traceLength = DecodeWordThree(buf[3], *data, mask);
@@ -158,8 +156,6 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         }
         events.push_back(data);
     }// while(buf < bufStart + bufLen)
-
-    cout << "Number of Decoded Events: " << events.size() << endl;
     return events;
 }
 

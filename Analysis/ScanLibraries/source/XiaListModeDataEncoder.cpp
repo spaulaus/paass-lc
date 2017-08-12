@@ -1,10 +1,10 @@
 /// @file XiaListModeDataEncoder.hpp
-/// @brief Class that handles encoding Pixie-16 list mode data from a XiaData
-/// class
+/// @brief Class that handles encoding Pixie-16 list mode data from a XiaData class
 /// @author S. V. Paulauskas
 /// @date December 30, 2016
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 #include <cmath>
 

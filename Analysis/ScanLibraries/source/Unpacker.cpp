@@ -260,8 +260,6 @@ void Unpacker::InitializeDataMask(const std::string &firmware, const unsigned in
   * \return True if the spill was read successfully and false otherwise.
   */
 bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbose/*=true*/) {
-    cout << endl << "Unpacker::ReadSpill : Starting to work on a new spill --------------------" << endl;
-
     const unsigned int maxVsn = 14; // No more than 14 pixie modules per crate
     unsigned int nWords_read = 0;
 
@@ -292,12 +290,6 @@ bool Unpacker::ReadSpill(unsigned int *data, unsigned int nWords, bool is_verbos
         // Retrieve the record length and the vsn number
         lenRec = data[nWords_read]; // Number of words in this record
         vsn = data[nWords_read + 1]; // Module number
-
-        cout << "Unpacker::ReadSpill : lenRec = " << lenRec
-             << " VSN = " << vsn
-             << " nWords = " << nWords
-             << " nWords_read = " << nWords_read
-             << " maxWords = " << maxWords << endl;
 
         if (vsn > maxModuleNumberInFile_ && vsn != 9999 && vsn != 1000)
             maxModuleNumberInFile_ = vsn;
