@@ -411,12 +411,10 @@ public:
     int SendPacket(Client *cli_);
 
     /// Close the current file, if one is open, and open a new file for data output
-    bool
-    OpenNewFile(std::string title_, unsigned int &run_num_, std::string prefix,
-                std::string output_dir = "./", bool continueRun = false);
+    bool OpenNewFile(std::string title_, unsigned int &run_num_, std::string prefix,
+                     std::string output_dir = "./", bool continueRun = false);
 
-    std::string GetNextFileName(unsigned int &run_num_, std::string prefix,
-                                std::string output_dir,
+    std::string GetNextFileName(unsigned int &run_num_, std::string prefix, std::string output_dir,
                                 bool continueRun = false);
 
     unsigned int GetRunNumber();

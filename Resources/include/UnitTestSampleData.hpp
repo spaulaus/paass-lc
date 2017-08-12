@@ -14,7 +14,6 @@
 /// construct the headers in the unittest_encoded_data namespace. These values
 /// are also used when testing the data encoding.
 namespace unittest_decoded_data {
-    //Here is all of the expected data for the above header.
     static const unsigned int channelNumber = 13;
     static const unsigned int crateId = 0;
     static const unsigned int expected_size = 1;
@@ -54,14 +53,15 @@ namespace unittest_encoded_data {
     unsigned int empty_module_buffer[2] = {2, 0};
 
     ///A header with a header length 20 instead of the true header length 4
-    unsigned int header_w_bad_headerlen[6] = {4, 0, 3887149, 123456789, 26001,
-                                              2345};
+    unsigned int header_w_bad_headerlen[6] = {4, 0, 3887149, 123456789, 26001, 2345};
 
     ///A header where the event length doesn't match what it should be.
-    unsigned int header_w_bad_eventlen[6] = {59, 0, 7749677, 123456789, 26001,
-                                             8128809};
+    unsigned int header_w_bad_eventlen[6] = {59, 0, 7749677, 123456789, 26001, 8128809};
 
     namespace R30474_250 {
+        const std::string test_firmware = "R30474";
+        const unsigned int test_frequency = 250;
+
         //Standard header without anything fancy includes the two additional
         // words we add in poll for the length and the module number
         unsigned int header[6] = {4, 0, 540717, 123456789, 26001, 2345};
@@ -85,16 +85,13 @@ namespace unittest_encoded_data {
         };
 
         //A header that also contains a QDC
-        unsigned int header_N_qdc[14] = {
-                12, 0, 1622061, 123456789, 26001, 2345,
-                123, 456, 789, 987, 654, 321, 135, 791
-        };
+        unsigned int header_N_qdc[14] =
+                {12, 0, 1622061, 123456789, 26001, 2345, 123, 456, 789, 987, 654, 321, 135, 791};
 
         //This header has the CFD fractional time set to 1234.
         unsigned int header_N_Cfd[6]{4, 0, 540717, 123456789, 80897425, 2345};
 
-        std::vector<unsigned int> header_vec =
-                {540717, 123456789, 26001, 2345};
+        std::vector<unsigned int> header_vec = {540717, 123456789, 26001, 2345};
 
         std::vector<unsigned int> header_vec_w_trc = {
                 8667181, 123456789, 26001, 8128809,
@@ -111,10 +108,8 @@ namespace unittest_encoded_data {
                 29884865, 29819336
         };
 
-        std::vector<unsigned int> header_vec_w_qdc = {
-                1622061, 123456789, 26001, 2345,
-                123, 456, 789, 987, 654, 321, 135, 791
-        };
+        std::vector<unsigned int> header_vec_w_qdc =
+                {1622061, 123456789, 26001, 2345, 123, 456, 789, 987, 654, 321, 135, 791};
 
         std::vector<unsigned int> header_vec_w_qdc_n_trc = {
                 9748525, 123456789, 26001, 8128809,
@@ -141,8 +136,7 @@ namespace unittest_cfd_variables {
 
 namespace unittest_fit_variables {
     //Set the <beta, gamma> for the fitting from the results of a gnuplot script
-    static const std::pair<double, double> fitting_parameters(0.2659404170,
-                                                              0.2080547991796);
+    static const std::pair<double, double> fitting_parameters(0.2659404170, 0.2080547991796);
 }
 
 namespace unittest_trace_variables {
@@ -209,8 +203,7 @@ namespace unittest_trace_variables {
     static const unsigned int max_position = 76;
 
     /// This is the pair made from the expected maximum information
-    static const std::pair<unsigned int, double> max_pair(max_position,
-                                                          maximum_value);
+    static const std::pair<unsigned int, double> max_pair(max_position, maximum_value);
 
     //These two values were obtained using the first 70 values of the above trace.
     //The expected baseline value was obtained using the AVERAGE function in
@@ -222,8 +215,7 @@ namespace unittest_trace_variables {
     static const double standard_deviation = 1.976184739;
 
     //Pair of these results to test with and use in other places
-    static const std::pair<double, double> baseline_pair(baseline,
-                                                         standard_deviation);
+    static const std::pair<double, double> baseline_pair(baseline, standard_deviation);
 
     ///The trace delay in bins for the signal above.
     static const unsigned int trace_delay = 80;
@@ -233,22 +225,19 @@ namespace unittest_trace_variables {
 
     // Variables related to the calculation of the extrapolated maximum
     static const std::vector<double> extrapolated_max_coeffs =
-            {-15641316.0007084, 592747.666694852, -7472.00000037373,
-             31.3333333349849};
+            {-15641316.0007084, 592747.666694852, -7472.00000037373, 31.3333333349849};
 
     //Value of the extrapolated maximum for the above trace
     static const double extrapolated_maximum = 3818.0718412264;
 
     //Pair of the maximum position and extrapolated maximum
-    static const std::pair<unsigned int, double> extrapolated_maximum_pair(
-            max_position, extrapolated_maximum);
+    static const std::pair<unsigned int, double> extrapolated_maximum_pair(max_position, extrapolated_maximum);
 }
 
 namespace unittest_helper_functions {
     //--------------------------------------------------------------------------
     //A data vector to test the integration
-    static const std::vector<unsigned int> integration_data =
-            {0, 1, 2, 3, 4, 5};
+    static const std::vector<unsigned int> integration_data = {0, 1, 2, 3, 4, 5};
     //The expected value from the CalculateIntegral function
     static const double integral = 12.5;
     static const std::pair<unsigned int, unsigned int> qdc_pair(2, 5);
@@ -257,32 +246,27 @@ namespace unittest_helper_functions {
 
     //--------------------------------------------------------------------------
     //A data vector that contains only the four points for the Poly3 Fitting.
-    static const std::vector<unsigned int> poly3_data
-            (unittest_trace_variables::trace.begin() + 74,
-             unittest_trace_variables::trace.begin() + 78);
+    static const std::vector<unsigned int> poly3_data(unittest_trace_variables::trace.begin() + 74,
+                                                      unittest_trace_variables::trace.begin() + 78);
 
     //The expected maximum from the poly3 fitting
-    static const double poly3_maximum =
-            unittest_trace_variables::extrapolated_maximum;
+    static const double poly3_maximum = unittest_trace_variables::extrapolated_maximum;
 
     //A vector containing the coefficients obtained from gnuplot using the data
     // from pol3_data with an x value starting at 0
-    static const std::vector<double> poly3_coeffs =
-            {2358.0, 1635.66666666667, -516.0, 31.3333333333333};
+    static const std::vector<double> poly3_coeffs = {2358.0, 1635.66666666667, -516.0, 31.3333333333333};
 
     //--------------------------------------------------------------------------
     //A data vector containing only the three points for the Poly2 fitting
-    static const std::vector<unsigned int> poly2_data(
-            unittest_trace_variables::trace.begin() + 73,
-            unittest_trace_variables::trace.begin() + 76);
+    static const std::vector<unsigned int> poly2_data(unittest_trace_variables::trace.begin() + 73,
+                                                      unittest_trace_variables::trace.begin() + 76);
 
     // Variables related to Polynomial::CalculatePoly2
     //The expected maximum from the pol2 fitting
     static const double poly2_val = 10737.0720588236;
 
     //Vector containing the expected coefficients from the poly 2 fit
-    static const std::vector<double> poly2_coeffs =
-            {1122.0, 1278.5, -42.4999999999999};
+    static const std::vector<double> poly2_coeffs = {1122.0, 1278.5, -42.4999999999999};
 
     //--------------------------------------------------------------------------
     //This is the expected position of the leading edge of signal.

@@ -1,6 +1,5 @@
 /// @file XiaListModeDataEncoder.hpp
-/// @brief Class that handles encoding Pixie-16 list mode data from a XiaData
-/// class
+/// @brief Class that handles encoding Pixie-16 list mode data from a XiaData class
 /// @author S. V. Paulauskas
 /// @date December 30, 2016
 #include <iostream>
@@ -9,39 +8,26 @@
 
 #include <cmath>
 
-#include "HelperEnumerations.hpp"
 #include "XiaListModeDataEncoder.hpp"
 
 using namespace std;
 using namespace DataProcessing;
 
-std::vector<unsigned int> XiaListModeDataEncoder::EncodeXiaData(
-        const XiaData &data,
-        const FIRMWARE &firmware,
-        const unsigned int &frequency) {
+std::vector<unsigned int> XiaListModeDataEncoder::EncodeXiaData(const XiaData &data) {
     if (data == XiaData())
-        throw invalid_argument("XiaListModeDataEncoder::EncodeXiaData - We "
-                                       "received an empty XiaData structure.");
-    if (firmware == UNKNOWN)
-        throw invalid_argument("XiaListModeDataEncoder::EncodeXiaData - We "
-                                       "cannot encode against an UNKNOWN "
-                                       "firmware.");
-    if (frequency != 100 && frequency != 250 && frequency != 500)
-        throw invalid_argument("XiaListModeDataEncoder::EncodeXiaData - We "
-                                       "cannot encode against an unknown "
-                                       "frequency.");
-    vector<unsigned int> header;
-    XiaListModeDataMask mask(firmware, frequency);
+        throw invalid_argument("XiaListModeDataEncoder::EncodeXiaData - We received an empty XiaData structure.");
 
-    header.push_back(EncodeWordZero(data, mask));
-    header.push_back(EncodeWordOne(data, mask));
-    header.push_back(EncodeWordTwo(data, mask));
-    header.push_back(EncodeWordThree(data, mask));
+    vector<unsigned int> header;
+
+    header.push_back(EncodeWordZero(data, mask_));
+    header.push_back(EncodeWordOne(data, mask_));
+    header.push_back(EncodeWordTwo(data, mask_));
+    header.push_back(EncodeWordThree(data, mask_));
 
     //The following calls are required in this order due to the structure of
     // the XIA list mode data format.
     if (data.GetEnergySums().size() != 0) {
-        vector<unsigned int> tmp = EncodeEsums(data, mask);
+        vector<unsigned int> tmp = EncodeEsums(data, mask_);
         header.insert(header.end(), tmp.begin(), tmp.end());
     }
 
@@ -63,16 +49,14 @@ std::vector<unsigned int> XiaListModeDataEncoder::EncodeXiaData(
 
     ///Trace comes last since it comes after the header.
     if (data.GetTrace().size() != 0) {
-        vector<unsigned int> tmp = EncodeTrace(data.GetTrace(),
-                                               mask.GetTraceMask());
+        vector<unsigned int> tmp = EncodeTrace(data.GetTrace(), mask_.GetTraceMask());
         header.insert(header.end(), tmp.begin(), tmp.end());
     }
 
     return header;
 }
 
-unsigned int XiaListModeDataEncoder::EncodeWordZero(
-        const XiaData &data, const XiaListModeDataMask &mask) {
+unsigned int XiaListModeDataEncoder::EncodeWordZero(const XiaData &data, const XiaListModeDataMask &mask) {
     //These magic numbers are dependent upon the XIA List Mode Data Structure.
     // For more information about them please consult the relevant
     // documentation.
@@ -83,8 +67,7 @@ unsigned int XiaListModeDataEncoder::EncodeWordZero(
         headerLength += 4;
     if (data.GetQdc().size() != 0)
         headerLength += 8;
-    unsigned int eventLength =
-            (unsigned int) ceil(data.GetTrace().size() * 0.5) + headerLength;
+    unsigned int eventLength = (unsigned int) ceil(data.GetTrace().size() * 0.5) + headerLength;
 
     unsigned int word = 0;
     word |= data.GetChannelNumber() & mask.GetChannelNumberMask().first;

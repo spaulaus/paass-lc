@@ -136,19 +136,11 @@ if (PAASS_USE_ROOT)
 endif (PAASS_USE_ROOT)
 
 #------------------------------------------------------------------------------
-#Put all the include directories that we might need at this point. Ensure
-#that the Third party includes come before the Resources.
-include_directories(ThirdParty/include)
-include_directories(Resources/include)
-include_directories(Core/include)
+#Put all the include directories that we might need at this point. Third party includes must come before the Resources.
+include_directories(ThirdParty/include Resources/include Core/include)
 
-#Build the Third party software since it's useful for other programs
 add_subdirectory(ThirdParty)
-
-#Add the resources to compilation
 add_subdirectory(Resources)
-
-#Build the PaassCoreLibrary.
 add_subdirectory(Core)
 
 #Build Acquisition software, we don't have this broken into as fine of a
