@@ -11,7 +11,7 @@
 
 #include "Globals.hpp"
 #include "Places.hpp"
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 
 /** \brief Create place, alter or add existing place to the tree.
 *

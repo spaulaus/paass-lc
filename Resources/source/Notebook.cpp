@@ -8,7 +8,7 @@
 
 #include <ctime>
 
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 #include "Messenger.hpp"
 #include "Notebook.hpp"
 #include "XmlInterface.hpp"

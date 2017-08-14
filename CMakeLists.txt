@@ -6,6 +6,7 @@ project(PAASS C CXX Fortran)
 
 #Set the C++ standard to c++11.
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 #Use rpath on Mac OS
 set(CMAKE_MACOSX_RPATH TRUE)
