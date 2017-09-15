@@ -1,0 +1,41 @@
+notifications:
+  email:
+    on_success: change # default: change
+    on_failure: always # default: always
+env:
+  global:
+    - MAKEFLAGS="-j 5"
+language: cpp
+sudo: required
+dist: trusty
+os: linux
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-5
+      - gfortran-5
+
+before_install:
+  - export CC=gcc-5 && export CXX=g++-5 && export FC=gfortran-5
+  - sudo apt-get -qq update
+  - sudo apt-get install gsl-bin libgsl0-dev lib64ncurses5-dev
+  - git clone https://github.com/unittest-cpp/unittest-cpp.git
+  - cd unittest-cpp/builds/
+  - cmake ../
+  - sudo make -j4 install
+  - cd ../../
+  
+before_script:
+  - git clone https://github.com/spaulaus/paass-laughing-conqueror.git
+  - mkdir paass-build
+  - cd paass-build
+  - cmake ../paass-laughing-conqueror -DPAASS_BUILD_SCAN_UTILITIES=ON -DPAASS_BUILD_ACQ=OFF -DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_USE_ROOT=OFF
+
+script:
+  - make -j4
+
+after_script:
+  - cd ../
+  - rm -rf paass-build
