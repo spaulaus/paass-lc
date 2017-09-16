@@ -24,7 +24,7 @@ addons:
       - gfortran-5
 
 before_install:
-  - export CC=gcc-5 && export CXX=g++-5
+  - export CC=gcc-5 && export CXX=g++-5 && export FC=gfortran-5
   - sudo apt-get -qq update
   - sudo apt-get install gsl-bin libgsl0-dev lib64ncurses5-dev
   - git clone https://github.com/unittest-cpp/unittest-cpp.git
