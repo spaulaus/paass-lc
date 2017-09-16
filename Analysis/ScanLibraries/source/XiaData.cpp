@@ -9,13 +9,13 @@
 /// it has some default values for the software to use in the event that they
 /// are needed.
 void XiaData::Clear() {
-    cfdForceTrig_ = cfdTrigSource_ = isPileup_ = isSaturated_ = false;
-    isVirtualChannel_ = false;
+    cfdForceTrig_ = cfdTrigSource_ = isPileup_ = isSaturated_ = isVirtualChannel_ = false;
 
-    energy_ = baseline_ = 0.0;
+    baseline_ = energy_ = time_ = timeSansCfd_ = 0.0;
 
-    chanNum_ = crateNum_ = slotNum_ = cfdTime_ = 0;
+    chanNum_ = crateNum_ = cfdTime_ = 0;
     eventTimeHigh_ = eventTimeLow_ = externalTimeLow_ = externalTimeHigh_ = 0;
+    slotNum_ = 2;
 
     eSums_.clear();
     qdc_.clear();

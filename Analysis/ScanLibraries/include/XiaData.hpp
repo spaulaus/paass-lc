@@ -27,7 +27,8 @@ public:
     /// channel (i.e. the ID and Time are identical)
     ///@param[in] rhs : The right hand side of the comparison
     ///@return True if the two XiaData classes are equal.
-    bool operator==(const XiaData &rhs) const { return GetId() == rhs.GetId() && GetTime() == rhs.GetTime(); }
+    bool operator==(const XiaData &rhs) const { return GetId() == rhs.GetId() && GetTime() == rhs.GetTime()
+                                                       && energy_ == rhs.GetEnergy(); }
 
     ///@brief The conjugate of the equality operator
     ///@param[in] rhs : The right hand side for the comparison

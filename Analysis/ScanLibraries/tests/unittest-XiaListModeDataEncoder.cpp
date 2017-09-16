@@ -22,10 +22,10 @@ TEST(TestConstructors){
 ///@TODO Add headers for Esums and external TS.
 TEST(TestEncoding) {
     XiaListModeDataEncoder encoder(test_firmware, test_frequency);
+
+    CHECK_THROW(encoder.EncodeXiaData(XiaData()), invalid_argument);
+
     XiaData data;
-
-    CHECK_THROW(encoder.EncodeXiaData(data), invalid_argument);
-
     data.SetEnergy(energy);
     data.SetSlotNumber(slotId);
     data.SetChannelNumber(channelNumber);
