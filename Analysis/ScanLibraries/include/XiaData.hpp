@@ -18,7 +18,7 @@
 class XiaData {
 public:
     /// Default constructor.
-    XiaData() { Clear(); }
+    XiaData() { Initialize(); }
 
     ///Default Destructor.
     ~XiaData() {};
@@ -219,8 +219,8 @@ public:
     ///@param[in] a : True if we this channel was generated on-board
     void SetVirtualChannel(const bool &a) { isVirtualChannel_ = a; }
 
-    ///@brief Clear all variables and set them to some default values.
-    void Clear();
+    ///@brief Initialize all variables and set them to some default values.
+    void Initialize();
 
 private:
     bool cfdForceTrig_; /// CFD was forced to trigger.
