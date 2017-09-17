@@ -40,8 +40,6 @@ before_install:
   - git clone https://github.com/spaulaus/xia-api.git && cd xia-api
   - mkdir build && cd build && cmake ../ -DCMAKE_INSTALL_PREFIX=/opt && make install && cd ../../
   - ln -s /opt/xia/api /opt/xia/current
-  - git clone https://github.com/spaulaus/paass-laughing-conqueror.git && cd paass-laughing-conqueror
-  - git checkout dev
   - mkdir paass-build && cd paass-build
   - cmake ../ -DPAASS_BUILD_SCAN_UTILITIES=ON -DPAASS_BUILD_ACQ=ON -DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_USE_ROOT=OFF
 
