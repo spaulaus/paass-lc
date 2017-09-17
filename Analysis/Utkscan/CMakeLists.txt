@@ -3,7 +3,6 @@ if (NOT PAASS_USE_GSL)
     message(FATAL_ERROR "GSL is required to build Utkscan!")
 endif (NOT PAASS_USE_GSL)
 
-#CMake file for UTKScan.
 option(PAASS_UTKSCAN_GAMMA_GATES "Gamma-Gamma gates in GeProcessor" OFF)
 option(PAASS_UTKSCAN_ONLINE "Options for online scans" OFF)
 option(PAASS_UTKSCAN_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
@@ -15,22 +14,22 @@ add_definitions(-D newreadout)
 
 #utkscan will have Gamma-Gamma gating in the GeProcessor
 if (PAASS_UTKSCAN_GAMMA_GATES)
-    add_definitions(-D GGATES)
+    add_definitions(-DGGATES)
 endif (PAASS_UTKSCAN_GAMMA_GATES)
 
 #utkscan will be streamlined for online processing
 if (PAASS_UTKSCAN_ONLINE)
-    add_definitions(-D ONLINE)
+    add_definitions(-DONLINE)
 endif (PAASS_UTKSCAN_ONLINE)
 
 #utkscan will have debugging for the TreeCorrelator
 if (PAASS_UTKSCAN_TREE_DEBUG)
-    add_definitions(-D TREE_DEBUG)
+    add_definitions(-DTREE_DEBUG)
 endif (PAASS_UTKSCAN_TREE_DEBUG)
 
 #utkscan will be more verbose in its output
 if (PAASS_UTKSCAN_VERBOSE)
-    add_definitions(-D VERBOSE)
+    add_definitions(-DVERBOSE)
 endif (PAASS_UTKSCAN_VERBOSE)
 
 #------------------------------------------------------------------------------
