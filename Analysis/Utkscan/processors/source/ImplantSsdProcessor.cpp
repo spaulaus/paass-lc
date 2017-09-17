@@ -354,9 +354,11 @@ bool ImplantSsdProcessor::Process(RawEvent &event) {
 #ifdef VERBOSE
         cout << "Flagging for pileup" << endl;
 
-        cout << "fast trace " << fastTracesWritten << " in strip " << location
-            << " : " << trace.GetValue("filterEnergy") << " " << trace.GetValue("filterTime")
-            << " , " << trace.GetValue("filterEnergy2") << " " << trace.GetValue("filterTime2") << endl;
+        cout << "fast trace " << fastTracesWritten << " in strip " << location << " : ";
+        vector<double> filterEnergies = trace.GetFilteredEnergies();
+        vector<unsigned int> filterTimes = trace.GetTriggerPositions();
+        for(unsigned int filterCount = 0; filterCount < filterEnergies.size(); filterCount++)
+            cout << filterEnergies.at(filterCount) << " " << filterTimes.at(filterCount) << " , ";
         cout << "  mcp mult " << info.mcpMult << endl;
 #endif // VERBOSE
 
