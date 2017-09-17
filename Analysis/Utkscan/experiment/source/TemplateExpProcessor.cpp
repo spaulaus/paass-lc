@@ -1,8 +1,7 @@
-/** \file TemplateExpProcessor.cpp
- * \brief Example class for experiment specific setups
- *\author S. V. Paulauskas
- *\date May 20, 2016
- */
+///@file TemplateExpProcessor.cpp
+///@brief Example class for experiment specific setups
+///@author S. V. Paulauskas
+///@date May 20, 2016
 #include <fstream>
 #include <iostream>
 
@@ -38,8 +37,7 @@ void TemplateExpProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_TENVSGEN, SA, SA, "Template En vs. Ge En");
 }
 
-TemplateExpProcessor::TemplateExpProcessor() :
-        EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
+TemplateExpProcessor::TemplateExpProcessor() : EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
     gCutoff_ = 0.; ///Set the gamma cutoff energy to a default of 0.
     SetAssociatedTypes();
     SetupAsciiOutput();
@@ -48,8 +46,7 @@ TemplateExpProcessor::TemplateExpProcessor() :
 #endif
 }
 
-TemplateExpProcessor::TemplateExpProcessor(const double &gcut) :
-        EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
+TemplateExpProcessor::TemplateExpProcessor(const double &gcut) : EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
     gCutoff_ = gcut;
     SetAssociatedTypes();
     SetupAsciiOutput();
@@ -78,8 +75,7 @@ void TemplateExpProcessor::SetAssociatedTypes(void) {
 ///Sets up the name of the output ascii data file
 void TemplateExpProcessor::SetupAsciiOutput(void) {
     stringstream name;
-    name << Globals::get()->GetOutputPath()
-         << Globals::get()->GetOutputFileName() << ".dat";
+    name << Globals::get()->GetOutputPath() << Globals::get()->GetOutputFileName() << ".dat";
     poutstream_ = new ofstream(name.str().c_str());
 }
 
@@ -88,8 +84,7 @@ void TemplateExpProcessor::SetupAsciiOutput(void) {
 ///Sets up ROOT output file, tree, branches, histograms.
 void TemplateExpProcessor::SetupRootOutput(void) {
     stringstream rootname;
-    rootname << Globals::get()->GetOutputPath()
-             << Globals::get()->GetOutputFileName() << ".root";
+    rootname << Globals::get()->GetOutputPath() << Globals::get()->GetOutputFileName() << ".root";
     prootfile_ = new TFile(rootname.str().c_str(), "RECREATE");
     proottree_ = new TTree("data", "");
     proottree_->Branch("tof", &tof_, "tof/D");
@@ -119,16 +114,13 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
     ///Obtain the list of template events that were created
     ///in TemplateProcessor::PreProecess
     if (event.GetSummary("template")->GetList().size() != 0)
-        tEvts = ((TemplateProcessor *) DetectorDriver::get()->
-                GetProcessor("TemplateProcessor"))->GetTemplateEvents();
+        tEvts = ((TemplateProcessor *) DetectorDriver::get()->GetProcessor("TemplateProcessor"))->GetTemplateEvents();
 
     ///Obtain the list of Ge events and addback events that were created
     ///in CloverProcessor::PreProcess
     if (event.GetSummary("clover")->GetList().size() != 0) {
-        geEvts = ((CloverProcessor *) DetectorDriver::get()->
-                GetProcessor("CloverProcessor"))->GetGeEvents();
-        geAddback = ((CloverProcessor *) DetectorDriver::get()->
-                GetProcessor("CloverProcessor"))->GetAddbackEvents();
+        geEvts = ((CloverProcessor *) DetectorDriver::get()->GetProcessor("CloverProcessor"))->GetGeEvents();
+        geAddback = ((CloverProcessor *) DetectorDriver::get()->GetProcessor("CloverProcessor"))->GetAddbackEvents();
     }
 
     ///Plot the size of the template events vector in two ways
@@ -143,30 +135,25 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
     double clockInSeconds = Globals::get()->GetClockInSeconds();
 
     ///Begin loop over template events
-    for (vector<ChanEvent *>::iterator tit = tEvts.begin();
-         tit != tEvts.end(); ++tit) {
+    for (vector<ChanEvent *>::iterator tit = tEvts.begin(); tit != tEvts.end(); ++tit) {
         ///Begin loop over ge events
-        for (vector<ChanEvent *>::iterator it1 = geEvts.begin();
-             it1 != geEvts.end(); ++it1) {
+        for (vector<ChanEvent *>::iterator it1 = geEvts.begin(); it1 != geEvts.end(); ++it1) {
             ChanEvent *chan = *it1;
 
             double gEnergy = chan->GetCalibratedEnergy();
-            double gTime = chan->GetWalkCorrectedTime();
 
             ///Plot the Template Energy vs. Ge Energy if tape isn't moving
             if (!isTapeMoving)
                 plot(DD_TENVSGEN, gEnergy, (*tit)->GetEnergy());
 
-            ///Output template and ge energy to text file if we had a beta
-            /// along with the runtime in seconds.
+            ///Output template and ge energy to text file if we had a beta along with the runtime in seconds.
             if (hasBeta)
-                *poutstream_ << (*tit)->GetEnergy() << " " << gEnergy << " "
-                             << clockInSeconds << endl;
-            ///Fill ROOT histograms and tree with the information
+                *poutstream_ << (*tit)->GetEnergy() << " " << gEnergy << " " << clockInSeconds << endl;
 #ifdef useroot
+            ///Fill ROOT histograms and tree with the information
             ptvsge_->Fill((*tit)->GetEnergy(), gEnergy);
             tEnergy = (*tit)->GetEnergy();
-            tof_ = (*tit)->GetTime() - gTime;
+            tof_ = (*tit)->GetTime() - chan->GetWalkCorrectedTime();
             proottree_->Fill();
             tEnergy = tof_ = -9999;
 #endif
