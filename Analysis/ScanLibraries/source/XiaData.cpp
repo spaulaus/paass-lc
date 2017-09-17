@@ -8,7 +8,7 @@
 /// method. This method is called when the class is first initalizied so that
 /// it has some default values for the software to use in the event that they
 /// are needed.
-void XiaData::Clear() {
+void XiaData::Initialize() {
     cfdForceTrig_ = cfdTrigSource_ = isPileup_ = isSaturated_ = isVirtualChannel_ = false;
 
     baseline_ = energy_ = time_ = timeSansCfd_ = 0.0;
