@@ -71,13 +71,13 @@ CHECK_EQUAL(R30474, ConvertStringToFirmware("30670")
 CHECK_EQUAL(R30981, ConvertStringToFirmware("32000")
 );
 
+
+CHECK_EQUAL(R34688, ConvertStringToFirmware("45000"));
+
 //Two cases for absolute failure of the method is when we have a firmware
 // version that is higher than the highest known one, and a version
 // smaller than the smallest known version.
-CHECK_THROW(ConvertStringToFirmware("45000"), invalid_argument
-);
-CHECK_THROW(ConvertStringToFirmware("12"), invalid_argument
-);
+CHECK_THROW(ConvertStringToFirmware("12"), invalid_argument);
 }
 
 TEST_FIXTURE(XiaListModeDataMask, TestXiaListModeDataMask
