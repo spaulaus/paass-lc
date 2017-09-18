@@ -18,21 +18,12 @@ namespace Timing {
 }
 
 namespace DataProcessing {
-    ///An enum for the different firmware revisions for the Pixie-16 modules.
-    /// * R17562 is valid from 12/15/2010 to 09/26/2011 (this is primarily a
-    /// Rev D firmware, i.e. 100 MS/s)
-    /// * R20466 is valid from 09/26/2011 to 06/11/2013
-    /// * R27361 is valid from 06/11/2013 to 02/15/2014
-    /// * R29432 is valid from 02/15/2014 to 07/28/2014
-    /// * R30474, R30980, R30981 is valid from 07/28/2014 to 03/08/2016
-    /// * R29432 is valid from 03/08/2016
-    /// * UNKNOWN is used for unspecified firmware revisions.
-    ///These dates do not imply that the particular data set being analyzed was
-    /// taken with the expected firmware. These dates are meant only to help
-    /// guide the user if they do not know the particular firmware that was used
-    /// to obtain their data set.
+    ///An enum for the different firmware revisions for the Pixie-16 modules. These revisions only mark changes in
+    /// the header, and do not represent the full set of known firmwares.
+    ///See https://github.com/spaulaus/paass-laughing-conqueror/wiki/Pixie-Firmware-Information
     enum FIRMWARE {
-        R17562, R20466, R27361, R29432, R30474, R30980, R30981, R34688, UNKNOWN
+        R17562=17562, R20466=20466, R27361=27361, R29432=29432, R30474=30474, R30980=30980, R30981=30981, R34688=34688,
+        UNKNOWN
     };
 
     ///An enumeration that tells how long headers from the XIA List mode data
