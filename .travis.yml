@@ -1,0 +1,49 @@
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+notifications:
+  slack:
+    rooms:
+      - secure: "Tr/GBydbLM8bE8jBxuQKtIDltGeHqDZokkZmXCRgKxmZz4HnWBl1/RXvdO1VzD5v/uTDOubmaBGr+IC7SCfe3Snm+VYbuZquho2RZUvwhWUZgiiF/0kK7Ie9MEspyJrZt7kLuIe2JH2bC5Vn2mFUSU7vMfxTcUn6xXxAU8g4REdXYLtmKM9c9j1dliistdVi5/Y2e+RKSsclxfxt4JD5c3PvRGeKY6yGredyIiSj2jozxjYUjYC5YBo85YGN5TFMk5tKzk5Xi/BAvD9+quEce7A8VngXmHfdHRtYan7ijfcTiyTVLfI2t3mmYVXXW0Xx2iZGhZ+2bb/XWQRGmbCRlpOBpF0VQJmpAsD3+WnfJvLptwlRZ560OkuNPcdIOyaR7GdRvI1CW3zcFg8HTGc+gVaTXb7bRmvD6b02MQRzRhyQJM6xRRQ6e9T3tlurJW2x+P/v6dO0e7B1OeaJinM1Qi2P2hL/4pzgmf0R4Y8gDdg79tTWxoaSAEhYkOktnJOXDN3noxxebqta3rVfL7u4p8nYe/WCzQJbEWBdAwbQt38lZBJweWI96p2p1AZv5jcR0xhNYioSoeg4TAjuGCCjIQE5eP/fvwAX50k2tpHkn64RlKYmblt10lDJEIny3qNuyjZMFQ/2jzXozfC3xnPu/8cyqtEGVml73FMuUF7EkDo="
+    on_success: change
+    on_failure: always
+env:
+  global:
+    - MAKEFLAGS="-j 5"
+language: cpp
+sudo: required
+dist: trusty
+os: linux
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-5
+      - g++-5
+      - gfortran-5
+      - gsl-bin
+      - libgsl0-dev
+      - lib64ncurses5-dev
+
+env:
+  global:
+    - MAKEFLAGS="-j 5"
+
+before_install:
+  - export CC=gcc-5 && export CXX=g++-5 && export FC=gfortran-5
+  - sudo apt-get -qq update --install-suggests
+  - mkdir -p /opt
+  - git clone https://github.com/unittest-cpp/unittest-cpp.git && cd unittest-cpp/builds/
+  - cmake ../ && sudo make -j4 install && cd ../../
+  - git clone https://github.com/spaulaus/xia-api.git && cd xia-api
+  - mkdir build && cd build && cmake ../ -DCMAKE_INSTALL_PREFIX=/opt && make install && cd ../../
+  - ln -s /opt/xia/api /opt/xia/current
+  - mkdir paass-build && cd paass-build
+  - cmake ../ -DPAASS_BUILD_SCAN_UTILITIES=ON -DPAASS_BUILD_ACQ=ON -DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_USE_ROOT=OFF
+
+script:
+  - make -j8 install
+  - cd ../install/bin/unittests
+  - (for test in *; do ./$test; if [ $? != 0 ]; then false; exit; fi; done)

@@ -27,6 +27,10 @@
 #include "PlotsRegister.hpp"
 #include "RawEvent.hpp"
 
+#ifdef GGATES
+#include "XmlInterface.hpp"
+#endif
+
 using namespace std;
 using namespace dammIds::clover;
 
@@ -98,17 +102,7 @@ CloverProcessor::CloverProcessor(double gammaThreshold, double lowRatio,
     Messenger m;
     m.detail("Loading Gamma-gamma gates", 1);
 
-    string cfg = Globals::get()->configfile();
-    pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load_file(cfg.c_str());
-    if (!result) {
-        stringstream ss;
-        ss << "DetectorDriver: error parsing file " << cfg;
-        ss << " : " << result.description();
-        throw IOException(ss.str());
-    }
-
-    pugi::xml_node gamma_gates = doc.child("Configuration").child("GammaGates");
+    pugi::xml_node gamma_gates = XmlInterface::get()->GetDocument()->child("Configuration").child("GammaGates");
     for (pugi::xml_node gate = gamma_gates.child("Gate"); gate;
          gate = gate.next_sibling("Gate")) {
         vector<LineGate> vg;
@@ -126,8 +120,7 @@ CloverProcessor::CloverProcessor(double gammaThreshold, double lowRatio,
             }
         }
         if (vg.size() != 2 && completeGate) {
-            throw GeneralException("Gamma-gamma gate size different than 2 is \
-not implemented");
+            throw PaassException("Gamma-gamma gate size different than 2 is not implemented");
         } else {
             stringstream ss;
             ss << "Gate ";
@@ -709,7 +702,7 @@ bool CloverProcessor::Process(RawEvent &event) {
 
                     for (vector<ChanEvent*>::const_iterator it3 = it2 + 1;
                             it3 != geEvents_.end(); it3++) {
-                        double gEnergy3 = (*it3)->GetCalEnergy();
+                        double gEnergy3 = (*it3)->GetCalibratedEnergy();
                         if (gEnergy3 < gammaThreshold_)
                             continue;
                         plot(DD_ENERGY__GATEX, gEnergy3, ig);

@@ -30,7 +30,6 @@ build/
 *build-*/
 install/
 
-
 #Ignore IDE files
 *.cbp
 *.layout
@@ -49,3 +48,6 @@ LDF
 HIS/*
 LDF/*
 data
+
+# Debugging files
+gmon.out

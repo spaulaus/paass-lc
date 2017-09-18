@@ -43,8 +43,7 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         bool hasQdc = false;
         bool hasEnergySums = false;
 
-        pair<unsigned int, unsigned int> lengths =
-                DecodeWordZero(buf[0], *data, mask);
+        pair<unsigned int, unsigned int> lengths = DecodeWordZero(buf[0], *data, mask);
         unsigned int headerLength = lengths.first;
         unsigned int eventLength = lengths.second;
 
