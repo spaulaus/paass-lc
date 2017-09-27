@@ -14,7 +14,6 @@ using namespace DataProcessing;
 FIRMWARE XiaListModeDataMask::ConvertStringToFirmware(const std::string &type) {
     FIRMWARE firmware = UNKNOWN;
     unsigned int firmwareNumber = 0;
-    stringstream msg;
 
     //First convert the string into a number
     if (type.find("R") == 0 || type.find("r") == 0) {
@@ -37,10 +36,13 @@ FIRMWARE XiaListModeDataMask::ConvertStringToFirmware(const std::string &type) {
         firmware = R30980;
     else if (firmwareNumber >= 30981 && firmwareNumber < 34688)
         firmware = R30981;
-    else if (firmwareNumber >= 34688)
+    else if (firmwareNumber >= 34688) {
         firmware = R34688;
-    else
-        throw invalid_argument("XiaListModeDataMask::CovnertStringToFirmware : Unrecognized firmware option - " + type);
+        if(firmwareNumber > 34688)
+            cout << "XiaListModeDataMask::ConvertStringToFirmware :  You requested a firmware number that's higher "
+                    "than the last known number. You should confirm that headers has the same format !!" << endl;
+    } else
+        throw invalid_argument("XiaListModeDataMask::ConvertStringToFirmware : Unrecognized firmware option - " + type);
     return firmware;
 }
 
