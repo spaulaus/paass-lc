@@ -31,6 +31,8 @@ int main(int argc, char *argv[]) {
         if (debug)
             std::cout << "TEST: cmd='" << cmd << "' arg='" << arg << "'\n";
 
+        if (cmd == "") continue;
+
         if (cmd.find("\t") != std::string::npos) {
             term.TabComplete(cmd, commandChoices);
             continue;
