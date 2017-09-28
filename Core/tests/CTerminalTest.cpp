@@ -3,6 +3,8 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <unistd.h>
+
 #include "CTerminal.h"
 
 int main(int argc, char *argv[]) {
@@ -53,6 +55,19 @@ int main(int argc, char *argv[]) {
         } else if (cmd == "tab") {
             std::cout << "This command tests the argument tab completion.\n";
             std::cout << "\tTab Completion arguments: '" << arg << "'\n";
+        } else if (cmd == "sleep") {
+            int sleepTime = 1;
+            if (!arg.empty()) {
+                try {
+                    sleepTime = std::stoi(arg);
+                } catch (...) {
+                    std::cout << "ERROR: Unable to convert '" << arg << "' to an integer number of seconds!\n";
+                    continue;
+                }
+            }
+            std::cout << "Sleeping for " << sleepTime << " s.\n";
+            term.flush();
+            sleep(sleepTime);
         } else {
             std::cout << "Unknown command: '" << cmd << "'\n";
         }
