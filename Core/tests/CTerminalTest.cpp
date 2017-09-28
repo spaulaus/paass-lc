@@ -10,7 +10,7 @@
 int main(int argc, char *argv[]) {
     bool debug = false;
     //Vector of possible commands.
-    std::vector<std::string> commandChoices = {"help", "quit", "debug", "tab"};
+    std::vector<std::string> commandChoices = {"help", "quit", "debug", "sleep", "tab"};
     //Map of vector possible arguments for a given command.
     std::map<std::string, std::vector<std::string> > argumentChoices;
     argumentChoices["tab"] = std::vector<std::string> {"arg1", "arg2"};
