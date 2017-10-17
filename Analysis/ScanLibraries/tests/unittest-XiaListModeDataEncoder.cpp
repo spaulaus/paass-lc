@@ -3,10 +3,11 @@
 ///@author S. V. Paulauskas
 ///@author December 25, 2016
 #include "XiaListModeDataEncoder.hpp"
+#include "UnitTestSampleData.hpp"
 
 #include <UnitTest++.h>
 
-#include "UnitTestSampleData.hpp"
+#include <stdexcept>
 
 using namespace std;
 using namespace DataProcessing;
