@@ -3,12 +3,14 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <unistd.h>
+
 #include "CTerminal.h"
 
 int main(int argc, char *argv[]) {
     bool debug = false;
     //Vector of possible commands.
-    std::vector<std::string> commandChoices = {"help", "quit", "debug", "tab"};
+    std::vector<std::string> commandChoices = {"help", "quit", "debug", "sleep", "tab"};
     //Map of vector possible arguments for a given command.
     std::map<std::string, std::vector<std::string> > argumentChoices;
     argumentChoices["tab"] = std::vector<std::string> {"arg1", "arg2"};
@@ -31,6 +33,8 @@ int main(int argc, char *argv[]) {
         if (debug)
             std::cout << "TEST: cmd='" << cmd << "' arg='" << arg << "'\n";
 
+        if (cmd == "") continue;
+
         if (cmd.find("\t") != std::string::npos) {
             term.TabComplete(cmd, commandChoices);
             continue;
@@ -51,6 +55,19 @@ int main(int argc, char *argv[]) {
         } else if (cmd == "tab") {
             std::cout << "This command tests the argument tab completion.\n";
             std::cout << "\tTab Completion arguments: '" << arg << "'\n";
+        } else if (cmd == "sleep") {
+            int sleepTime = 1;
+            if (!arg.empty()) {
+                try {
+                    sleepTime = std::stoi(arg);
+                } catch (...) {
+                    std::cout << "ERROR: Unable to convert '" << arg << "' to an integer number of seconds!\n";
+                    continue;
+                }
+            }
+            std::cout << "Sleeping for " << sleepTime << " s.\n";
+            term.flush();
+            sleep(sleepTime);
         } else {
             std::cout << "Unknown command: '" << cmd << "'\n";
         }

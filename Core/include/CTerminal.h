@@ -188,6 +188,9 @@ private:
     void
     split_commands(const std::string &input_, std::deque<std::string> &cmds);
 
+    /// Print the command prompt to the screen.
+    void PrintPrompt();
+
 public:
     Terminal();
 
