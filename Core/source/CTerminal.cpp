@@ -297,12 +297,12 @@ void Terminal::update_cursor_() {
 }
 
 void Terminal::clear_() {
-    for (int start = cmd.length() + offset; start >= offset; start--) {
+    for (int start = cmd.length() + offset; start >= 0; start--) {
         wmove(input_window, 0, start);
         wdelch(input_window);
     }
     cmd.clear();
-    cursX = offset;
+    cursX = 0;
     update_cursor_();
     refresh_();
 }
@@ -657,12 +657,15 @@ void Terminal::SetPrompt(const char *input_) {
             }
         }
     }
-    print(input_window, prompt.c_str());
-
     offset += prompt.length() - lastPos;
+
+    PrintPrompt();
+}
+
+void Terminal::PrintPrompt() {
+    print(input_window, prompt.c_str());
     cursX = offset;
     update_cursor_();
-
     refresh_();
 }
 
@@ -839,8 +842,10 @@ void Terminal::PrintCommand(const std::string &cmd_) {
     tabCount = 0;
 }
 
-std::string
-Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/*=0*/) {
+std::string Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/*=0*/) {
+    if (cursX == 0) {
+        PrintPrompt();
+    }
     std::string output = "";
 
     sclock::time_point commandRequestTime = sclock::now();
@@ -964,6 +969,7 @@ Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/*=0*/) {
                 std::string temp_cmd = commands.GetPrev();
                 if (temp_cmd != "NULL") {
                     clear_();
+                    PrintPrompt();
                     cmd.assign(temp_cmd);
                     in_print_(cmd.c_str());
                 }
@@ -971,6 +977,7 @@ Terminal::GetCommand(std::string &args, const int &prev_cmd_return_/*=0*/) {
                 std::string temp_cmd = commands.GetNext();
                 if (temp_cmd != "NULL") {
                     clear_();
+                    PrintPrompt();
                     cmd.assign(temp_cmd);
                     in_print_(cmd.c_str());
                 }
@@ -1137,7 +1144,7 @@ void Terminal::Close() {
 
 /**Split a string on the delimiter character populating the vector args with 
  * any substrings formed. Returns the number of substrings found.
- *	
+ *
  * \param[in] str The string to be parsed.
  * \param[out] args The vector to populate with substrings.
  * \param[in] delimiter The character to split the string on.
@@ -1176,7 +1183,7 @@ unsigned int split_str(std::string str, std::vector<std::string> &args,
 }
 
 /**Split strings into multiple commands separated by ';'.
- *	
+ *
  * \param[in] input_ The string to be parsed.
  * \param[out] cmds The vector to populate with sub-commands.
  */

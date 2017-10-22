@@ -20,30 +20,19 @@
 class XiaListModeDataMask {
 public:
     ///Default constructor
-    XiaListModeDataMask() {
-        frequency_ = 0;
-        firmware_ = DataProcessing::UNKNOWN;
-    }
+    XiaListModeDataMask() : firmware_(DataProcessing::UNKNOWN), frequency_(0) {}
 
     ///Constructor accepting a FIRMWARE enum as an argument
     ///@param[in] firmware : The value we want to set for the firmware
-    ///@param[in] freq : The value in MS/s or MHz that we want to assign to the
-    /// frequency.
-    XiaListModeDataMask(const DataProcessing::FIRMWARE &firmware,
-                        const unsigned int &freq) {
-        firmware_ = firmware;
-        frequency_ = freq;
-    }
+    ///@param[in] freq : The value in MS/s or MHz that we want to assign to the frequency.
+    XiaListModeDataMask(const DataProcessing::FIRMWARE &firmware, const unsigned int &freq) :
+            firmware_(firmware), frequency_(freq) {}
 
     ///Constructor accepting a string with the firmware type and the frequency
     ///@param[in] firmware : The value we want to set for the firmware
-    ///@param[in] freq : The value in MS/s or MHz that we want to assign to the
-    /// frequency.
-    XiaListModeDataMask(const std::string &firmware,
-                        const unsigned int &freq) {
-        firmware_ = ConvertStringToFirmware(firmware);
-        frequency_ = freq;
-    }
+    ///@param[in] freq : The value in MS/s or MHz that we want to assign to the frequency.
+    XiaListModeDataMask(const std::string &firmware, const unsigned int &freq) :
+            firmware_(ConvertStringToFirmware(firmware)), frequency_(freq) {}
 
     ///Default Destructor
     ~XiaListModeDataMask() {}
