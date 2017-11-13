@@ -19,5 +19,5 @@ system "get_traces ".MOD." ".CH
 
 if (CH<0) n=16; call dir.'plotTraces_mod'; else n=1; call dir.'plotTraces_ch'
 
-print "Press any key to exit..."
+print "Press Enter to exit..."
 pause -1
