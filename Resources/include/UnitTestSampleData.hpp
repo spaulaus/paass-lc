@@ -10,9 +10,11 @@
 #include <utility>
 #include <vector>
 
-///This namespace contains the raw channel information that was used to
-/// construct the headers in the unittest_encoded_data namespace. These values
-/// are also used when testing the data encoding.
+///@TODO This whole file needs to be reorganized. This information is repeated a bunch. Maybe consider a function that will
+/// construct the headers for us?
+
+///This namespace contains the raw channel information that was used to construct the headers in the unittest_encoded_data
+/// namespace. These values are also used when testing the data encoding.
 namespace unittest_decoded_data {
     static const unsigned int channelNumber = 13;
     static const unsigned int crateId = 0;
@@ -22,29 +24,30 @@ namespace unittest_decoded_data {
     static const unsigned int cfd_fractional_time = 1234;
     static const unsigned int slotId = 2;
     static const unsigned int energy = 2345;
-    static const unsigned int ex_ts_high = 26001;
+    static const unsigned int ex_ts_high = 26003;
     static const unsigned int ex_ts_low = 987654321;
     static const bool cfd_forced_trigger = true;
     static const bool cfd_source_trigger_bit = true;
     static const bool pileup_bit = true;
     static const bool trace_out_of_range = true;
     static const bool virtual_channel = true;
+    static const double filterBaseline = 3780.7283;
 
     static const std::vector<unsigned int> energy_sums = {12, 13, 14};
 
-    static const std::vector<unsigned int> qdc = {123, 456, 789, 987, 654,
-                                                  321, 135, 791};
+    static const std::vector<unsigned int> qdc = {123, 456, 789, 987, 654, 321, 135, 791};
 
     //Need to figure out where to put these as they are Firmware / Frequency
     // specific values. They are for R30747, 250 MS/s.
-    static const double ts = 111673568120085;
-    static const double ts_w_cfd = 223347136240170.075317;
+    namespace R30474_250 {
+        static const double ts = 111673568120085;
+        static const double ts_w_cfd = 223347136240170.075317;
+    }
 }
 
-///This namespace contains Firmware / Frequency specific headers that are
-/// used to test the decoding of data. The headers that we have here include
-/// the 2 words that are inserted by poll2 so that the
-/// XiaListModeDataDecoder::DecodeBuffer method will function properly.
+///This namespace contains Firmware / Frequency specific headers that are used to test the decoding of data. The headers that
+/// we have here include the 2 words that are inserted by poll2 so that the XiaListModeDataDecoder::DecodeBuffer method will
+/// function properly.
 namespace unittest_encoded_data {
     //A buffer with zero length
     unsigned int empty_buffer[2] = {0, 0};
@@ -53,24 +56,76 @@ namespace unittest_encoded_data {
     unsigned int empty_module_buffer[2] = {2, 0};
 
     ///A header with a header length 20 instead of the true header length 4
-    unsigned int header_w_bad_headerlen[6] = {4, 0, 3887149, 123456789, 26001, 2345};
+    unsigned int header_w_bad_headerlen[6] = {4, 0, 3887149, unittest_decoded_data::ts_low, 26001, 2345};
 
     ///A header where the event length doesn't match what it should be.
-    unsigned int header_w_bad_eventlen[6] = {59, 0, 7749677, 123456789, 26001, 8128809};
+    unsigned int header_w_bad_eventlen[6] = {59, 0, 7749677, unittest_decoded_data::ts_low, 26001, 8128809};
+
+    static const unsigned int encodedFilterBaseline = 1164725159;
 
     namespace R30474_250 {
         const std::string test_firmware = "R30474";
         const unsigned int test_frequency = 250;
 
-        //Standard header without anything fancy includes the two additional
-        // words we add in poll for the length and the module number
-        unsigned int header[6] = {4, 0, 540717, 123456789, 26001, 2345};
+        const unsigned int word0_header = 540717;
+        const unsigned int word0_headerWithExternalTimestamp = 811053;
+        const unsigned int word0_headerWithEsums = 1081389;
+        const unsigned int word0_headerWithEsumsExternalTimestamp = 1351725;
+        const unsigned int word0_headerWithQdc = 1622061;
+        const unsigned int word0_headerWithQdcExternalTimestamp = 1892397;
+        const unsigned int word0_headerWithEsumsQdc = 2162733;
+        const unsigned int word0_headerWithEsumsQdcExternalTimestamp = 2433069;
+        const unsigned int word0_headerWithTrace = 8667181;
+        const unsigned int word1 = unittest_decoded_data::ts_low;
+        const unsigned int word2_energyOnly = 26001;
+        const unsigned int word2_energyWithCfd = 80897425;
+        const unsigned int word3_headerOnly = 2345;
+        const unsigned int word3_headerWithTrace = 8128809;
 
-        //The header is the standard 4 words. The trace is 62 words, which gives
-        // a trace length of 124. This gives us an event length of 66.
-        // We have 2 words for the Pixie Module Data Header.
+        /// Just the header, including the first two words inserted by poll2
+        unsigned int header[6] = {4, 0, word0_header, word1, word2_energyOnly, word3_headerOnly};
+
+        /// This header has the CFD fractional time.
+        unsigned int header_N_Cfd[6]{4, 0, word0_header, word1, word2_energyWithCfd, word3_headerOnly};
+
+        /// Header that includes an external time stamp.
+        unsigned int header_N_ExTs[8]{6, 0, word0_headerWithExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
+                                       unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
+
+        ///Header that has Esums
+        unsigned int header_N_Esums[10]{8, 0, word0_headerWithEsums, word1, word2_energyOnly, word3_headerOnly,
+                encodedFilterBaseline, 12, 13, 14};
+
+        ///Header that has Esums and an External Timestamp
+        unsigned int header_N_EsumsExTs[12]{10, 0,
+                                            word0_headerWithEsumsExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
+                                            encodedFilterBaseline, 12, 13, 14,
+                                            unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
+
+        ///A header that also contains a QDC
+        unsigned int header_N_qdc[14] = {12, 0, word0_headerWithQdc, word1, word2_energyOnly, word3_headerOnly,
+                                         123, 456, 789, 987, 654, 321, 135, 791};
+
+        ///Header that has QDCs and External Timestamps
+        unsigned int header_N_QdcExTs[16] {14, 0, word0_headerWithQdcExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
+                                        123, 456, 789, 987, 654, 321, 135, 791,
+                                        unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
+
+        ///Header that has Esums and a QDC
+        unsigned int header_N_EsumQdc[18]{16, 0, word0_headerWithEsumsQdc, word1, word2_energyOnly, word3_headerOnly,
+                                          encodedFilterBaseline, 12, 13, 14, 123, 456, 789, 987, 654, 321, 135, 791};
+
+        ///Header that has Esums, QDC, and External Timestamp
+        unsigned int header_N_EsumQdcEts[20]
+                {18, 0, word0_headerWithEsumsQdcExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
+                 encodedFilterBaseline, 12, 13, 14,
+                 123, 456, 789, 987, 654, 321, 135, 791,
+                 unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
+
+        //The header is the standard 4 words. The trace is 62 words, which gives a trace length of 124. This gives us an event
+        // length of 66. We have 2 words for the Pixie Module Data Header.
         unsigned int header_N_trace[68] = {
-                66, 0, 8667181, 123456789, 26001, 8128809,
+                66, 0, word0_headerWithTrace, word1, word2_energyOnly, word3_headerWithTrace,
                 28574133, 28443058, 28639669, 28508598, 28705202, 28639671,
                 28443062, 28770739, 28443062, 28508594, 28836277, 28508599,
                 28770741, 28508598, 28574132, 28770741, 28377523, 28574130,
@@ -84,17 +139,10 @@ namespace unittest_encoded_data {
                 29884865, 29819336
         };
 
-        //A header that also contains a QDC
-        unsigned int header_N_qdc[14] =
-                {12, 0, 1622061, 123456789, 26001, 2345, 123, 456, 789, 987, 654, 321, 135, 791};
-
-        //This header has the CFD fractional time set to 1234.
-        unsigned int header_N_Cfd[6]{4, 0, 540717, 123456789, 80897425, 2345};
-
-        std::vector<unsigned int> header_vec = {540717, 123456789, 26001, 2345};
+        std::vector<unsigned int> header_vec = {word0_header, word1, word2_energyOnly, word3_headerOnly};
 
         std::vector<unsigned int> header_vec_w_trc = {
-                8667181, 123456789, 26001, 8128809,
+                word0_headerWithTrace, word1, word2_energyOnly, word3_headerWithTrace,
                 28574133, 28443058, 28639669, 28508598, 28705202, 28639671,
                 28443062, 28770739, 28443062, 28508594, 28836277, 28508599,
                 28770741, 28508598, 28574132, 28770741, 28377523, 28574130,
@@ -109,10 +157,13 @@ namespace unittest_encoded_data {
         };
 
         std::vector<unsigned int> header_vec_w_qdc =
-                {1622061, 123456789, 26001, 2345, 123, 456, 789, 987, 654, 321, 135, 791};
+                {word0_headerWithQdc, word1, word2_energyOnly, word3_headerOnly, 123, 456, 789, 987, 654, 321, 135, 791};
+
+        std::vector<unsigned int> header_vec_w_exts =
+                {word0_headerWithQdcExternalTimestamp, word1, 26001, 2345, 123, 456, 789, 987, 654, 321, 135, 791};
 
         std::vector<unsigned int> header_vec_w_qdc_n_trc = {
-                9748525, 123456789, 26001, 8128809,
+                9748525, word1, 26001, 8128809,
                 123, 456, 789, 987, 654, 321, 135, 791,
                 28574133, 28443058, 28639669, 28508598, 28705202, 28639671,
                 28443062, 28770739, 28443062, 28508594, 28836277, 28508599,

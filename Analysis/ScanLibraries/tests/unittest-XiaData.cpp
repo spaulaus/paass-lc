@@ -116,8 +116,8 @@ TEST_FIXTURE (XiaData, Test_GetSetVirtualChannel) {
 }
 
 TEST_FIXTURE (XiaData, Test_GetTime) {
-    SetTime(ts);
-    CHECK_EQUAL(ts, GetTime());
+    SetTime(unittest_decoded_data::R30474_250::ts);
+    CHECK_EQUAL(unittest_decoded_data::R30474_250::ts, GetTime());
 }
 
 ///This will test that the Time for the rhs is greater than the lhs
@@ -125,8 +125,8 @@ TEST (Test_CompareTime) {
     lhs.Initialize();
     rhs.Initialize();
 
-    lhs.SetTime(ts);
-    rhs.SetTime(ts + 10);
+    lhs.SetTime(unittest_decoded_data::R30474_250::ts);
+    rhs.SetTime(unittest_decoded_data::R30474_250::ts + 10);
 
     CHECK(lhs.CompareTime(&lhs, &rhs));
 }
@@ -159,9 +159,9 @@ TEST (Test_Equality) {
 TEST (Test_LessThanOperator) {
     lhs.Initialize();
     rhs.Initialize();
-    lhs.SetTime(ts);
+    lhs.SetTime(unittest_decoded_data::R30474_250::ts);
     rhs = lhs;
-    rhs.SetTime(ts + 10);
+    rhs.SetTime(unittest_decoded_data::R30474_250::ts + 10);
     CHECK(lhs < rhs);
 }
 

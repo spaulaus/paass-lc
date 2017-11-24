@@ -3,14 +3,16 @@
 /// modules.
 /// @author S. V. Paulauskas
 /// @date December 23, 2016
+#include "XiaListModeDataDecoder.hpp"
+
+#include "HelperEnumerations.hpp"
+#include "HelperFunctions.hpp"
+
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 
 #include <cmath>
-
-#include "HelperEnumerations.hpp"
-#include "XiaListModeDataDecoder.hpp"
 
 using namespace std;
 using namespace DataProcessing;
@@ -51,14 +53,13 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         DecodeWordTwo(buf[2], *data, mask);
         unsigned int traceLength = DecodeWordThree(buf[3], *data, mask);
 
-        //We check the header length here to set the appropriate flags for
-        // processing the rest of the header words. If we encounter a header
-        // length that we do not know we will throw an error as this
-        // generally indicates an issue with the data file or processing at a
-        // higher level.
+        unsigned int externalTimestampOffset = headerLength - mask.GetNumberOfExternalTimestampWords();
+        unsigned int energySumsOffset = 0;
+        unsigned int qdcOffset = 0;
+
         switch (headerLength) {
-            case STATS_BLOCK : // Manual statistics block inserted by poll
-                // this is a manual statistics block inserted by the poll program
+            case STATS_BLOCK :
+                // Manual statistics block inserted by poll
                 //stats.DoStatisticsBlock(&buf[1], modNum);
                 buf += eventLength;
                 //numEvents = -10;
@@ -70,54 +71,58 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
                 break;
             case HEADER_W_QDC :
                 hasQdc = true;
+                qdcOffset = headerLength - mask.GetNumberOfQdcWords();
                 break;
             case HEADER_W_ESUM :
                 hasEnergySums = true;
+                energySumsOffset = headerLength - mask.GetNumberOfEnergySumWords();
                 break;
             case HEADER_W_ESUM_ETS :
                 hasExternalTimestamp = hasEnergySums = true;
+                energySumsOffset = headerLength - mask.GetNumberOfEnergySumWords() - mask.GetNumberOfExternalTimestampWords();
                 break;
             case HEADER_W_ESUM_QDC :
                 hasEnergySums = hasQdc = true;
+                energySumsOffset = headerLength - mask.GetNumberOfEnergySumWords() - mask.GetNumberOfQdcWords();
+                qdcOffset = headerLength - mask.GetNumberOfQdcWords();
                 break;
             case HEADER_W_ESUM_QDC_ETS :
                 hasEnergySums = hasExternalTimestamp = hasQdc = true;
+                energySumsOffset = headerLength - mask.GetNumberOfExternalTimestampWords() - mask.GetNumberOfQdcWords() -
+                                                                                             mask .GetNumberOfEnergySumWords();
+                qdcOffset = headerLength - mask.GetNumberOfExternalTimestampWords() - mask.GetNumberOfQdcWords();
                 break;
             case HEADER_W_QDC_ETS :
                 hasQdc = hasExternalTimestamp = true;
+                qdcOffset = headerLength - mask.GetNumberOfExternalTimestampWords() - mask.GetNumberOfQdcWords();
                 break;
             default:
                 numSkippedBuffers++;
-                cerr << "XiaListModeDataDecoder::ReadBuffer : We encountered "
-                        "an unrecognized header length (" << headerLength
-                     << "). " << endl
-                     << "Skipped " << numSkippedBuffers
-                     << " buffers in the file." << endl
-                     << "Unexpected header length: " << headerLength << endl
-                     << "ReadBuffer:   Buffer " << modNum << " of length "
-                     << bufLen << endl
-                     << "ReadBuffer:   CRATE:SLOT(MOD):CHAN "
-                     << data->GetCrateNumber() << ":"
-                     << data->GetSlotNumber() << "(" << modNum << "):"
-                     << data->GetChannelNumber() << endl;
+                cerr << "XiaListModeDataDecoder::ReadBuffer : We encountered an unrecognized header length (" << headerLength
+                     << "). " << endl << "Skipped " << numSkippedBuffers << " buffers in the file." << endl
+                     << "Unexpected header length: " << headerLength << endl << "ReadBuffer:   Buffer " << modNum << " of length "
+                     << bufLen << endl << "ReadBuffer:   CRATE:SLOT(MOD):CHAN " << data->GetCrateNumber() << ":"
+                     << data->GetSlotNumber() << "(" << modNum << "):" << data->GetChannelNumber() << endl;
                 return vector<XiaData *>();
         }
 
         if (hasExternalTimestamp) {
-            //Do nothing for now
+            data->SetExternalTimeLow(buf[externalTimestampOffset]);
+            data->SetExternalTimeHigh(buf[externalTimestampOffset + 1]);
         }
 
         if (hasEnergySums) {
-            // Skip the onboard partial sums for now
-            // trailing, leading, gap, baseline
+            data->SetFilterBaseline(IeeeStandards::IeeeFloatingToDecimal(buf[energySumsOffset]));
+            vector<unsigned int> tmp;
+            for(unsigned int i = 1; i < mask.GetNumberOfEnergySumWords(); i++)
+                tmp.push_back(buf[energySumsOffset + i]);
+            data->SetEnergySums(tmp);
         }
 
         if (hasQdc) {
-            static const unsigned int numQdcs = 8;
             vector<unsigned int> tmp;
-            unsigned int offset = headerLength - numQdcs;
-            for (unsigned int i = 0; i < numQdcs; i++) {
-                tmp.push_back(buf[offset + i]);
+            for (unsigned int i = 0; i < mask.GetNumberOfQdcWords(); i++) {
+                tmp.push_back(buf[qdcOffset + i]);
             }
             data->SetQdc(tmp);
         }
