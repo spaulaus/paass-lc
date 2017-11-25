@@ -8,11 +8,6 @@
 #include "UtkScanInterface.hpp"
 #include "UtkUnpacker.hpp"
 
-// Define the name of the program.
-#ifndef PROGRAM_NAME
-#define PROGRAM_NAME "utkscan"
-#endif
-
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -24,7 +19,7 @@ int main(int argc, char *argv[]) {
 
     // Set the output message prefix.
     cout << "utkscan.cpp : Setting the Program Name" << endl;
-    scanner.SetProgramName(std::string(PROGRAM_NAME));
+    scanner.SetProgramName("utkscan");
 
     // Initialize the scanner.
     cout << "utkscan.cpp : Performing the setup routine" << endl;
