@@ -28,7 +28,8 @@ std::vector<unsigned int> XiaListModeDataEncoder::EncodeXiaData(const XiaData &d
     //The following calls are required in this order due to the structure of the XIA list mode data format.
 
     if (data.GetEnergySums().size() != 0) {
-        header.insert(header.end(), data.GetEnergySums().begin(), data.GetEnergySums().end());
+        for(const auto &val : data.GetEnergySums())
+            header.push_back(val);
         header.push_back(IeeeStandards::DecimalToIeeeFloating(data.GetFilterBaseline()));
     }
 
