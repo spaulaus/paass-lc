@@ -48,8 +48,7 @@ FIRMWARE XiaListModeDataMask::ConvertStringToFirmware(const std::string &type) {
 
 ///The CFD Fractional Time always starts on bit 16 of Word 2. The range of
 /// this value changes.
-pair<unsigned int, unsigned int>
-XiaListModeDataMask::GetCfdFractionalTimeMask() const {
+pair<unsigned int, unsigned int> XiaListModeDataMask::GetCfdFractionalTimeMask() const {
     if (firmware_ == UNKNOWN || frequency_ == 0)
         throw invalid_argument(BadMaskErrorMessage("GetCfdFractionalTimeMask"));
     unsigned int mask = 0;
@@ -129,8 +128,7 @@ const {
     return make_pair(mask, bit);
 }
 
-pair<unsigned int, unsigned int>
-XiaListModeDataMask::GetCfdForcedTriggerBitMask() const {
+pair<unsigned int, unsigned int> XiaListModeDataMask::GetCfdForcedTriggerBitMask() const {
     if (firmware_ == UNKNOWN || frequency_ == 0)
         throw invalid_argument(BadMaskErrorMessage("GetCfdForcedTriggerBitMask"));
     unsigned int mask = 0;
@@ -163,8 +161,7 @@ XiaListModeDataMask::GetCfdForcedTriggerBitMask() const {
     return make_pair(mask, bit);
 }
 
-pair<unsigned int, unsigned int>
-XiaListModeDataMask::GetCfdTriggerSourceMask() const {
+pair<unsigned int, unsigned int> XiaListModeDataMask::GetCfdTriggerSourceMask() const {
     if (firmware_ == UNKNOWN || frequency_ == 0)
         throw invalid_argument(BadMaskErrorMessage("GetCfdTriggerSourceMask"));
     unsigned int mask = 0;
@@ -231,8 +228,7 @@ const {
 
 //The Trace-out-of-range flag moves around on us. For most revisions it on
 // bit 15 of Word 3, but for the most recent firmware its been moved to bit 31.
-pair<unsigned int, unsigned int>
-XiaListModeDataMask::GetTraceOutOfRangeFlagMask() const {
+pair<unsigned int, unsigned int> XiaListModeDataMask::GetTraceOutOfRangeFlagMask() const {
     if (firmware_ == UNKNOWN || frequency_ == 0)
         throw invalid_argument(BadMaskErrorMessage("GetTraceOutOfRangeFlagMask"));
 
@@ -336,6 +332,21 @@ double XiaListModeDataMask::GetCfdSize() const {
                 break;
         }
     }
-
     return val;
+}
+
+unsigned int XiaListModeDataMask::GetNumberOfBasicHeaderWords() const {
+    return 4;
+}
+
+unsigned int XiaListModeDataMask::GetNumberOfEnergySumWords() const {
+    return 4;
+}
+
+unsigned int XiaListModeDataMask::GetNumberOfExternalTimestampWords() const {
+    return 2;
+}
+
+unsigned int XiaListModeDataMask::GetNumberOfQdcWords() const {
+    return 8;
 }

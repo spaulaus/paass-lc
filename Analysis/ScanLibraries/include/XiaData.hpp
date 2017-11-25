@@ -81,7 +81,7 @@ public:
     /// the energy filter. This parameter is only set if the data set
     /// contains the Energy Sums in the list mode data. This baseline cannot
     /// be used in conjunction with trace information.
-    double GetBaseline() const { return baseline_; }
+    double GetFilterBaseline() const { return filterBaseline_; }
 
     ///@return The energy that was calculated on the module
     double GetEnergy() const { return energy_; }
@@ -137,14 +137,14 @@ public:
     ///@return The trace that was sampled on the module
     std::vector<unsigned int> GetTrace() const { return trace_; }
 
-    ///@brief Sets the baseline recorded on the module if the energy sums
-    /// were recorded in the data stream
-    ///@param[in] a : The value to set
-    void SetBaseline(const double &a) { baseline_ = a; }
-
     ///@brief This value is set to true if the CFD was forced to trigger
     ///@param[in] a : The value to set
     void SetCfdForcedTriggerBit(const bool &a) { cfdForceTrig_ = a; }
+
+    ///@brief Sets the baseline recorded on the module if the energy sums
+    /// were recorded in the data stream
+    ///@param[in] a : The value to set
+    void SetFilterBaseline(const double &a) { filterBaseline_ = a; }
 
     ///@brief Sets the CFD fractional time calculated on-board
     ///@param[in] a : The value to set
@@ -230,7 +230,7 @@ private:
     bool isVirtualChannel_; /// Flagged if generated virtually in Pixie DSP.
 
     double energy_; /// Raw pixie energy.
-    double baseline_;///Baseline that was recorded with the energy sums
+    double filterBaseline_;///Baseline that was recorded with the energy sums
     double time_; ///< The time of arrival using all parts of the time
     double timeSansCfd_; ///< The time of arrival of the signal sans CFD time.
 
