@@ -18,8 +18,8 @@ using namespace unittest_decoded_data;
 XiaData lhs, rhs;
 
 TEST_FIXTURE (XiaData, Test_GetBaseline) {
-    SetBaseline(baseline);
-    CHECK_EQUAL(baseline, GetBaseline());
+    SetFilterBaseline(baseline);
+    CHECK_EQUAL(baseline, GetFilterBaseline());
 }
 
 TEST_FIXTURE (XiaData, Test_GetId) {

@@ -112,11 +112,12 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         }
 
         if (hasEnergySums) {
-            data->SetFilterBaseline(IeeeStandards::IeeeFloatingToDecimal(buf[energySumsOffset]));
             vector<unsigned int> tmp;
-            for(unsigned int i = 1; i < mask.GetNumberOfEnergySumWords(); i++)
+            for(unsigned int i = 0; i < mask.GetNumberOfEnergySumWords() - 1; i++)
                 tmp.push_back(buf[energySumsOffset + i]);
             data->SetEnergySums(tmp);
+            data->SetFilterBaseline(IeeeStandards::IeeeFloatingToDecimal(buf[energySumsOffset +
+                    mask.GetNumberOfEnergySumWords() - 1]));
         }
 
         if (hasQdc) {
