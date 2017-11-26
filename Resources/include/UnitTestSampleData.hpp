@@ -50,16 +50,16 @@ namespace unittest_decoded_data {
 /// function properly.
 namespace unittest_encoded_data {
     //A buffer with zero length
-    unsigned int empty_buffer[2] = {0, 0};
+    std::vector<unsigned int> empty_buffer{0, 0};
 
     //A buffer that for an empty module
-    unsigned int empty_module_buffer[2] = {2, 0};
+    std::vector<unsigned int> empty_module_buffer{2, 0};
 
     ///A header with a header length 20 instead of the true header length 4
-    unsigned int header_w_bad_headerlen[6] = {4, 0, 3887149, unittest_decoded_data::ts_low, 26001, 2345};
+    std::vector<unsigned int> header_w_bad_headerlen{4, 0, 3887149, unittest_decoded_data::ts_low, 26001, 2345};
 
     ///A header where the event length doesn't match what it should be.
-    unsigned int header_w_bad_eventlen[6] = {59, 0, 7749677, unittest_decoded_data::ts_low, 26001, 8128809};
+    std::vector<unsigned int> header_w_bad_eventlen{59, 0, 7749677, unittest_decoded_data::ts_low, 26001, 8128809};
 
     static const unsigned int encodedFilterBaseline = 1164725159;
 
@@ -83,48 +83,48 @@ namespace unittest_encoded_data {
         const unsigned int word3_headerWithTrace = 8128809;
 
         /// Just the header, including the first two words inserted by poll2
-        unsigned int header[6] = {4, 0, word0_header, word1, word2_energyOnly, word3_headerOnly};
+        std::vector<unsigned int> header{4, 0, word0_header, word1, word2_energyOnly, word3_headerOnly};
 
         /// This header has the CFD fractional time.
-        unsigned int header_N_Cfd[6]{4, 0, word0_header, word1, word2_energyWithCfd, word3_headerOnly};
+        std::vector<unsigned int> headerWithCfd{4, 0, word0_header, word1, word2_energyWithCfd, word3_headerOnly};
 
         /// Header that includes an external time stamp.
-        unsigned int header_N_ExTs[8]{6, 0, word0_headerWithExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
-                                       unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
+        std::vector<unsigned int> headerWithExternalTimestamp{
+                6, 0, word0_headerWithExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
+                unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
 
         ///Header that has Esums
-        unsigned int header_N_Esums[10]{8, 0, word0_headerWithEsums, word1, word2_energyOnly, word3_headerOnly,
-                12, 13, 14, encodedFilterBaseline};
+        std::vector<unsigned int> headerWithEnergySums{8, 0, word0_headerWithEsums, word1, word2_energyOnly, word3_headerOnly,
+                                                       12, 13, 14, encodedFilterBaseline};
 
         ///Header that has Esums and an External Timestamp
-        unsigned int header_N_EsumsExTs[12]{10, 0,
-                                            word0_headerWithEsumsExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
-                                            12, 13, 14, encodedFilterBaseline,
-                                            unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
+        std::vector<unsigned int> headerWithEnergySumsExternalTimestamp{
+                10, 0, word0_headerWithEsumsExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
+                12, 13, 14, encodedFilterBaseline, unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
 
         ///A header that also contains a QDC
-        unsigned int header_N_qdc[14] = {12, 0, word0_headerWithQdc, word1, word2_energyOnly, word3_headerOnly,
-                                         123, 456, 789, 987, 654, 321, 135, 791};
+        std::vector<unsigned int> headerWithQdc{12, 0, word0_headerWithQdc, word1, word2_energyOnly, word3_headerOnly,
+                                                123, 456, 789, 987, 654, 321, 135, 791};
 
         ///Header that has QDCs and External Timestamps
-        unsigned int header_N_QdcExTs[16] {14, 0, word0_headerWithQdcExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
-                                        123, 456, 789, 987, 654, 321, 135, 791,
-                                        unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
+        std::vector<unsigned int> headerWithQdcExternalTimestamp{
+                14, 0, word0_headerWithQdcExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
+                123, 456, 789, 987, 654, 321, 135, 791, unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
 
         ///Header that has Esums and a QDC
-        unsigned int header_N_EsumQdc[18]{16, 0, word0_headerWithEsumsQdc, word1, word2_energyOnly, word3_headerOnly,
-                                          12, 13, 14, encodedFilterBaseline, 123, 456, 789, 987, 654, 321, 135, 791};
+        std::vector<unsigned int> headerWithEnergySumsQdc{
+                16, 0, word0_headerWithEsumsQdc, word1, word2_energyOnly, word3_headerOnly,
+                12, 13, 14, encodedFilterBaseline, 123, 456, 789, 987, 654, 321, 135, 791};
 
         ///Header that has Esums, QDC, and External Timestamp
-        unsigned int header_N_EsumQdcEts[20]
-                {18, 0, word0_headerWithEsumsQdcExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
-                 12, 13, 14, encodedFilterBaseline,
-                 123, 456, 789, 987, 654, 321, 135, 791,
-                 unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
+        std::vector<unsigned int> headerWithEnergySumsQdcExternalTimestamp{
+                18, 0, word0_headerWithEsumsQdcExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
+                12, 13, 14, encodedFilterBaseline, 123, 456, 789, 987, 654, 321, 135, 791,
+                unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
 
         //The header is the standard 4 words. The trace is 62 words, which gives a trace length of 124. This gives us an event
         // length of 66. We have 2 words for the Pixie Module Data Header.
-        unsigned int header_N_trace[68] = {
+        std::vector<unsigned int> headerWithTrace = {
                 66, 0, word0_headerWithTrace, word1, word2_energyOnly, word3_headerWithTrace,
                 28574133, 28443058, 28639669, 28508598, 28705202, 28639671,
                 28443062, 28770739, 28443062, 28508594, 28836277, 28508599,
@@ -139,52 +139,8 @@ namespace unittest_encoded_data {
                 29884865, 29819336
         };
 
-        std::vector<unsigned int> header_vec = {word0_header, word1, word2_energyOnly, word3_headerOnly};
-
-        std::vector<unsigned int> header_vec_Cfd{word0_header, word1, word2_energyWithCfd, word3_headerOnly};
-
-        std::vector<unsigned int> header_vec_Ets{word0_headerWithExternalTimestamp, word1, word2_energyOnly, word3_headerOnly,
-                                                 unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
-
-        std::vector<unsigned int> header_vec_Esums{word0_headerWithEsums, word1, word2_energyOnly, word3_headerOnly,
-                                        12, 13, 14, encodedFilterBaseline};
-
-        std::vector<unsigned int> header_vec_EsumsExTs{word0_headerWithEsumsExternalTimestamp, word1, word2_energyOnly,
-                                                       word3_headerOnly, 12, 13, 14, encodedFilterBaseline,
-                                                       unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
-
-        std::vector<unsigned int> header_vec_Qdc{word0_headerWithQdc, word1, word2_energyOnly, word3_headerOnly,
-                                                 123, 456, 789, 987, 654, 321, 135, 791};
-
-        std::vector<unsigned int> header_vec_QdcExTs{word0_headerWithQdcExternalTimestamp, word1, word2_energyOnly,
-                                                     word3_headerOnly, 123, 456, 789, 987, 654, 321, 135, 791,
-                                                     unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
-
-        std::vector<unsigned int> header_vec_EsumQdc{word0_headerWithEsumsQdc, word1, word2_energyOnly, word3_headerOnly,
-                                                     12, 13, 14, encodedFilterBaseline, 123, 456, 789, 987, 654, 321, 135, 791};
-
-        std::vector<unsigned int> header_vec_EsumQdcEts{word0_headerWithEsumsQdcExternalTimestamp, word1, word2_energyOnly,
-                                                        word3_headerOnly, 12, 13, 14, encodedFilterBaseline,
-                                                        123, 456, 789, 987, 654, 321, 135, 791,
-                                                        unittest_decoded_data::ex_ts_low, unittest_decoded_data::ex_ts_high};
-
-        std::vector<unsigned int> header_vec_w_trc = {
-                word0_headerWithTrace, word1, word2_energyOnly, word3_headerWithTrace,
-                28574133, 28443058, 28639669, 28508598, 28705202, 28639671,
-                28443062, 28770739, 28443062, 28508594, 28836277, 28508599,
-                28770741, 28508598, 28574132, 28770741, 28377523, 28574130,
-                28901815, 28639668, 28705207, 28508598, 28443058, 28705206,
-                28443058, 28836277, 28705207, 28574130, 28770743, 28574133,
-                28574130, 28639670, 28639668, 28836280, 28574135, 28639667,
-                73531893, 229968182, 227217128, 155716457, 100796282, 68355300,
-                49152877, 40567451, 36897359, 30016014, 26411403, 31326660,
-                32637420, 31261166, 30081484, 30212558, 29884876, 29622724,
-                29688263, 28901822, 29098424, 30081480, 29491651, 29163967,
-                29884865, 29819336
-        };
-
-        std::vector<unsigned int> header_vec_w_qdc_n_trc = {
-                9748525, word1, word2_energyOnly, word3_headerWithTrace,
+        std::vector<unsigned int> headerWithQdcTrace = {
+                74, 0, 9748525, word1, word2_energyOnly, word3_headerWithTrace,
                 123, 456, 789, 987, 654, 321, 135, 791,
                 28574133, 28443058, 28639669, 28508598, 28705202, 28639671,
                 28443062, 28770739, 28443062, 28508594, 28836277, 28508599,

@@ -38,19 +38,19 @@ TEST_FIXTURE(XiaListModeDataDecoder, TestHeaderDecoding) {
 }
 
 TEST_FIXTURE(XiaListModeDataDecoder, TestExternalTimestampDecoding) {
-    XiaData result = *(DecodeBuffer(&header_N_ExTs[0], mask).front());
+    XiaData result = *(DecodeBuffer(&headerWithExternalTimestamp[0], mask).front());
     CHECK_EQUAL(unittest_decoded_data::ex_ts_low, result.GetExternalTimeLow());
     CHECK_EQUAL(unittest_decoded_data::ex_ts_high, result.GetExternalTimeHigh());
 }
 
 TEST_FIXTURE(XiaListModeDataDecoder, TestEsumsDecoding) {
-    XiaData result = *(DecodeBuffer(&header_N_Esums[0], mask).front());
+    XiaData result = *(DecodeBuffer(&headerWithEnergySums[0], mask).front());
     CHECK_ARRAY_EQUAL(unittest_decoded_data::energy_sums, result.GetEnergySums(), unittest_decoded_data::energy_sums.size());
     CHECK_CLOSE(unittest_decoded_data::filterBaseline, result.GetFilterBaseline(), 1e-4);
 }
 
 TEST_FIXTURE(XiaListModeDataDecoder, TestEsumsAndExternalTsDecoding) {
-    XiaData result = *(DecodeBuffer(&header_N_EsumsExTs[0], mask).front());
+    XiaData result = *(DecodeBuffer(&headerWithEnergySumsExternalTimestamp[0], mask).front());
     CHECK_ARRAY_EQUAL(unittest_decoded_data::energy_sums, result.GetEnergySums(), unittest_decoded_data::energy_sums.size());
     CHECK_CLOSE(unittest_decoded_data::filterBaseline, result.GetFilterBaseline(), 1e-4);
 
@@ -59,26 +59,26 @@ TEST_FIXTURE(XiaListModeDataDecoder, TestEsumsAndExternalTsDecoding) {
 }
 
 TEST_FIXTURE(XiaListModeDataDecoder, TestQdcDecoding) {
-    XiaData result = *(DecodeBuffer(&header_N_qdc[0], mask).front());
+    XiaData result = *(DecodeBuffer(&headerWithQdc[0], mask).front());
     CHECK_ARRAY_EQUAL(qdc, result.GetQdc(), qdc.size());
 }
 
 TEST_FIXTURE(XiaListModeDataDecoder, TestQdcAndExternalTsDecoding) {
-    XiaData result = *(DecodeBuffer(&header_N_QdcExTs[0], mask).front());
+    XiaData result = *(DecodeBuffer(&headerWithQdcExternalTimestamp[0], mask).front());
     CHECK_ARRAY_EQUAL(qdc, result.GetQdc(), qdc.size());
     CHECK_EQUAL(unittest_decoded_data::ex_ts_low, result.GetExternalTimeLow());
     CHECK_EQUAL(unittest_decoded_data::ex_ts_high, result.GetExternalTimeHigh());
 }
 
 TEST_FIXTURE(XiaListModeDataDecoder, TestEsumsAndQdcDecoding) {
-    XiaData result = *(DecodeBuffer(&header_N_EsumQdc[0], mask).front());
+    XiaData result = *(DecodeBuffer(&headerWithEnergySumsQdc[0], mask).front());
     CHECK_ARRAY_EQUAL(unittest_decoded_data::energy_sums, result.GetEnergySums(), unittest_decoded_data::energy_sums.size());
     CHECK_CLOSE(unittest_decoded_data::filterBaseline, result.GetFilterBaseline(), 1e-4);
     CHECK_ARRAY_EQUAL(qdc, result.GetQdc(), qdc.size());
 }
 
 TEST_FIXTURE(XiaListModeDataDecoder, TestEsumsAndQdcAndExTsDecoding) {
-    XiaData result = *(DecodeBuffer(&header_N_EsumQdcEts[0], mask).front());
+    XiaData result = *(DecodeBuffer(&headerWithEnergySumsQdcExternalTimestamp[0], mask).front());
     CHECK_ARRAY_EQUAL(unittest_decoded_data::energy_sums, result.GetEnergySums(), unittest_decoded_data::energy_sums.size());
     CHECK_CLOSE(unittest_decoded_data::filterBaseline, result.GetFilterBaseline(), 1e-4);
     CHECK_ARRAY_EQUAL(qdc, result.GetQdc(), qdc.size());
@@ -89,13 +89,12 @@ TEST_FIXTURE(XiaListModeDataDecoder, TestEsumsAndQdcAndExTsDecoding) {
 TEST_FIXTURE(XiaListModeDataDecoder, TestTraceDecoding) {
     CHECK_EQUAL((unsigned int)0, DecodeBuffer(&header_w_bad_eventlen[0], mask).size());
 
-    XiaData result = *(DecodeBuffer(&header_N_trace[0], mask).front());
+    XiaData result = *(DecodeBuffer(&headerWithTrace[0], mask).front());
     CHECK_ARRAY_EQUAL(unittest_trace_variables::trace, result.GetTrace(), unittest_trace_variables::trace.size());
 }
 
-
 TEST_FIXTURE(XiaListModeDataDecoder, TestCfdTimeCalculation) {
-    XiaData result = *(DecodeBuffer(&header_N_Cfd[0], mask).front());
+    XiaData result = *(DecodeBuffer(&headerWithCfd[0], mask).front());
     CHECK_EQUAL(cfd_fractional_time, result.GetCfdFractionalTime());
     CHECK_CLOSE(unittest_decoded_data::R30474_250::ts_w_cfd, result.GetTime(), 1e-5);
 }
