@@ -50,46 +50,53 @@ TEST(TestEmptyDataThrow) {
 
 TEST(TestEncodingBasicHeader) {
     SetupXiaDataClass(data);
-    CHECK_ARRAY_EQUAL(header_vec, encoder.EncodeXiaData(data), header_vec.size());
+    CHECK_ARRAY_EQUAL(vector<unsigned int>(header.begin() + 2, header.end()), encoder.EncodeXiaData(data), header.size() - 2);
 }
 
 TEST(TestEncodingExternalTimestamps) {
     SetupXiaDataClass(data);
     SetupExternalTimestamp(data);
-    CHECK_ARRAY_EQUAL(header_vec_Ets, encoder.EncodeXiaData(data), header_vec_Ets.size());
+    CHECK_ARRAY_EQUAL(vector<unsigned int>(headerWithExternalTimestamp.begin() + 2, headerWithExternalTimestamp.end()),
+                      encoder.EncodeXiaData(data), headerWithExternalTimestamp.size() - 2);
 }
 
 TEST(TestEncodingEnergySums) {
     SetupXiaDataClass(data);
     SetupEsums(data);
-    CHECK_ARRAY_EQUAL(header_vec_Esums, encoder.EncodeXiaData(data), header_vec_Esums.size());
+    CHECK_ARRAY_EQUAL(vector<unsigned int>(headerWithEnergySums.begin() + 2, headerWithEnergySums.end()),
+                              encoder.EncodeXiaData(data), headerWithEnergySums.size() - 2);
 }
 
 TEST(TestEncodingEnergySumsAndExternalTimeStamps) {
     SetupXiaDataClass(data);
     SetupEsums(data);
     SetupExternalTimestamp(data);
-    CHECK_ARRAY_EQUAL(header_vec_EsumsExTs, encoder.EncodeXiaData(data), header_vec_EsumsExTs.size());
+    CHECK_ARRAY_EQUAL(vector<unsigned int>(headerWithEnergySumsExternalTimestamp.begin() + 2,
+                                           headerWithEnergySumsExternalTimestamp.end()),
+                      encoder.EncodeXiaData(data), headerWithEnergySumsExternalTimestamp.size() - 2);
 }
 
 TEST(TestEncodingQdc) {
     SetupXiaDataClass(data);
     data.SetQdc(qdc);
-    CHECK_ARRAY_EQUAL(header_vec_Qdc, encoder.EncodeXiaData(data), header_vec_Qdc.size());
+    CHECK_ARRAY_EQUAL(vector<unsigned int>(headerWithQdc.begin() + 2, headerWithQdc.end()),
+                      encoder.EncodeXiaData(data), headerWithQdc.size() - 2);
 }
 
 TEST(TestEncodingQdcAndExternalTimestamp) {
     SetupXiaDataClass(data);
     data.SetQdc(qdc);
     SetupExternalTimestamp(data);
-    CHECK_ARRAY_EQUAL(header_vec_QdcExTs, encoder.EncodeXiaData(data), header_vec_QdcExTs.size());
+    CHECK_ARRAY_EQUAL(vector<unsigned int>(headerWithQdcExternalTimestamp.begin() + 2, headerWithQdcExternalTimestamp.end()),
+                      encoder.EncodeXiaData(data), headerWithQdcExternalTimestamp.size() - 2);
 }
 
 TEST(TestEncodingEnergySumsAndQdc) {
     SetupXiaDataClass(data);
     SetupEsums(data);
     data.SetQdc(qdc);
-    CHECK_ARRAY_EQUAL(header_vec_EsumQdc, encoder.EncodeXiaData(data), header_vec_EsumQdc.size());
+    CHECK_ARRAY_EQUAL(vector<unsigned int>(headerWithEnergySumsQdc.begin() + 2, headerWithEnergySumsQdc.end()),
+                      encoder.EncodeXiaData(data), headerWithEnergySumsQdc.size());
 }
 
 TEST(TestEncodingEnergySumsAndQdcAndTimestamp) {
@@ -97,20 +104,24 @@ TEST(TestEncodingEnergySumsAndQdcAndTimestamp) {
     SetupEsums(data);
     data.SetQdc(qdc);
     SetupExternalTimestamp(data);
-    CHECK_ARRAY_EQUAL(header_vec_EsumQdcEts, encoder.EncodeXiaData(data), header_vec_EsumQdcEts.size());
+    CHECK_ARRAY_EQUAL(vector<unsigned int>(headerWithEnergySumsQdcExternalTimestamp.begin() + 2,
+                                           headerWithEnergySumsQdcExternalTimestamp.end()),
+                      encoder.EncodeXiaData(data), headerWithEnergySumsQdcExternalTimestamp.size() - 2);
 }
 
 TEST(TestEncodingTrace) {
     SetupXiaDataClass(data);
     data.SetTrace(unittest_trace_variables::trace);
-    CHECK_ARRAY_EQUAL(header_vec_w_trc, encoder.EncodeXiaData(data), header_vec_w_trc.size());
+    CHECK_ARRAY_EQUAL(vector<unsigned int>(headerWithTrace.begin() + 2, headerWithTrace.end()),
+                      encoder.EncodeXiaData(data), headerWithTrace.size() - 2);
 }
 
 TEST(TestEncodingTraceAndQdc) {
     SetupXiaDataClass(data);
     data.SetQdc(qdc);
     data.SetTrace(unittest_trace_variables::trace);
-    CHECK_ARRAY_EQUAL(header_vec_w_qdc_n_trc, encoder.EncodeXiaData(data), header_vec_w_qdc_n_trc.size());
+    CHECK_ARRAY_EQUAL(vector<unsigned int>(headerWithQdcTrace.begin() + 2, headerWithQdcTrace.end()),
+                      encoder.EncodeXiaData(data), headerWithQdcTrace.size() - 2);
 }
 
 int main(int argv, char *argc[]) {
