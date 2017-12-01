@@ -98,10 +98,12 @@ TEST(TestCalculateTailRatio) {
     CHECK_CLOSE(tail_ratio, result, 1e-6);
 }
 
-TEST(TestIeeeFloatingToDecimal) {
+TEST(TestIeeeFloatingOperations) {
     unsigned int input = 1164725159;
     double expected = 3780.7283;
     CHECK_CLOSE(expected, IeeeStandards::IeeeFloatingToDecimal(input), 1e-4);
+    CHECK_CLOSE(input, IeeeStandards::DecimalToIeeeFloating(expected), 1);
+    CHECK_CLOSE((unsigned)1034818683, IeeeStandards::DecimalToIeeeFloating(0.085), 1);
 }
 
 int main(int argv, char *argc[]) {
