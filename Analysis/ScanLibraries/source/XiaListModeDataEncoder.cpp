@@ -8,6 +8,7 @@
 
 #include <cmath>
 
+#include "HelperFunctions.hpp"
 #include "XiaListModeDataEncoder.hpp"
 
 using namespace std;
@@ -24,30 +25,24 @@ std::vector<unsigned int> XiaListModeDataEncoder::EncodeXiaData(const XiaData &d
     header.push_back(EncodeWordTwo(data, mask_));
     header.push_back(EncodeWordThree(data, mask_));
 
-    //The following calls are required in this order due to the structure of
-    // the XIA list mode data format.
+    //The following calls are required in this order due to the structure of the XIA list mode data format.
+
     if (data.GetEnergySums().size() != 0) {
-        vector<unsigned int> tmp = EncodeEsums(data, mask_);
-        header.insert(header.end(), tmp.begin(), tmp.end());
+        for(const auto &val : data.GetEnergySums())
+            header.push_back(val);
+        header.push_back(IeeeStandards::DecimalToIeeeFloating(data.GetFilterBaseline()));
     }
 
-    ///Each QDC value takes up a single 32-bit word. No need to do anything
-    /// special here.
     if (data.GetQdc().size() != 0) {
         for (unsigned int i = 0; i < data.GetQdc().size(); i++)
             header.push_back((unsigned int &&) data.GetQdc().at(i));
     }
 
     if (data.GetExternalTimeLow() != 0) {
-        //The External timestamps work essentially the same as the internal time
-        // stamps in terms of the structure. The major difference here is that
-        // the upper bits of the high word are all zero. No special
-        // processing needed in this case.
         header.push_back(data.GetExternalTimeLow());
         header.push_back(data.GetExternalTimeHigh());
     }
 
-    ///Trace comes last since it comes after the header.
     if (data.GetTrace().size() != 0) {
         vector<unsigned int> tmp = EncodeTrace(data.GetTrace(), mask_.GetTraceMask());
         header.insert(header.end(), tmp.begin(), tmp.end());
@@ -60,13 +55,13 @@ unsigned int XiaListModeDataEncoder::EncodeWordZero(const XiaData &data, const X
     //These magic numbers are dependent upon the XIA List Mode Data Structure.
     // For more information about them please consult the relevant
     // documentation.
-    unsigned int headerLength = 4;
+    unsigned int headerLength = mask.GetNumberOfBasicHeaderWords();
     if (data.GetExternalTimeLow() != 0)
-        headerLength += 2;
+        headerLength += mask.GetNumberOfExternalTimestampWords();
     if (data.GetEnergySums().size() != 0)
-        headerLength += 4;
+        headerLength += mask.GetNumberOfEnergySumWords();
     if (data.GetQdc().size() != 0)
-        headerLength += 8;
+        headerLength += mask.GetNumberOfQdcWords();
     unsigned int eventLength = (unsigned int) ceil(data.GetTrace().size() * 0.5) + headerLength;
 
     unsigned int word = 0;
@@ -129,11 +124,4 @@ vector<unsigned int> XiaListModeDataEncoder::EncodeTrace(
         tmp.push_back(word);
     }
     return tmp;
-}
-
-///@TODO This needs to be updated so that it actually formats the baseline in
-/// one of the IEEE standard formats properly before we return.
-vector<unsigned int> XiaListModeDataEncoder::EncodeEsums(
-        const XiaData &data, const XiaListModeDataMask &mask) {
-    return data.GetEnergySums();
 }

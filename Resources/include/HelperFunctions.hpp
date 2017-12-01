@@ -7,12 +7,15 @@
 #define PIXIESUITE_HELPERFUNCTIONS_HPP
 
 #include <algorithm>
+#include <bitset>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
+#include <climits>
 #include <cmath>
 
 using namespace std;
@@ -435,29 +438,34 @@ namespace TraceFunctions {
 }
 
 namespace IeeeStandards {
-    ///This function converts an IEEE Floating Point number into a standard
-    /// decimal format. This function was stolen almost verbatim from
-    /// utilities.c provided by XIA. This data format is used by XIA to store
-    /// both TAU and the Baseline. Magic numbers abound since we're
-    /// literally following a prescription on how this information is
-    /// stored.
+    ///This function converts an IEEE Floating Point number into a standard decimal format. This function was stolen almost
+    /// verbatim from utilities.c provided by XIA. This data format is used by XIA to store both TAU and the Baseline. Magic
+    /// numbers abound since we're literally following a prescription on how this information is stored.
     ///https://en.wikipedia.org/wiki/IEEE_floating_point#IEEE_754-2008
-    ///@param[in] IeeeFloatingNumber : The IEEE Floating point number that we
-    /// want to convert to decimal
+    ///@param[in] IeeeFloatingNumber : The IEEE Floating point number that we want to convert to decimal
     ///@return The decimal number that's been decoded from the input.
-    inline double IeeeFloatingToDecimal(
-            const unsigned int &IeeeFloatingNumber) {
-        double result;
+    inline double IeeeFloatingToDecimal(const unsigned int &IeeeFloatingNumber) {
         short signbit = (short) (IeeeFloatingNumber >> 31);
-        short exponent =
-                (short) ((IeeeFloatingNumber & 0x7F800000) >> 23) - 127;
-        double mantissa =
-                1.0 + (double) (IeeeFloatingNumber & 0x7FFFFF) / pow(2.0, 23.0);
+        short exponent = (short) ((IeeeFloatingNumber & 0x7F800000) >> 23) - 127;
+        double mantissa = 1.0 + (double) (IeeeFloatingNumber & 0x7FFFFF) / pow(2.0, 23.0);
         if (signbit == 0)
-            result = mantissa * pow(2.0, (double) exponent);
-        else
-            result = -mantissa * pow(2.0, (double) exponent);
-        return result;
+            return mantissa * pow(2.0, (double) exponent);
+        return -mantissa * pow(2.0, (double) exponent);
+    }
+
+    /// This function converts from a decimal number to an IEEE 754 format. This can be used to reformat TAU and filter
+    /// baseline from the esums to the format used on pixie modules. This function is taken from
+    /// http://www.technical-recipes.com/2012/converting-between-binary-and-decimal-representations-of-ieee-754-floating-point-numbers-in-c/
+    ///@TODO This works for now but we should really make sure we write a version that is a little more robust.
+    inline unsigned int DecimalToIeeeFloating(const double &val) {
+        union {
+            float input;   // assumes sizeof(float) == sizeof(int)
+            int   output;
+        } data;
+
+        data.input = val;
+        std::bitset<sizeof(float) * CHAR_BIT>   bits(data.output);
+        return (unsigned int) bits.to_ulong();
     }
 }
 

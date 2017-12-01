@@ -6,5 +6,6 @@ endif (PAASS_USE_ROOT)
 
 add_subdirectory(EventReader)
 add_subdirectory(HeadReader)
+add_subdirectory(HexReader)
 add_subdirectory(Skeleton)
 add_subdirectory(TraceFilterer)
