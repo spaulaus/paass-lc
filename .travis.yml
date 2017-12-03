@@ -46,4 +46,4 @@ before_install:
 script:
   - make -j8 install
   - cd ../install/bin/unittests
-  - (for test in *; do echo "Now running : $test"; ./$test; if [ $? != 0 ]; then false; exit; fi; done)
+  - (for test in *; do echo $test; ./$test; if [ $? != 0 ]; then false; exit; fi; done)
