@@ -12,7 +12,7 @@ void XiaData::Initialize() {
     filterBaseline_ = energy_ = time_ = timeSansCfd_ = 0.0;
 
     chanNum_ = crateNum_ = cfdTime_ = 0;
-    eventTimeHigh_ = eventTimeLow_ = externalTimeLow_ = externalTimeHigh_ = 0;
+    eventTimeHigh_ = eventTimeLow_ = externalTimestamp_ = externalTimeLow_ = externalTimeHigh_ = 0;
     slotNum_ = 2;
 
     eSums_.clear();
