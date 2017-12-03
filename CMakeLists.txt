@@ -59,8 +59,6 @@ option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(PAASS_BUILD_TESTS "Builds programs designed to test the package. Including UnitTest++ test." OFF)
 option(PAASS_BUILD_UTKSCAN "Build utkscan" OFF)
 option(PAASS_USE_DAMM "Use DAMM for MCA" ON)
-option(PAASS_USE_NCURSES "Use ncurses for terminal" ON)
-mark_as_advanced(PAASS_USE_NCURSES)
 option(PAASS_USE_ROOT "Use ROOT" ON)
 
 #------------------------------------------------------------------------------
@@ -86,17 +84,9 @@ find_package(PLX)
 find_package(XIA)
 
 #Find curses library used for pretty much everything at this point.
-if (PAASS_USE_NCURSES)
-    find_package(Curses REQUIRED)
-endif (PAASS_USE_NCURSES)
-
-if (CURSES_FOUND)
-    add_definitions("-D USE_NCURSES")
-    mark_as_advanced(FORCE CURSES_HAVE_CURSES_H CURSES_CURSES_H_PATH CURSES_FORM_LIBRARY)
-else ()
-    message(STATUS "Curses unavailable, basic terminal will be used.")
-    set(PAASS_USE_NCURSES OFF)
-endif (CURSES_FOUND)
+find_package(Curses REQUIRED)
+add_definitions("-D USE_NCURSES")
+mark_as_advanced(FORCE CURSES_HAVE_CURSES_H CURSES_CURSES_H_PATH CURSES_FORM_LIBRARY)
 
 #Find the UnitTest++ Package. This package can be obtained from
 #https://github.com/unittest-cpp/unittest-cpp.git
