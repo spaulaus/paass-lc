@@ -7,10 +7,13 @@
 
 #include <algorithm>
 #include <iomanip>
+#include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#include <cmath>
 
 namespace StringManipulation {
     ///Converts string to bool (True, true, 1 and False, false, 0) are accepted; throws an exception if not successful. Notice
@@ -63,8 +66,8 @@ namespace StringManipulation {
     inline std::string PadString(const std::string &message, const std::string &delimiter, const unsigned int &length,
                                  const bool &isPrepended = true) {
         if(message.size() > length)
-            throw std::length_error("StringManipulation::PadString - The provided string (" + message + ") is longer than "
-                                            "the desired length (" + std::to_string(length) + ")!!");
+            throw std::length_error("StringManipulation::PadString - The provided string (" + message + ") is longer "
+                                           "than the desired length (" + std::to_string(length) + ")!!");
         if(delimiter.size() != 1)
             throw std::invalid_argument("StringManipulation::PadString - The delimiter must be a single character.");
 
@@ -81,14 +84,24 @@ namespace StringManipulation {
         std::stringstream output;
         output << std::setprecision(3);
         if (power >= 9)
-            output << size/pow(1024,3) << " GB";
+            output << size / std::pow(1024,3) << " GB";
         else if (power >= 6)
-            output << size/pow(1024,2) << " MB";
+            output << size / std::pow(1024,2) << " MB";
         else if (power >= 3)
-            output << size/1024 << " kB";
+            output << size / 1024 << " kB";
         else
             output << size << " B";
         return output.str();
+    }
+
+    /// IsNumeric: Check if an input string is strictly numeric. NOTE : This will not work on numbers using
+    /// scientific notation!!
+    /// @param[in] input_ : String to check.
+    /// @param[in] prefix_ : String to print before the error message is printed.
+    /// @param[in] msg_ : Error message to print if the value is not numeric.
+    /// @return True if the string is strictly numeric and false otherwise.
+    inline bool IsNumeric(const std::string &input){
+        return std::regex_match(input, std::regex( ( "((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?" ) ) );
     }
 }
 

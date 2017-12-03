@@ -2,9 +2,9 @@
 ///@brief A unit tests for StringManipulationFunctions header functions
 ///@author S. V. Paulauskas
 ///@date February 09, 2017
-#include <UnitTest++.h>
-
 #include "StringManipulationFunctions.hpp"
+
+#include <UnitTest++.h>
 
 using namespace std;
 using namespace StringManipulation;
@@ -61,6 +61,18 @@ TEST(TestFormatHumanReadableSizes) {
 
     double gigabytes = 8339000000;
     CHECK_EQUAL("7.77 GB", FormatHumanReadableSizes(gigabytes));
+}
+
+TEST(TestIsNumeric) {
+    CHECK(IsNumeric("123456789"));
+    CHECK(IsNumeric("-123456789"));
+    CHECK(IsNumeric("12345.6789"));
+    CHECK(IsNumeric("-12345.6789"));
+    CHECK(!IsNumeric("123ABC456DEF"));
+    CHECK(!IsNumeric("123abc"));
+    CHECK(!IsNumeric("qwerty"));
+    CHECK(!IsNumeric("!@#$%"));
+    CHECK(!IsNumeric("1.34E-34"));
 }
 
 int main(int argv, char *argc[]) {
