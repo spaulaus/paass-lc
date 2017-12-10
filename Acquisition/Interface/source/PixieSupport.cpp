@@ -8,8 +8,8 @@
 #include "Display.h"
 
 #include "PixieSupport.h"
-#include "pixie16app_defs.h"
-#include "pixie16app_export.h"
+//#include "pixie16app_defs.h"
+//#include "pixie16app_export.h"
 
 std::string PadStr(const std::string &input_, int width_) {
     std::string output = input_;
@@ -387,13 +387,13 @@ bool ParameterChannelDumper::operator()(PixieFunctionParms <std::string> &par) {
     double value;
     par.pif->ReadSglChanPar(par.par.c_str(), value, (int) par.mod,
                             (int) par.ch);
-    *file << par.mod << "\t" << par.ch << "\t" << par.par << "\t" << value
+    *file << (int) par.mod << "\t" << par.ch << "\t" << par.par << "\t" << value
           << std::endl;
     return true;
 }
 
 bool ParameterModuleDumper::operator()(PixieFunctionParms <std::string> &par) {
-    PixieInterface::word_t value;
+    AcqInterface::word_t value;
     par.pif->ReadSglModPar(par.par.c_str(), value, (int) par.mod);
     *file << par.mod << "\t" << par.par << "\t" << value << std::endl;
     return true;
@@ -408,14 +408,21 @@ bool OffsetAdjuster::operator()(PixieFunctionParms<int> &par) {
     return hadError;
 }
 
+/// @TODO Restore this functionality!
 bool TauFinder::operator()(PixieFunctionParms<> &par) {
-    double tau[16];
+	double tau[16];
 
-    int errorNum = Pixie16TauFinder(par.mod, tau);
-    if (par.ch < 16) {
-        std::cout << "TAU: " << tau[par.ch] << std::endl;
-    }
-    std::cout << "Errno: " << errorNum << std::endl;
+// TODO Restore this!
+/*
+	int errorNum = Pixie16TauFinder(par.mod, tau);
+	if (par.ch < 16) {
+		std::cout << "TAU: " << tau[par.ch] << std::endl;
+	}
+	std::cout << "Errno: " << errorNum << std::endl;
 
-    return (errorNum >= 0);
+   return (errorNum >= 0);
+*/
+	return false;
 }
+
+// vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 autoindent

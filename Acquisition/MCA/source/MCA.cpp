@@ -1,16 +1,16 @@
 /// @authors K. Miernik, K. Smith, C. R. Thornsberry
 #include "MCA.h"
 
+#include "AcqInterface.hpp"
+#include "Display.h"
+#include "Utility.h"
+
 #include <iostream>
 #include <iomanip>
 #include <unistd.h>
 
-#include "PixieInterface.h"
-#include "Display.h"
-#include "Utility.h"
-
 ///Default constructor
-MCA::MCA(PixieInterface *pif) : _pif(pif) {
+MCA::MCA(AcqInterface *pif) : _pif(pif) {
     time(&start_time);
 }
 

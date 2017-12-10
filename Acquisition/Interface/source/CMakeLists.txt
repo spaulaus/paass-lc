@@ -1,5 +1,8 @@
 # @authors C. R. Thornsberry, K. Smith
-set(Interface_SOURCES PixieInterface.cpp Lock.cpp)
+set(Interface_SOURCES AcqInterface.cpp Lock.cpp)
+if (PAASS_BUILD_XIA_INTERFACE)
+	list(APPEND Interface_SOURCES PixieInterface.cpp)
+endif (PAASS_BUILD_XIA_INTERFACE)
 
 add_library(PixieInterface STATIC ${Interface_SOURCES})
 

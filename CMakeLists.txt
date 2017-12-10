@@ -87,9 +87,9 @@ if (PAASS_BUILD_TESTS)
     enable_testing()
 endif (PAASS_BUILD_TESTS)
 
-if (PAASS_BUILD_ACQ)
-    if (NOT PAASS_BUILD_ACQ_ATTEMPTED AND NOT (PLX_FOUND AND XIA_FOUND))
-        set(PAASS_BUILD_ACQ OFF CACHE BOOL "Build and install Acquisition" FORCE)
+if (PAASS_BUILD_XIA_INTERFACE)
+    if (NOT PAASS_BUILD_XIA_INTERFACE_ATTEMPTED AND NOT (PLX_FOUND AND XIA_FOUND))
+        set(PAASS_BUILD_XIA_INTERFACE OFF CACHE BOOL "Build and install Acquisition" FORCE)
     else (PLX_FOUND OR XIA_FOUND)
         #Find the PLX Library
         find_package(PLX REQUIRED)
@@ -103,8 +103,8 @@ if (PAASS_BUILD_ACQ)
         #Create pixie.cfg and copy slot_def.set as well as default.set to current.set
         XIA_CONFIG()
     endif ()
-    set(PAASS_BUILD_ACQ_ATTEMPTED ON CACHE INTERNAL "Build Suite Attempted")
-endif (PAASS_BUILD_ACQ)
+    set(PAASS_BUILD_XIA_INTERFACE_ATTEMPTED ON CACHE INTERNAL "Build Suite Attempted")
+endif (PAASS_BUILD_XIA_INTERFACE)
 
 #Find ROOT if USE_ROOT was set.
 find_package(ROOT COMPONENTS TreePlayer)

@@ -1,12 +1,11 @@
 ///@authors K. Smith, C. R. Thornsberry
 #include "MCA_ROOT.h"
+#include "Display.h"
 
 #include <TFile.h>
 #include <TH1F.h>
 
-#include "Display.h"
-
-MCA_ROOT::MCA_ROOT(PixieInterface *pif, const char *basename) :
+MCA_ROOT::MCA_ROOT(AcqInterface *pif, const char *basename) :
         MCA(pif) {
     OpenFile(basename);
 }
@@ -64,7 +63,7 @@ TH1F *MCA_ROOT::GetHistogram(int mod, int ch) {
 }
 
 bool MCA_ROOT::StoreData(int mod, int ch) {
-    PixieInterface::word_t histo[ADC_SIZE];
+    AcqInterface::word_t histo[ADC_SIZE];
 
     _pif->ReadHistogram(histo, ADC_SIZE, mod, ch);
 

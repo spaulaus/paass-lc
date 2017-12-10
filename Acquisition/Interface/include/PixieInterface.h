@@ -50,7 +50,7 @@ const int CCSRA_CATCHER = 16;
 /// Only for SHE custom firmware w/ virtual digital-summed channels
 const int CCSRA_SUMMED_SINGLE_EVENT = 18;
 
-class PixieInterface {
+class PixieInterface : public AcqInterface {
 public:
     static const size_t STAT_SIZE = N_DSP_PAR - DSP_IO_BORDER;
     static const size_t HISTO_SIZE = MAX_HISTOGRAM_LENGTH;
@@ -58,7 +58,6 @@ public:
     enum CatcherModes {PC_STANDARD, PC_REJECT, PC_HYBRID, PC_ACCEPT};
 #endif
 
-    typedef uint32_t word_t;
     typedef uint16_t halfword_t;
 
     typedef word_t stats_t[STAT_SIZE];
@@ -196,10 +195,6 @@ public:
     bool AdjustOffsets(unsigned short mod);
 
     // accessors
-    unsigned short GetNumberCards(void) const { return numberCards; };
-
-    static size_t GetNumberChannels(void) { return NUMBER_OF_CHANNELS; };
-
     static size_t GetTraceLength(void) { return TRACE_LENGTH; };
 
     short GetSlotNumber(int mod) const { return slotMap[mod]; }
