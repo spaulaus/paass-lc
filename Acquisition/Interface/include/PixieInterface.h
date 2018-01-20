@@ -33,14 +33,13 @@
 #endif
 
 #include <fstream>
-#include <map>
 #include <queue>
 #include <string>
-#include <set>
 
 #include <stdint.h>
 
-#include "Lock.h"
+//A variable defined by the pxi library containing the path to the crate configuration.
+extern const char *PCISysIniFile;
 
 #ifdef PIF_CATCHER
 const int CCSRA_PILEUP  = 15;
@@ -99,28 +98,18 @@ public:
 
     ~PixieInterface();
 
-
-    bool ReadConfigurationFile(const char *fn);
-
-    /// @brief Parses the input from configuration file for the ModuleType tag.
-    std::string ParseModuleTypeTag(std::string value);
-
-    bool GetSlots(const char *slotF = NULL);
-
     // wrappers to the pixie-16 app functions
     bool Init(bool offlineMode = false);
 
     bool Boot(int mode = 0x7f, bool useWorkingSetFile = false);
 
-    bool WriteSglModPar(const char *name, word_t val, int mod);
+    bool Boot(AcqInterface::BootType mode, bool useWorkingSetFile = false);
 
-    bool WriteSglModPar(const char *name, word_t val, int mod, word_t &pval);
+    bool WriteSglModPar(const char *name, word_t val, int mod, word_t *pval = nullptr);
 
     bool ReadSglModPar(const char *name, word_t &val, int mod);
 
-    void PrintSglModPar(const char *name, int mod);
-
-    void PrintSglModPar(const char *name, int mod, word_t prev);
+    void PrintSglModPar(const char *name, int mod, word_t *prev=nullptr);
 
     bool WriteSglChanPar(const char *name, double val, int mod, int chan);
 
@@ -224,32 +213,20 @@ public:
 private:
     bool ToggleChannelBit(int mod, int chan, const char *parameter, int bit);
 
-    static const size_t MAX_MODULES = 14;
-    static const size_t CONFIG_LINE_LENGTH = 80;
     static const size_t TRACE_LENGTH = RANDOMINDICES_LENGTH;
 
 #ifdef PIF_CATCHER
     void CatcherMessage(void);
 #endif
 
-    static std::set<std::string> validConfigKeys;
-    std::map<std::string, std::map<std::string, std::string>> configStrings;
-
     bool doneInit;
-
-    /// @brief Convert a configuration string to be relative to PixieBaseDir unless it begins with a .
-    std::string ConfigFileName(const std::string &type, const std::string &str);
 
     // checks retval and outputs default OK/ERROR message
     bool CheckError(bool exitOnError = false) const;
 
-    unsigned short numberCards;
-    unsigned short slotMap[MAX_MODULES];
-
     stats_t statistics;
 
     int retval; // return value from pixie functions
-    Lock lock;  // class to prevent simultaneous access to pixies
 
     std::queue<word_t> extraWords[MAX_MODULES];
 
@@ -260,3 +237,5 @@ private:
 };
 
 #endif // __PIXIEINTERFACE_H_
+
+// vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 autoindent

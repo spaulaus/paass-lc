@@ -8,34 +8,36 @@
 
 #include <cstdint>
 
+#include "AcqConfig.hpp"
+#include "Lock.h"
+
 class AcqInterface {
     public:
         typedef uint32_t word_t;
 
-        AcqInterface(const char *cfgFile);
+        AcqInterface(const char* cfgFile);
+        virtual ~AcqInterface() {};
 
-        virtual bool ReadConfigurationFile(const char *cfgFile);
-
-        /// @TODO This should be called ReadSlotConfig.
         /// This reads the slot configuration file.
-        virtual bool GetSlots(const char *slotCfgFile = nullptr);
+        virtual bool ReadSlotConfig(const char *slotCfgFile = nullptr);
 
         /// @TODO Remove the offlineMode here, this should be separated into a 
         ///   Setter / Getter.
         /// Initializes the API.
-        virtual bool Init(bool offlineMode=false);
+        virtual bool Init(bool offlineMode=false) = 0;
 
-        virtual bool Boot(int mode, bool useWorkingSetFile);
+        enum class BootType {
+            MCA
+        };
 
-        virtual bool WriteSglModPar(const char *name, word_t val, int mod);
+        virtual bool Boot(BootType mode, bool useWorkingSetFile) = 0;
 
-        virtual bool WriteSglModPar(const char *name, word_t val, int mod, word_t &pval);
 
-        virtual bool ReadSglModPar(const char *name, word_t &val, int mod);
+        virtual bool WriteSglModPar(const char *name, word_t val, int mod, word_t *pval=nullptr) = 0;
 
-        virtual void PrintSglModPar(const char *name, int mod);
+        virtual bool ReadSglModPar(const char *name, word_t &val, int mod) = 0;
 
-        virtual void PrintSglModPar(const char *name, int mod, word_t prev);
+        virtual void PrintSglModPar(const char *name, int mod, word_t *prev=nullptr) = 0;
 
         virtual bool WriteSglChanPar(const char *name, double val, int mod, int chan);
 
@@ -50,17 +52,20 @@ class AcqInterface {
 
         virtual bool SaveDSPParameters(const char *fn = nullptr);
 
+
         virtual bool AcquireTraces(int mod);
 
         // # AcquireTraces must be called before calling this #
         virtual bool ReadSglChanTrace(unsigned short *buf, unsigned long sz,
                                       unsigned short mod, unsigned short chan);
 
+
         // # #
         virtual bool GetStatistics(unsigned short mod);
 
+        virtual bool RemovePresetRunLength(int mod) {return true;};
         // # #
-        virtual bool StartHistogramRun(unsigned short mode = 0);
+        virtual bool StartHistogramRun(unsigned short mode = 0) = 0;
 
         virtual bool StartHistogramRun(unsigned short mod, unsigned short mode);
 
@@ -90,9 +95,18 @@ class AcqInterface {
 
         static unsigned short GetNumberChannels(void) { return numberChannels; };
 
-        private:
-            short numberCards;
-            static const short numberChannels = NUMBER_OF_CHANNELS;
+    private:
+        Lock lock;  // class to prevent simultaneous access to pixies
+
+        static const size_t MAX_MODULES = 14;
+        static const size_t CONFIG_LINE_LENGTH = 80;
+
+    protected:
+        static const short numberChannels = NUMBER_OF_CHANNELS;
+        unsigned short numberCards;
+        unsigned short slotMap[MAX_MODULES];
+
+        AcqConfig config;
 };
 
 #endif // __ACQINTERFACE_HPP_

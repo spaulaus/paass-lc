@@ -366,8 +366,8 @@ bool ParameterModuleWriter::operator()(
         PixieFunctionParms <std::pair<std::string, unsigned int>> &par) {
     unsigned int previousValue;
     if (par.pif->WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod,
-                                previousValue)) {
-        par.pif->PrintSglModPar(par.par.first.c_str(), par.mod, previousValue);
+                                &previousValue)) {
+        par.pif->PrintSglModPar(par.par.first.c_str(), par.mod, &previousValue);
         return true;
     }
     return false;

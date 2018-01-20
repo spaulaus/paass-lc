@@ -27,18 +27,32 @@ int main(int argc, char *argv[]) {
             return EXIT_FAILURE;
     }
 
-    PixieInterface pif("pixie.cfg");
-    pif.GetSlots();
-    pif.Init();
-    pif.EndRun();
-    pif.Boot(PixieInterface::DownloadParameters | PixieInterface::ProgramFPGA | PixieInterface::SetDAC, true);
-    pif.RemovePresetRunLength(0);
+    AcqInterface *pif;
+
+#ifdef PAASS_BUILD_XIA_INTERFACE
+    pif = new PixieInterface("pixie.cfg");
+#else
+    pif = new EmulatedInterface("pixie.cfg");
+#endif
+
+    pif->ReadSlotConfig();
+
+    pif->Init();
+
+    //cxx, end any ongoing runs
+    pif->EndRun();
+    pif->Boot(AcqInterface::BootType::MCA, true);
+
+    pif->RemovePresetRunLength(0);
 
     MCA *mca = new MCA_ROOT(&pif, basename);
 
     if (mca->IsOpen())
         mca->Run(totalTime);
     delete mca;
+    delete pif;
 
     return EXIT_SUCCESS;
 }
+
+// vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 autoindent
