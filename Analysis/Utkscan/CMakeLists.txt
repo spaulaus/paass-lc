@@ -8,6 +8,8 @@ option(PAASS_UTKSCAN_ONLINE "Options for online scans" OFF)
 option(PAASS_UTKSCAN_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
 option(PAASS_UTKSCAN_VERBOSE "Make Scan More Verbose" OFF)
 
+mark_as_advanced(PAASS_UTKSCAN_GAMMA_GATES PAASS_UTKSCAN_ONLINE PAASS_UTKSCAN_TREE_DEBUG PAASS_UTKSCAN_VERBOSE)
+
 # newreadout is needed to account for a change to pixie16 readout
 # structure change on 03/20/08. Is is REQUIRED!!
 add_definitions(-D newreadout)
