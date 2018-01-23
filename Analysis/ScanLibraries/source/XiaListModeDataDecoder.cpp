@@ -109,6 +109,8 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         if (hasExternalTimestamp) {
             data->SetExternalTimeLow(buf[externalTimestampOffset]);
             data->SetExternalTimeHigh(buf[externalTimestampOffset + 1]);
+            data->SetExternalTimestamp(Conversions::ConcatenateWords(data->GetExternalTimeLow(),
+                                                                     data->GetExternalTimeHigh(), 32));
         }
 
         if (hasEnergySums) {
@@ -234,7 +236,7 @@ void XiaListModeDataDecoder::DecodeTrace(unsigned int *buf, XiaData &data, const
 
 pair<double, double> XiaListModeDataDecoder::CalculateTimeInSamples(const XiaListModeDataMask &mask,
                                                                     const XiaData &data) {
-    double filterTime = data.GetEventTimeLow() + data.GetEventTimeHigh() * pow(2., 32);
+    double filterTime = Conversions::ConcatenateWords(data.GetEventTimeLow(), data.GetEventTimeHigh(), 32);
 
     if (data.GetCfdFractionalTime() == 0 || data.GetCfdForcedTriggerBit())
         return make_pair(filterTime, filterTime);

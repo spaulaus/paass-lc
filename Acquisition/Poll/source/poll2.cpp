@@ -22,6 +22,7 @@
 #include "poll2_core.h"
 #include "Display.h"
 #include "CTerminal.h"
+#include "StringManipulationFunctions.hpp"
 
 /* Print help dialogue for command line options. */
 void help(const char *progName_) {
@@ -197,13 +198,13 @@ int main(int argc, char *argv[]) {
     }
 
     // Start the run control thread
-    std::cout << pad_string("Starting run control thread", 49);
+    std::cout << StringManipulation::PadString("Starting run control thread", ".", 49);
     std::thread runctrl(start_run_control, &poll);
     std::cout << Display::OkayStr() << std::endl;
 
     // Start the command control thread. This needs to be the last thing we do to
     // initialize, so the user cannot enter commands before setup is complete
-    std::cout << pad_string("Starting command thread", 49);
+    std::cout << StringManipulation::PadString("Starting command thread", ".", 49);
     std::thread comctrl(start_cmd_control, &poll);
     std::cout << Display::OkayStr() << std::endl << std::endl;
 

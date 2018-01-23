@@ -499,6 +499,11 @@ namespace Conversions {
                              "units " + units);
         return val;
     }
+
+    inline double ConcatenateWords(const unsigned int &lowWord, const unsigned int highWord,
+                                   const unsigned int &numBits) {
+        return lowWord + highWord * pow(2., numBits);
+    }
 }
 
 #endif //PIXIESUITE_HELPERFUNCTIONS_HPP

@@ -38,6 +38,7 @@
 #include "poll2_stats.h"
 
 #include "CTerminal.h"
+#include "StringManipulationFunctions.hpp"
 
 // Interface for the PIXIE-16
 #include "PixieSupport.h"
@@ -59,22 +60,6 @@
 
 // Maximum shm packet size (in bytes)
 #define MAX_PKT_DATA (MAX_ORPH_DATA - PKT_HEAD_LEN)
-
-/** IsNumeric: Check if an input string is strictly numeric.
-  *  \param[in]  input_ String to check.
-  *  \param[in]  prefix_ String to print before the error message is printed.
-  *  \param[in]  msg_ Error message to print if the value is not numeric.
-  *  \return true if the string is strictly numeric and false otherwise.
-  */
-bool IsNumeric(const std::string &input_, const std::string &prefix_/*=""*/, const std::string &msg_/*=""*/){
-    for(size_t i = 0; i < input_.size(); i++){
-        if((input_[i] < 0x30 || input_[i] > 0x39) && input_[i] != 0x2D && input_[i] != 0x2E){
-            if(!msg_.empty()) std::cout << msg_ << " (" << input_ << ").\n";
-            return false;
-        }
-    }
-    return true;
-}
 
 std::vector<std::string> chan_params = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRIGGER_THRESHOLD", "ENERGY_RISETIME", "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH",
                                         "TRACE_DELAY", "VOFFSET", "XDT", "BASELINE_PERCENT", "EMIN", "BINFACTOR", "CHANNEL_CSRA", "CHANNEL_CSRB", "BLCUT",
@@ -752,29 +737,29 @@ bool Poll::stop_run() {
 
 void Poll::show_status(){
     std::cout << "  Poll Run Status:\n";
-    std::cout << "   Acq starting    - " << yesno(do_start_acq) << std::endl;
-    std::cout << "   Acq stopping    - " << yesno(do_stop_acq) << std::endl;
-    std::cout << "   Acq running     - " << yesno(acq_running) << std::endl;
+    std::cout << "   Acq starting    - " << StringManipulation::BoolToString(do_start_acq) << std::endl;
+    std::cout << "   Acq stopping    - " << StringManipulation::BoolToString(do_stop_acq) << std::endl;
+    std::cout << "   Acq running     - " << StringManipulation::BoolToString(acq_running) << std::endl;
     if(!pac_mode){
-        std::cout << "   Shared memory   - " << yesno(shm_mode) << std::endl;
-        std::cout << "   Write to disk   - " << yesno(record_data) << std::endl;
-        std::cout << "   File open       - " << yesno(output_file.IsOpen()) << std::endl;
-        std::cout << "   Rebooting       - " << yesno(do_reboot) << std::endl;
-        std::cout << "   Force Spill     - " << yesno(force_spill) << std::endl;
-        std::cout << "   Do MCA run      - " << yesno(do_MCA_run) << std::endl;
+        std::cout << "   Shared memory   - " << StringManipulation::BoolToString(shm_mode) << std::endl;
+        std::cout << "   Write to disk   - " << StringManipulation::BoolToString(record_data) << std::endl;
+        std::cout << "   File open       - " << StringManipulation::BoolToString(output_file.IsOpen()) << std::endl;
+        std::cout << "   Rebooting       - " << StringManipulation::BoolToString(do_reboot) << std::endl;
+        std::cout << "   Force Spill     - " << StringManipulation::BoolToString(force_spill) << std::endl;
+        std::cout << "   Do MCA run      - " << StringManipulation::BoolToString(do_MCA_run) << std::endl;
     }
-    else{ std::cout << "   Pacman mode     - " << yesno(pac_mode) << std::endl; }
-    std::cout << "   Run ctrl Exited - " << yesno(run_ctrl_exit) << std::endl;
+    else{ std::cout << "   Pacman mode     - " << StringManipulation::BoolToString(pac_mode) << std::endl; }
+    std::cout << "   Run ctrl Exited - " << StringManipulation::BoolToString(run_ctrl_exit) << std::endl;
 
     std::cout << "\n  Poll Options:\n";
-    std::cout << "   Boot fast   - " << yesno(boot_fast) << std::endl;
-    std::cout << "   Wall clock  - " << yesno(insert_wall_clock) << std::endl;
-    std::cout << "   Is quiet    - " << yesno(is_quiet) << std::endl;
-    std::cout << "   Send alarm  - " << yesno(send_alarm) << std::endl;
-    std::cout << "   Show rates  - " << yesno(show_module_rates) << std::endl;
-    std::cout << "   Zero clocks - " << yesno(zero_clocks) << std::endl;
-    std::cout << "   Debug mode  - " << yesno(debug_mode) << std::endl;
-    std::cout << "   Initialized - " << yesno(init) << std::endl;
+    std::cout << "   Boot fast   - " << StringManipulation::BoolToString(boot_fast) << std::endl;
+    std::cout << "   Wall clock  - " << StringManipulation::BoolToString(insert_wall_clock) << std::endl;
+    std::cout << "   Is quiet    - " << StringManipulation::BoolToString(is_quiet) << std::endl;
+    std::cout << "   Send alarm  - " << StringManipulation::BoolToString(send_alarm) << std::endl;
+    std::cout << "   Show rates  - " << StringManipulation::BoolToString(show_module_rates) << std::endl;
+    std::cout << "   Zero clocks - " << StringManipulation::BoolToString(zero_clocks) << std::endl;
+    std::cout << "   Debug mode  - " << StringManipulation::BoolToString(debug_mode) << std::endl;
+    std::cout << "   Initialized - " << StringManipulation::BoolToString(init) << std::endl;
 }
 
 void Poll::show_thresh() {
@@ -1022,7 +1007,10 @@ void Poll::CommandControl(){
         }
         else if(cmd == "thresh"){
             if(p_args==1){
-                if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid FIFO threshold specification")) continue;
+                if(!StringManipulation::IsNumeric(arguments.at(0))) {
+                    std::cout << sys_message_head << " Invalid FIFO threshold specification" << std::endl;
+                    continue;
+                }
                 SetThreshWords(EXTERNAL_FIFO_LENGTH * atof(arguments.at(0).c_str()) / 100.0);
             }
             show_thresh();
@@ -1262,8 +1250,13 @@ void Poll::CommandControl(){
             }
 
             if(p_args >= 2){
-                if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
-                else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
+                if(!StringManipulation::IsNumeric(arguments.at(0))) {
+                    std::cout << sys_message_head << " Invalid module specification" << std::endl;
+                    continue;
+                } else if(!StringManipulation::IsNumeric(arguments.at(1))) {
+                    std::cout << sys_message_head << " Invalid channel specification" << std::endl;
+                    continue;
+                }
                 int mod = atoi(arguments.at(0).c_str());
                 int ch = atoi(arguments.at(1).c_str());
 
@@ -1322,9 +1315,17 @@ void Poll::CommandControl(){
             BitFlipper flipper;
 
             if(p_args >= 4){
-                if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
-                else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
-                else if(!IsNumeric(arguments.at(3), sys_message_head, "Invalid bit number specification")) continue;
+                if(!StringManipulation::IsNumeric(arguments.at(0))) {
+                    std::cout << sys_message_head << "Invalid module specification" << std::endl;
+                    continue;
+                } else if(!StringManipulation::IsNumeric(arguments.at(1))) {
+                    std::cout << sys_message_head << " Invalid channel specification" << std::endl;
+                    continue;
+                } else if(!StringManipulation::IsNumeric(arguments.at(3))) {
+                    std::cout << sys_message_head << " Invalid bit number specification" << std::endl;
+                    continue;
+                }
+
                 flipper.SetBit(arguments.at(3));
 
                 if(forChannel(pif, atoi(arguments.at(0).c_str()), atoi(arguments.at(1).c_str()), flipper, arguments.at(2))){
@@ -1366,8 +1367,13 @@ void Poll::CommandControl(){
         else if(cmd == "bit_test"){ // Run Test method
             BitFlipper flipper;
             if(p_args >= 2){
-                if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid number of bits specified")) continue;
-                else if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid parameter value specification")) continue;
+                if(!StringManipulation::IsNumeric(arguments.at(1))) {
+                    std::cout << sys_message_head << "Invalid number of bits specified" << std::endl;
+                    continue;
+                } else if(!StringManipulation::IsNumeric(arguments.at(2))) {
+                    std::cout << sys_message_head << " Invalid parameter value specification" << std::endl;
+                    continue;
+                }
                 std::vector<std::string> empty_vector;
                 flipper.Test((unsigned int)atoi(arguments.at(0).c_str()), std::strtoul(arguments.at(1).c_str(), NULL, 0), empty_vector);
             }
@@ -1383,8 +1389,13 @@ void Poll::CommandControl(){
             }
 
             if(p_args >= 2){
-                if(!IsNumeric(arguments.at(0), sys_message_head, "Invalid module specification")) continue;
-                else if(!IsNumeric(arguments.at(1), sys_message_head, "Invalid channel specification")) continue;
+                if(!StringManipulation::IsNumeric(arguments.at(0))) {
+                    std::cout << sys_message_head << "Invalid module specification" << std::endl;
+                    continue;
+                } else if(!StringManipulation::IsNumeric(arguments.at(1))) {
+                    std::cout << sys_message_head << " Invalid channel specification" << std::endl;
+                    continue;
+                }
                 int mod = atoi(arguments.at(0).c_str());
                 int chan = atoi(arguments.at(1).c_str());
 
@@ -1403,8 +1414,10 @@ void Poll::CommandControl(){
 
                 int trace_threshold = 0;
                 if(p_args >= 3){
-                    if(!IsNumeric(arguments.at(2), sys_message_head, "Invalid threshold specified")) continue;
-                    else{
+                    if(!StringManipulation::IsNumeric(arguments.at(2))) {
+                        std::cout << sys_message_head << "Invalid threshold specified" << std::endl;
+                        continue;
+                    } else{
                         trace_threshold = atoi(arguments.at(2).c_str());
                         if(trace_threshold < 0){
                             std::cout << sys_message_head << "Cannot set negative threshold!\n";
@@ -1479,7 +1492,7 @@ void Poll::CommandControl(){
             else if(cmd == "timedrun"){
                 if(!arg.empty()){
                     double runSeconds = strtod(arg.c_str(), NULL);
-                    if(IsNumeric(arg) && runSeconds > 0.0)
+                    if(StringManipulation::IsNumeric(arg) && runSeconds > 0.0)
                         start_run(true, runSeconds);
                     else
                         std::cout << sys_message_head << Display::ErrorStr() << " User attempted to run for an invalid length of time (" << arg << ")!\n";
@@ -1827,13 +1840,13 @@ void Poll::UpdateStatus() {
         //Add run time to status
         status << " " << (long long) statsHandler->GetTotalTime() << "s";
         //Add data rate to status
-        status << " " << humanReadable(statsHandler->GetTotalDataRate()) << "/s";
+        status << " " << StringManipulation::FormatHumanReadableSizes(statsHandler->GetTotalDataRate()) << "/s";
     }
 
     if (file_open) {
         if (acq_running && !record_data) status << TermColors::DkYellow;
         //Add file size to status
-        status << " " << humanReadable(output_file.GetFilesize());
+        status << " " << StringManipulation::FormatHumanReadableSizes(output_file.GetFilesize());
         status << " " << output_file.GetCurrentFilename();
         if (acq_running && !record_data) status << TermColors::Reset;
     }
@@ -2085,33 +2098,4 @@ bool Poll::ReadFIFO() {
     } //If we had exceeded the threshold or forced a flush
 
     return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Support Functions
-///////////////////////////////////////////////////////////////////////////////
-
-std::string humanReadable(double size) {
-    int power = std::log10(size);
-    std::stringstream output;
-    output << std::setprecision(3);
-    if (power >= 9) output << size/pow(1024,3) << "GB";
-    else if (power >= 6) output << size/pow(1024,2) << "MB";
-    else if (power >= 3) output << size/1024 << "kB";
-    else output << " " << size << "B";
-    return output.str();
-}
-
-/* Pad a string with '.' to a specified length. */
-std::string pad_string(const std::string &input_, unsigned int length_){
-    std::string output = input_;
-    for(unsigned int i = input_.size(); i <= length_; i++){
-        output += '.';
-    }
-    return output;
-}
-
-std::string yesno(bool value_){
-    if(value_){ return "Yes"; }
-    return "No";
 }
