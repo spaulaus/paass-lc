@@ -1,8 +1,4 @@
 # @author S. V. Paulauskas
-if (NOT PAASS_USE_GSL)
-    message(FATAL_ERROR "GSL is required to build Utkscan!")
-endif (NOT PAASS_USE_GSL)
-
 option(PAASS_UTKSCAN_GAMMA_GATES "Gamma-Gamma gates in GeProcessor" OFF)
 option(PAASS_UTKSCAN_ONLINE "Options for online scans" OFF)
 option(PAASS_UTKSCAN_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
@@ -64,11 +60,8 @@ else (PAASS_USE_HRIBF)
     target_link_libraries(utkscanor ${HRIBF_LIBRARIES})
 endif (NOT PAASS_USE_HRIBF)
 
-target_link_libraries(${SCAN_NAME} ${LIBS} PaassScanStatic ResourceStatic PaassCoreStatic PugixmlStatic PaassResourceStatic)
-
-if (PAASS_USE_GSL)
-    target_link_libraries(${SCAN_NAME} ${GSL_LIBRARIES})
-endif (PAASS_USE_GSL)
+target_link_libraries(${SCAN_NAME} ${LIBS} PaassScanStatic ResourceStatic PaassCoreStatic PugixmlStatic
+        PaassResourceStatic ${GSL_LIBRARIES})
 
 if (PAASS_USE_ROOT)
     target_link_libraries(${SCAN_NAME} ${ROOT_LIBRARIES})
