@@ -9,6 +9,7 @@
 #include <UnitTest++.h>
 
 #include "UnitTestSampleData.hpp"
+#include "HelperFunctions.hpp"
 #include "XiaData.hpp"
 
 using namespace std;
@@ -74,6 +75,11 @@ TEST_FIXTURE (XiaData, Test_GetSetEventTimeLow) {
     CHECK_EQUAL(ts_low, GetEventTimeLow());
 }
 
+TEST_FIXTURE(XiaData, Test_GetSetExternalTimestamp) {
+    SetExternalTimestamp(Conversions::ConcatenateWords(ex_ts_low, ex_ts_high, 32));
+    CHECK_EQUAL(Conversions::ConcatenateWords(ex_ts_low, ex_ts_high, 32), GetExternalTimestamp());
+}
+
 TEST_FIXTURE (XiaData, Test_GetSetExternalTimeHigh) {
     SetExternalTimeHigh(ex_ts_high);
     CHECK_EQUAL(ex_ts_high, GetExternalTimeHigh());
@@ -81,8 +87,7 @@ TEST_FIXTURE (XiaData, Test_GetSetExternalTimeHigh) {
 
 TEST_FIXTURE (XiaData, Test_GetSetExternalTimeLow) {
     SetExternalTimeLow(ex_ts_low);
-    CHECK_EQUAL(ex_ts_low, GetExternalTimeLow()
-    );
+    CHECK_EQUAL(ex_ts_low, GetExternalTimeLow());
 }
 
 TEST_FIXTURE (XiaData, Test_GetSetPileup) {

@@ -86,6 +86,9 @@ public:
     ///@return The energy that was calculated on the module
     double GetEnergy() const { return energy_; }
 
+    ///@return The external timestamp that was recorded on the module
+    double GetExternalTimestamp() const { return externalTimestamp_; }
+
     ///@return The time for the channel including all of the CFD information
     /// when available.
     double GetTime() const { return time_; }
@@ -140,6 +143,10 @@ public:
     ///@brief This value is set to true if the CFD was forced to trigger
     ///@param[in] a : The value to set
     void SetCfdForcedTriggerBit(const bool &a) { cfdForceTrig_ = a; }
+
+    /// @brief Sets the value of the concatenated external timestamp
+    /// @param [in] a : The value that we're going to set
+    void SetExternalTimestamp(const double &a) { externalTimestamp_ = a; }
 
     ///@brief Sets the baseline recorded on the module if the energy sums
     /// were recorded in the data stream
@@ -230,6 +237,7 @@ private:
     bool isVirtualChannel_; /// Flagged if generated virtually in Pixie DSP.
 
     double energy_; /// Raw pixie energy.
+    double externalTimestamp_; ///!< The external timestamp recorded by the module.
     double filterBaseline_;///Baseline that was recorded with the energy sums
     double time_; ///< The time of arrival using all parts of the time
     double timeSansCfd_; ///< The time of arrival of the signal sans CFD time.
