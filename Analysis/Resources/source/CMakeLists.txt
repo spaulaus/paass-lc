@@ -2,13 +2,11 @@
 #Set the utility sources that we will make a lib out of
 set(ResourceSources PolynomialCfd.cpp TraditionalCfd.cpp)
 
-if (PAASS_USE_GSL)
-    if (${GSL_VERSION} GREATER 1.9)
-        list(APPEND ResourceSources Gsl2Fitter.cpp)
-    else (${GSL_VERSION} LESS 2.0)
-        list(APPEND ResourceSources Gsl1Fitter.cpp)
-    endif (${GSL_VERSION} GREATER 1.9)
-endif (PAASS_USE_GSL)
+if (${GSL_VERSION} GREATER 1.9)
+    list(APPEND ResourceSources Gsl2Fitter.cpp)
+else (${GSL_VERSION} LESS 2.0)
+    list(APPEND ResourceSources Gsl1Fitter.cpp)
+endif (${GSL_VERSION} GREATER 1.9)
 
 if (PAASS_USE_ROOT)
     list(APPEND ResourceSources CrystalBallFunction.cpp CsiFunction.cpp EmCalTimingFunction.cpp
