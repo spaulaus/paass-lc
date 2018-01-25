@@ -1,5 +1,5 @@
 /// \file Gsl1Fitter.cpp
-/// \brief Implementation of the GSL fitting routine for GSL v2+
+/// \brief Implementation of the GSL fitting routine for GSL v 1.16 or older
 /// \author S. V. Paulauskas
 /// \date August 8, 2016
 #include "GslFitter.hpp"

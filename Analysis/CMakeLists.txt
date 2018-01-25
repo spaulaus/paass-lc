@@ -1,14 +1,10 @@
 #@authors K. Smith, S. V. Paulauskas, C. R. Thornsberry
 option(PAASS_USE_HRIBF "Use HRIBF library for scan base." OFF)
-CMAKE_DEPENDENT_OPTION(PAASS_USE_GSL "Compile with GSL" ON
-        "PAASS_BUILD_UTKSCAN" OFF)
-mark_as_advanced(PAASS_USE_GSL)
 
 #Check if GSL is installed
-if (PAASS_USE_GSL)
-    find_package(GSL REQUIRED)
-    add_definitions("-D usegsl")
-endif (PAASS_USE_GSL)
+find_package(GSL REQUIRED)
+include_directories(${GSL_INCLUDE_DIRS})
+link_directories(${GSL_LIBRARY_DIRS})
 
 #Everything below is dependent on these two sets of libaries so we include the
 #headers.
