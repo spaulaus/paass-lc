@@ -178,6 +178,8 @@ protected:
     std::vector<optionExt> userOpts; /// User added command line options.
     std::string optstr;
 
+    bool scan_init; /// Set to true when ScanInterface is initialized properly and is ready to scan.
+
     Unpacker *unpacker_; /// Pointer to class derived from Unpacker class.
 
     /** Add a command line option to the option list.
@@ -298,7 +300,6 @@ private:
     bool dry_run_mode; /// Set to true if a dry run is to be performed i.e. data is to be read but not processed.
     bool shm_mode; /// Set to true if shared memory mode is to be used.
     bool batch_mode; /// Set to true if the program is to be run with no interactive command line.
-    bool scan_init; /// Set to true when ScanInterface is initialized properly and is ready to scan.
     bool file_open; /// Set to true when an input binary file is successfully opened for reading.
 
     bool kill_all; /// Set to true when user has sent kill command.

@@ -21,12 +21,14 @@
 class UtkUnpacker : public Unpacker {
 public:
     /// Default constructor that does nothing in particular
-    UtkUnpacker() : Unpacker() {}
+    UtkUnpacker() : Unpacker(), isDetectorDriverInitialized_(false) {}
 
     /// Default destructor that deconstructs the DetectorDriver singleton
     ~UtkUnpacker();
 
 private:
+    bool isDetectorDriverInitialized_;
+
     ///@brief Process all events in the event list.
     ///@param[in]  addr_ Pointer to a ScanInterface object.
     void ProcessRawEvent();

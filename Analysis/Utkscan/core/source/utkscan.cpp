@@ -21,27 +21,21 @@ int main(int argc, char *argv[]) {
     cout << "utkscan.cpp : Setting the Program Name" << endl;
     scanner.SetProgramName("utkscan");
 
-    // Initialize the scanner.
-    cout << "utkscan.cpp : Performing the setup routine" << endl;
     try {
-        scanner.Setup(argc, argv, &unpacker);
-    } catch(invalid_argument &invalidArgument){
-        cout << invalidArgument.what() << endl;
-        return 1;
-    }
+        // Initialize the scanner.
+        cout << "utkscan.cpp : Performing the setup routine" << endl;
+        if(!scanner.Setup(argc, argv, &unpacker))
+            throw PaassException("utkscan.cpp : Unspecified error while inside UtkScanInterface::Setup.");
 
-    try {
         // Run the main loop.
         cout << "utkscan.cpp : Performing Execute method" << endl;
         scanner.Execute();
     } catch (std::exception &ex) {
-        cout << Display::ErrorStr(ex.what()) << endl;
+        cerr << Display::ErrorStr(ex.what()) << endl;
     }
 
-    //Cleanup the scanning
     cout << "utkscan.cpp : Closing things out" << endl;
     scanner.Close();
 
-    //return how things went
     return 0;
 }
