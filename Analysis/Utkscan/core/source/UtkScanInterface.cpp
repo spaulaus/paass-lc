@@ -20,14 +20,12 @@ OutputHisFile *output_his = NULL;
 #endif
 
 /// Default constructor.
-UtkScanInterface::UtkScanInterface() : ScanInterface() {
-    init_ = false;
-}
+UtkScanInterface::UtkScanInterface() : ScanInterface() {}
 
 /// Destructor.
 UtkScanInterface::~UtkScanInterface() {
 #ifndef USE_HRIBF
-    if (init_)
+    if (scan_init)
         delete (output_his);
 #endif
 }
@@ -37,7 +35,7 @@ UtkScanInterface::~UtkScanInterface() {
  * \param[in]  prefix_ String to append to the beginning of system output.
  * \return True upon successfully initializing and false otherwise. */
 bool UtkScanInterface::Initialize(string prefix_) {
-    if (init_)
+    if (scan_init)
         return false;
 
     if (GetOutputFilename() == "")
@@ -85,5 +83,5 @@ bool UtkScanInterface::Initialize(string prefix_) {
         throw;
     }
 #endif
-    return (init_ = true);
+    return (scan_init = true);
 }

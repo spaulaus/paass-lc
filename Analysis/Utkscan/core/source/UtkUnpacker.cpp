@@ -24,7 +24,8 @@ using namespace dammIds::raw;
 /// the amount of time spent in each processor is output to the screen at the
 /// end of execution.
 UtkUnpacker::~UtkUnpacker() {
-    delete DetectorDriver::get();
+    if(isDetectorDriverInitialized_)
+        delete DetectorDriver::get();
 }
 
 /// This method initializes the DetectorLibrary and DetectorDriver classes so
@@ -38,6 +39,8 @@ UtkUnpacker::~UtkUnpacker() {
 void UtkUnpacker::ProcessRawEvent() {
     static RawEvent rawev;
     DetectorDriver *driver = DetectorDriver::get();
+    if(driver)
+        isDetectorDriverInitialized_ = true;
     DetectorLibrary *detectorLibrary = DetectorLibrary::get();
     set<string> usedDetectors;
     Messenger m;
