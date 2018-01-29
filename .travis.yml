@@ -52,6 +52,6 @@ before_install:
 
 script:
   - mkdir paass-build && mkdir install
-  - cd paass-build && cmake ../ -DPAASS_BUILD_TESTS=TRUE -DPAASS_USE_ROOT=OFF && make install
+  - cd paass-build && cmake ../ -DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_USE_ROOT=OFF && make install
   - cd ../install/bin/unittests/
   - (for test in *; do echo $test; ./$test; if [ $? != 0 ]; then false; exit; fi; done)
