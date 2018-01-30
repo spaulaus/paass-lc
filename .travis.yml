@@ -26,6 +26,7 @@ matrix:
             - gsl-bin
             - libgsl0-dev
             - libncurses5-dev
+            - libroot*
       env:
         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
     - os: linux
@@ -38,6 +39,7 @@ matrix:
             - gsl-bin
             - libgsl0-dev
             - libncurses5-dev
+            - libroot*
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
 
@@ -52,6 +54,6 @@ before_install:
 
 script:
   - mkdir paass-build && mkdir install
-  - cd paass-build && cmake ../ -DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_USE_ROOT=OFF && make install
+  - cd paass-build && cmake ../ -DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_USE_ROOT=ON -DPAASS_BUILD_SCAN_UTILITIES=OFF && make install
   - cd ../install/bin/unittests/
   - (for test in *; do echo $test; ./$test; if [ $? != 0 ]; then false; exit; fi; done)
