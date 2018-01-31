@@ -4,6 +4,8 @@
 #include "GetArguments.hpp"
 #include "Scanor.hpp"
 #include "ScanorInterface.hpp"
+
+#include <cstring>
 #endif
 
 #include "EventReaderInterface.hpp"
