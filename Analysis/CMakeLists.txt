@@ -16,6 +16,8 @@ if (PAASS_USE_HRIBF)
     find_package(HRIBF REQUIRED)
     add_definitions("-D USE_HRIBF")
 
+    enable_language(Fortran)
+
     #If we are using HRIBF interface we need to include the ScanorInterface header
     #	for the following code.
     include_directories(Scanor/include)

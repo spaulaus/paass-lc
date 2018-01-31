@@ -23,7 +23,6 @@ public:
      * \return True upon successfully initializing and false otherwise. */
     bool Initialize(std::string prefix_ = "");
 private:
-    bool init_; /// Set to true when the initialization process successfully completes.
     std::string outputFname_; /// The output histogram filename prefix.
 };
 

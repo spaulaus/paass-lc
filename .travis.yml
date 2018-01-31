@@ -10,40 +10,50 @@ notifications:
     on_failure: always
 env:
   global:
-    - MAKEFLAGS="-j 5"
+    - MAKEFLAGS="-j 8"
 language: cpp
 sudo: required
-dist: trusty
-os: linux
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-5
-      - g++-5
-      - gfortran-5
-      - gsl-bin
-      - libgsl0-dev
-      - lib64ncurses5-dev
 
-env:
-  global:
-    - MAKEFLAGS="-j 5"
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+            - gsl-bin
+            - libgsl0-dev
+            - libncurses5-dev
+            - libroot*
+      env:
+        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+            - gsl-bin
+            - libgsl0-dev
+            - libncurses5-dev
+            - libroot*
+      env:
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
 
 before_install:
-  - export CC=gcc-5 && export CXX=g++-5 && export FC=gfortran-5
   - sudo apt-get -qq update --install-suggests
-  - mkdir -p /opt
+  - eval "${MATRIX_EVAL}"
   - git clone https://github.com/unittest-cpp/unittest-cpp.git && cd unittest-cpp/builds/
-  - cmake ../ && sudo make -j4 install && cd ../../
+  - cmake ../ && sudo make install && cd ../../
   - git clone https://github.com/spaulaus/xia-api.git && cd xia-api
   - mkdir build && cd build && cmake ../ -DCMAKE_INSTALL_PREFIX=/opt && make install && cd ../../
   - ln -s /opt/xia/api /opt/xia/current
-  - mkdir paass-build && cd paass-build
-  - cmake ../ -DPAASS_BUILD_SCAN_UTILITIES=ON -DPAASS_BUILD_ACQ=ON -DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_USE_ROOT=OFF
 
 script:
-  - make -j8 install
-  - cd ../install/bin/unittests
+  - mkdir paass-build && mkdir install
+  - cd paass-build && cmake ../ -DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_USE_ROOT=ON -DPAASS_BUILD_SCAN_UTILITIES=OFF && make install
+  - cd ../install/bin/unittests/
   - (for test in *; do echo $test; ./$test; if [ $? != 0 ]; then false; exit; fi; done)
