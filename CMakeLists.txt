@@ -53,11 +53,10 @@ include(CMakeDependentOption)
 
 #Install options
 option(PAASS_BUILD_ACQ "Build and install Acquisition software" ON)
-option(PAASS_BUILD_SCAN_UTILITIES "Build and install the Analysis Utilities" ON)
+option(PAASS_BUILD_ANALYSIS "Build analysis related programs" ON)
 option(PAASS_BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(PAASS_BUILD_TESTS "Builds programs designed to test the package. Including UnitTest++ test." OFF)
-option(PAASS_BUILD_UTKSCAN "Build utkscan" OFF)
 option(PAASS_USE_DAMM "Use DAMM for MCA" ON)
 option(PAASS_USE_ROOT "Use ROOT" ON)
 
@@ -143,7 +142,9 @@ else ()
 endif (PAASS_BUILD_ACQ)
 
 #Build any of the analysis related things that we need to build.
-add_subdirectory(Analysis)
+if(PAASS_BUILD_ANALYSIS)
+    add_subdirectory(Analysis)
+endif(PAASS_BUILD_ANALYSIS)
 
 #Build/install the miscellaneous stuff
 add_subdirectory(Share)
