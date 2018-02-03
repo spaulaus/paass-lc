@@ -29,6 +29,20 @@ matrix:
             - libroot*
       env:
         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF"
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+            - gsl-bin
+            - libgsl0-dev
+            - libncurses5-dev
+      env:
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_USE_ROOT=OFF"
     - os: linux
       addons:
         apt:
@@ -42,6 +56,7 @@ matrix:
             - libroot*
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF"
 
 before_install:
   - sudo apt-get -qq update --install-suggests
@@ -54,6 +69,6 @@ before_install:
 
 script:
   - mkdir paass-build && mkdir install
-  - cd paass-build && cmake ../ -DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF && make install
+  - cd paass-build && cmake ../ ${BUILD_OPTIONS} && make install
   - cd ../install/bin/unittests/
   - (for test in *; do echo $test; ./$test; if [ $? != 0 ]; then false; exit; fi; done)
