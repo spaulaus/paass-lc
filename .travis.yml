@@ -69,4 +69,4 @@ before_install:
 
 script:
   - mkdir paass-build && cd paass-build
-  - cmake ../ ${BUILD_OPTIONS} && ctest -j8
+  - cmake ../ ${BUILD_OPTIONS} && make && ctest -j8
