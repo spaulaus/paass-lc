@@ -1,6 +1,13 @@
 <!-- Author: S. Paulauskas -->
-# Pixie Acquisition and Analysis Software Suite (PAASS)
-# Brief history
+# Laughing Conqueror - Pixie Acquisition and Analysis Software Suite (PAASS)
+## Build Status
+Branch | Build status
+---------|-------------:
+Master | [![Build Status](https://travis-ci.org/spaulaus/paass-laughing-conqueror.svg?branch=master)](https://travis-ci.org/spaulaus/paass-laughing-conqueror)
+Test | [![Build Status](https://travis-ci.org/spaulaus/paass-laughing-conqueror.svg?branch=test)](https://travis-ci.org/spaulaus/paass-laughing-conqueror)
+Dev | [![Build Status](https://travis-ci.org/spaulaus/paass-laughing-conqueror.svg?branch=dev)](https://travis-ci.org/spaulaus/paass-laughing-conqueror)
+
+## Brief history
 I forked this project from the [Experimental Nuclear Structure Group](http://www.phys.utk.edu/expnuclear/) at the
 [University of Tennessee at Knoxville](https://utk.edu). I have worked on this software since 2009. I became the lead
 software developer in 2015. Since my departure from UT in 2017, I have continued to work on the software as a hobby. 
@@ -25,24 +32,24 @@ that can be extended beyond just a single group or digitizer.
 For more information about the original project you can view the read me at the 
 [original project](https://github.com/pixie16/paass).   
 
-# Dependencies
-## For all components 
+## Dependencies
+### For all components 
 * ncurses
 * gcc v4.4.6+
 * cmake v2.8.8+
 * [ROOT](https://root.cern.ch)
 
-## Acquisition
+### Acquisition
 * [PLX](http://support.xia.com/default.asp?W372)
 * [XIA API](http://support.xia.com/default.asp?W372)
 
-## Analysis
+### Analysis
 * gsl v2.x
 
-## Optional (but recommended at this time)
+### Optional (but recommended at this time)
 * [UPAK](https://www.phy.ornl.gov/computing/daqsupport.html)
 
-## Tested Systems
+### Tested Systems
 The software has been compiled and tested on the following setups: 
 
 Platform | Kernel | Cmake | GCC
@@ -51,14 +58,14 @@ CentOS 6.3 | 2.6.32-279.19.1.el6.x86\_64 | 2.8.12.2 | 4.4.6
 RHEL 6.6   | 2.6.32-504.23.4.el6.x86\_64 | 2.8.12.2 | 4.4.7
 Bash on Ubuntu on Windows | 4.4.0-43-Microsoft | 3.5.1 | 5.4.0 20160609
 
-# Licensing and Copyright
-## Software developed by S. V. Paulauskas
+## Licensing and Copyright
+### Software developed by S. V. Paulauskas
 I release all software developed for this project under the Creative Commons Attribution-ShareAlike 4.0 International 
 License.   
 
 Copyright (c) 2017-2018 S. V. Paulauskas. 
 
-## Software developed at UTK
+### Software developed at UTK
 UTKs code is licensed under the GNU GPL v. 3.0.
 
 Copyright (c) 2009 - 2017, University of Tennessee Board of Trustees All rights reserved.

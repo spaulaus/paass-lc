@@ -68,7 +68,5 @@ before_install:
   - ln -s /opt/xia/api /opt/xia/current
 
 script:
-  - mkdir paass-build && mkdir install
-  - cd paass-build && cmake ../ ${BUILD_OPTIONS} && make install
-  - cd ../install/bin/unittests/
-  - (for test in *; do echo $test; ./$test; if [ $? != 0 ]; then false; exit; fi; done)
+  - mkdir paass-build && cd paass-build
+  - cmake ../ ${BUILD_OPTIONS} && make && ctest -j8

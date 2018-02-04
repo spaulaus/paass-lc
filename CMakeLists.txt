@@ -93,6 +93,7 @@ if (PAASS_BUILD_TESTS)
     find_package(UnitTest++ REQUIRED)
     link_directories(${UNITTEST++_LIBRARY_DIR})
     include_directories(${UNITTEST++_INCLUDE_DIR})
+    enable_testing()
 endif (PAASS_BUILD_TESTS)
 
 if (PAASS_BUILD_ACQ)
