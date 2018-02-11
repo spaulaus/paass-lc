@@ -5,3 +5,4 @@ EmulatedInterface::EmulatedInterface(const char* cfgFile) :
 {
 
 }
+

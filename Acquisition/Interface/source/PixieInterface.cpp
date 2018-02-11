@@ -252,12 +252,12 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile) {
 }
 
 bool PixieInterface::WriteSglModPar(const char *name, word_t val, int mod,
-                                    word_t &pval = nullptr) {
+                                    word_t *pval = nullptr) {
 
     strncpy(tmpName, name, nameSize);
 
     if (!pval) {
-        Pixie16ReadSglModPar(tmpName, &pval, mod);
+        Pixie16ReadSglModPar(tmpName, pval, mod);
     }
     retval = Pixie16WriteSglModPar(tmpName, val, mod);
     if (retval < 0) {
@@ -288,27 +288,22 @@ void PixieInterface::PrintSglModPar(const char *name, int mod, word_t *prev=null
     if (ReadSglModPar(tmpName, val, mod)) {
         cout.unsetf(ios_base::floatfield);
         cout << "  MOD " << setw(2) << mod << "  " 
-             << setw(15) << name << "  "
-             << setprecision(6);
+             << setw(15) << name << "  ";
         if (prev) {
-            cout << setprecision(6) << prev << " -> ";
+            cout << setprecision(6) << *prev << " -> ";
         }
-        cout << val << endl;
+        cout << setprecison(6) << val << endl;
     }
-}
-
-bool PixieInterface::WriteSglChanPar(const char *name, double val, int mod,
-                                     int chan) {
-    double dummy;
-    return WriteSglChanPar(name, val, mod, chan, dummy);
 }
 
 bool
 PixieInterface::WriteSglChanPar(const char *name, double val, int mod, int chan,
-                                double &pval) {
+                                double *pval) {
     strncpy(tmpName, name, nameSize);
 
-    Pixie16ReadSglChanPar(tmpName, &pval, mod, chan);
+    if (!pval) {
+        Pixie16ReadSglChanPar(tmpName, pval, mod, chan);
+    }
     retval = Pixie16WriteSglChanPar(tmpName, val, mod, chan);
     if (retval < 0) {
         cout << "Error writing channel parameter " << WarningStr(name)
@@ -331,28 +326,18 @@ bool PixieInterface::ReadSglChanPar(const char *name, double &pval, int mod,
     return true;
 }
 
-void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan) {
+void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan, double *prev) {
     double val;
     strncpy(tmpName, name, nameSize);
 
     if (ReadSglChanPar(tmpName, val, mod, chan)) {
         cout.unsetf(ios_base::floatfield);
         cout << "  MOD " << setw(2) << mod << "  CHAN " << setw(2) << chan
-             << "  " << setw(15) << name << "  " << setprecision(6) << val
-             << endl;
-    }
-}
-
-void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan,
-                                     double prev) {
-    double val;
-    strncpy(tmpName, name, nameSize);
-
-    if (ReadSglChanPar(tmpName, val, mod, chan)) {
-        cout.unsetf(ios_base::floatfield);
-        cout << "  MOD " << setw(2) << mod << "  CHAN " << setw(2) << chan
-             << "  " << setw(15) << name << "  " << setprecision(6) << prev
-             << " -> " << val << endl;
+             << "  " << setw(15) << name << " ";
+        if (prev) {
+            cout << setprecision(6) << *prev << " -> ";
+        }
+        cout << setprecison(6) << val << endl;
     }
 }
 
@@ -428,67 +413,41 @@ double PixieInterface::GetProcessedEvents(int mod) {
     return Pixie16ComputeProcessedEvents(statistics, mod);
 }
 
-bool PixieInterface::StartHistogramRun(unsigned short mode) {
+bool PixieInterface::StartHistogramRun(short mod, unsigned short mode) {
     LeaderPrint("Starting histogram run");
-    retval = Pixie16StartHistogramRun(numberCards, mode);
-
-    return !CheckError();
-}
-
-bool
-PixieInterface::StartHistogramRun(unsigned short mod, unsigned short mode) {
+    if (mod <  0) mod = numberCards;
     retval = Pixie16StartHistogramRun(mod, mode);
 
-    if (retval < 0) {
-        cout << ErrorStr("Error starting histogram run in module ") << mod
-             << endl;
-        exit(EXIT_FAILURE);
-    }
-    return true;
+    return !CheckError();
 }
 
-bool PixieInterface::StartListModeRun(unsigned short listMode,
+bool PixieInterface::StartListModeRun(short mod, unsigned short listMode,
                                       unsigned short runMode) {
     LeaderPrint("Starting list mode run");
-    retval = Pixie16StartListModeRun(numberCards, listMode, runMode);
+    if (mod <  0) mod = numberCards;
+    retval = Pixie16StartListModeRun(mod, listMode, runMode);
 
     return !CheckError();
 }
 
-bool PixieInterface::StartListModeRun(unsigned short mod,
-                                      unsigned short listMode,
-                                      unsigned short runMode) {
-    retval = Pixie16StartListModeRun(mod, listMode, runMode);
-
-    if (retval < 0) {
-        cout << ErrorStr("Error starting list mode run in module ") << mod
-             << endl;
-        exit(EXIT_FAILURE);
+bool PixieInterface::CheckRunStatus(short mod) {
+    bool error = false;
+    if (mod >= 0) error = Pixie16CheckRunStatus(mod);
+    else {
+        for (mod = 0; mod < numberCards; mod++) {
+            if (!Pixie16CheckRunStatus(mod)) {
+                error = true;
+                break;
+            }
+        }
     }
 
-    return true;
-}
-
-bool PixieInterface::CheckRunStatus() {
-    for (int mod = 0; mod < numberCards; mod++) {
-        if (!CheckRunStatus(mod))
-            return false;
+    if (error) {
+        cout << WarningStr("Error checking run status in module ") << mod;
     }
 
-    return true;
+    return error;
 }
-
-bool PixieInterface::CheckRunStatus(int mod) {
-    retval = Pixie16CheckRunStatus(mod);
-
-    if (retval < 0) {
-        cout << WarningStr("Error checking run status in module ") << mod
-             << endl;
-    }
-
-    return (retval == 1);
-}
-
 
 // only Rev. D has the external FIFO
 #ifdef PIF_FIFO
@@ -566,33 +525,25 @@ bool PixieInterface::ReadFIFOWords(word_t *buf, unsigned long nWords,
 
 #endif // Rev. D FIFO access
 
-bool PixieInterface::EndRun() {
+bool PixieInterface::EndRun(short mod) {
     bool b = true;
 
     LeaderPrint("Ending run");
-
-    for (int mod = 0; mod < numberCards; mod++)
-        if (!EndRun(mod))
-            b = false;
+    if (mod >= 0) b = Pixie16EndRun(mod);
+    else {
+        for (mod = 0; mod < numberCards; mod++)
+            if (!EndRun(mod)) b = false;
+            break;
+    }
 
     if (!b) {
         cout << ErrorStr() << endl;
+        cout << WarningStr("Failed to end run in module ") << mod << endl;
     } else {
         cout << OkayStr() << endl;
     }
 
     return b;
-}
-
-bool PixieInterface::EndRun(int mod) {
-    retval = Pixie16EndRun(mod);
-
-    if (retval < 0) {
-        cout << WarningStr("Failed to end run in module ") << mod << endl;
-        return false;
-    }
-
-    return true;
 }
 
 bool PixieInterface::RemovePresetRunLength(int mod) {

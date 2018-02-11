@@ -111,16 +111,12 @@ public:
 
     void PrintSglModPar(const char *name, int mod, word_t *prev=nullptr);
 
-    bool WriteSglChanPar(const char *name, double val, int mod, int chan);
-
     bool WriteSglChanPar(const char *name, double val, int mod, int chan,
-                         double &pval);
+                         double *pval=nullptr);
 
     bool ReadSglChanPar(const char *name, double &val, int mod, int chan);
 
-    void PrintSglChanPar(const char *name, int mod, int chan);
-
-    void PrintSglChanPar(const char *name, int mod, int chan, double prev);
+    void PrintSglChanPar(const char *name, int mod, int chan, double *prev=nullptr);
 
     bool SaveDSPParameters(const char *fn = NULL);
 
@@ -151,18 +147,12 @@ public:
                        unsigned short *adcMsps);
 
     // # #
-    bool StartHistogramRun(unsigned short mode = NEW_RUN);
+    bool StartHistogramRun(short mod=-1, unsigned short mode = NEW_RUN);
 
-    bool StartHistogramRun(unsigned short mod, unsigned short mode);
-
-    bool StartListModeRun(unsigned short listMode = LIST_MODE_RUN,
+    bool StartListModeRun(short mod=-1, unsigned short listMode = LIST_MODE_RUN,
                           unsigned short runMode = NEW_RUN);
 
-    bool StartListModeRun(unsigned short mod, unsigned short listMode,
-                          unsigned short runMode);
-
-    bool CheckRunStatus(void); // check status in all modules
-    bool CheckRunStatus(int mod);
+    bool CheckRunStatus(short mod=-1);
 
 #ifdef PIF_FIFO
 
@@ -173,8 +163,7 @@ public:
 
 #endif
 
-    bool EndRun(void); // end run in all modules
-    bool EndRun(int mod);
+    bool EndRun(short mod = -1);
 
     bool RemovePresetRunLength(int mod);
 

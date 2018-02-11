@@ -46,7 +46,7 @@ bool BitFlipper::operator()(PixieFunctionParms <std::string> &par) {
     }
 
     if (par.pif->WriteSglChanPar(par.par.c_str(), new_csra, par.mod, par.ch)) {
-        par.pif->PrintSglChanPar(par.par.c_str(), par.mod, par.ch, value);
+        par.pif->PrintSglChanPar(par.par.c_str(), par.mod, par.ch, &value);
         return true;
     }
 
@@ -354,9 +354,9 @@ bool ParameterChannelWriter::operator()(
         PixieFunctionParms <std::pair<std::string, double>> &par) {
     double previousValue;
     if (par.pif->WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod,
-                                 par.ch, previousValue)) {
+                                 par.ch, &previousValue)) {
         par.pif->PrintSglChanPar(par.par.first.c_str(), par.mod, par.ch,
-                                 previousValue);
+                                 &previousValue);
         return true;
     }
     return false;
@@ -410,10 +410,10 @@ bool OffsetAdjuster::operator()(PixieFunctionParms<int> &par) {
 
 /// @TODO Restore this functionality!
 bool TauFinder::operator()(PixieFunctionParms<> &par) {
-	double tau[16];
-
 // TODO Restore this!
 /*
+	double tau[16];
+
 	int errorNum = Pixie16TauFinder(par.mod, tau);
 	if (par.ch < 16) {
 		std::cout << "TAU: " << tau[par.ch] << std::endl;

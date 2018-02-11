@@ -21,7 +21,7 @@ class AcqInterface {
         /// This reads the slot configuration file.
         virtual bool ReadSlotConfig(const char *slotCfgFile = nullptr);
 
-        /// @TODO Remove the offlineMode here, this should be separated into a 
+        /// @TODO Remove the offlineMode here, this should be separated into a
         ///   Setter / Getter.
         /// Initializes the API.
         virtual bool Init(bool offlineMode=false) = 0;
@@ -39,57 +39,46 @@ class AcqInterface {
 
         virtual void PrintSglModPar(const char *name, int mod, word_t *prev=nullptr) = 0;
 
-        virtual bool WriteSglChanPar(const char *name, double val, int mod, int chan);
+        virtual bool WriteSglChanPar(const char *name, double val, int mod, int chan, double *pval=nullptr) = 0;
 
-        virtual bool WriteSglChanPar(const char *name, double val, int mod, int chan,
-                             double &pval);
+        virtual bool ReadSglChanPar(const char *name, double &val, int mod, int chan) = 0;
 
-        virtual bool ReadSglChanPar(const char *name, double &val, int mod, int chan);
+        virtual void PrintSglChanPar(const char *name, int mod, int chan, double *prev=nullptr) = 0;
 
-        virtual void PrintSglChanPar(const char *name, int mod, int chan);
+        virtual bool SaveDSPParameters(const char *fn = nullptr) = 0;
 
-        virtual void PrintSglChanPar(const char *name, int mod, int chan, double prev);
-
-        virtual bool SaveDSPParameters(const char *fn = nullptr);
-
-
-        virtual bool AcquireTraces(int mod);
+        virtual bool AcquireTraces(int mod) = 0;
 
         // # AcquireTraces must be called before calling this #
         virtual bool ReadSglChanTrace(unsigned short *buf, unsigned long sz,
-                                      unsigned short mod, unsigned short chan);
+                                      unsigned short mod, unsigned short chan) = 0;
 
+        virtual bool AdjustOffsets(unsigned short mod) = 0;
 
-        // # #
+        virtual bool StartHistogramRun(short mod=-1, unsigned short mode=0) = 0;
+
+        virtual bool StartListModeRun(short mod=-1, unsigned short listMode=0,
+                          unsigned short runMode=0) = 0;
+
+        virtual bool CheckRunStatus(short mod=-1) = 0;
+
+        virtual bool EndRun(short mod = -1) = 0;
+
+        virtual bool ReadHistogram(word_t *hist, unsigned long sz,
+                                   unsigned short mod, unsigned short ch) = 0;
+
+        virtual bool RemovePresetRunLength(int mod) = 0;
+/*
+
         virtual bool GetStatistics(unsigned short mod);
 
-        virtual bool RemovePresetRunLength(int mod) {return true;};
-        // # #
-        virtual bool StartHistogramRun(unsigned short mode = 0) = 0;
-
-        virtual bool StartHistogramRun(unsigned short mod, unsigned short mode);
-
-        virtual bool StartListModeRun(unsigned short listMode,
-                                      unsigned short runMode);
-
-        virtual bool StartListModeRun(unsigned short mod, unsigned short listMode,
-                                      unsigned short runMode);
-
-        virtual bool CheckRunStatus(void); // check status in all modules
-        virtual bool CheckRunStatus(int mod);
 
         virtual unsigned long CheckFIFOWords(unsigned short mod) = 0;
 
         virtual bool ReadFIFOWords(word_t *buf, unsigned long nWords,
                                    unsigned short mod, bool verbose = false) = 0;
 
-        virtual bool EndRun(void); // end run in all modules
-        virtual bool EndRun(int mod);
-
-        virtual bool ReadHistogram(word_t *hist, unsigned long sz,
-                                   unsigned short mod, unsigned short ch);
-
-        virtual bool AdjustOffsets(unsigned short mod);
+*/
 
         unsigned short GetNumberCards(void) const { return numberCards; };
 
