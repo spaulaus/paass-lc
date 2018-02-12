@@ -37,7 +37,6 @@ For more information about the original project you can view the read me at the
 * ncurses
 * gcc v4.4.6+
 * cmake v2.8.8+
-* [ROOT](https://root.cern.ch)
 
 ### Acquisition
 * [PLX](http://support.xia.com/default.asp?W372)
@@ -47,6 +46,7 @@ For more information about the original project you can view the read me at the
 * gsl v2.x
 
 ### Optional (but recommended at this time)
+* [ROOT](https://root.cern.ch)
 * [UPAK](https://www.phy.ornl.gov/computing/daqsupport.html)
 
 ### Tested Systems
