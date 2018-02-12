@@ -32,10 +32,10 @@ target_link_libraries(unittest-TraditionalCfd UnitTest++)
 install(TARGETS unittest-TraditionalCfd DESTINATION bin/unittests)
 add_test(TraditionalCfd unittest-PolynomialCfd)
 
-if (PAASS_USE_ROOT)
+if (ROOT_FOUND)
     add_executable(unittest-RootFitter unittest-RootFitter.cpp
             ../source/RootFitter.cpp ../source/VandleTimingFunction.cpp)
     target_link_libraries(unittest-RootFitter ${ROOT_LIBRARIES} UnitTest++)
     install(TARGETS unittest-RootFitter DESTINATION bin/unittests)
     add_test(RootFitter unittest-RootFitter)
-endif (PAASS_USE_ROOT)
+endif (ROOT_FOUND)

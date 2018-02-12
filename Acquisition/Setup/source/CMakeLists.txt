@@ -11,9 +11,9 @@ endforeach (UTIL)
 
 install(TARGETS ${SETUP_UTILS} DESTINATION bin)
 
-if (PAASS_USE_ROOT)
+if (ROOT_FOUND)
     add_executable(paramScan paramScan.cpp)
     target_link_libraries(paramScan PixieInterface MCA_LIBRARY ${ROOT_LIBRARIES}
             "-lSpectrum")
     install(TARGETS paramScan DESTINATION bin)
-endif (PAASS_USE_ROOT)
+endif (ROOT_FOUND)
