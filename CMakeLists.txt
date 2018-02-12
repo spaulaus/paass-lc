@@ -58,7 +58,6 @@ option(PAASS_BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(PAASS_BUILD_TESTS "Builds programs designed to test the package. Including UnitTest++ test." OFF)
 option(PAASS_USE_DAMM "Use DAMM for MCA" ON)
-option(PAASS_USE_ROOT "Use ROOT" ON)
 
 #------------------------------------------------------------------------------
 
@@ -116,14 +115,14 @@ if (PAASS_BUILD_ACQ)
 endif (PAASS_BUILD_ACQ)
 
 #Find ROOT if USE_ROOT was set.
-if (PAASS_USE_ROOT)
-    find_package(ROOT REQUIRED COMPONENTS TreePlayer)
+find_package(ROOT COMPONENTS TreePlayer)
+if(ROOT_FOUND)
     mark_as_advanced(FORCE GENREFLEX_EXECUTABLE ROOTCINT_EXECUTABLE ROOT_CONFIG_EXECUTABLE)
     include_directories(${ROOT_INCLUDE_DIR})
     link_directories(${ROOT_LIBRARY_DIR})
     add_definitions("-D USE_ROOT")
     add_definitions("-D useroot")
-endif (PAASS_USE_ROOT)
+endif(ROOT_FOUND)
 
 #------------------------------------------------------------------------------
 #Put all the include directories that we might need at this point. Third party includes must come before the Resources.

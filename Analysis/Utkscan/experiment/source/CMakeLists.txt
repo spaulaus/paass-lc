@@ -5,12 +5,12 @@ set(EXPERIMENT_SOURCES
         VandleOrnl2012Processor.cpp
         )
 
-if (PAASS_USE_ROOT)
+if (ROOT_FOUND)
     list(APPEND EXPERIMENT_SOURCES
             Anl1471Processor.cpp
             IS600Processor.cpp
             TwoChanTimingProcessor.cpp
             )
-endif (PAASS_USE_ROOT)
+endif(ROOT_FOUND)
 
 add_library(UtkscanExperimentObjects OBJECT ${EXPERIMENT_SOURCES})
