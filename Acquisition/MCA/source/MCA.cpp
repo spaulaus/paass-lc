@@ -1,7 +1,7 @@
 /// @authors K. Miernik, K. Smith, C. R. Thornsberry
 #include "MCA.h"
 
-#include "AcqInterface.hpp"
+#include "AcquisitionInterface.hpp"
 #include "Display.h"
 #include "Utility.h"
 
@@ -10,7 +10,7 @@
 #include <unistd.h>
 
 ///Default constructor
-MCA::MCA(AcqInterface *pif) : _pif(pif) {
+MCA::MCA(AcquisitionInterface *pif) : _pif(pif) {
     time(&start_time);
 }
 

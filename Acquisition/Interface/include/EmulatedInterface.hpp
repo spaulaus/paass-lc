@@ -4,9 +4,9 @@
 #ifndef __EMULATEDINTERFACE_HPP_
 #define __EMULATEDINTERFACE_HPP_
 
-#include "AcqInterface.hpp"
+#include "AcquisitionInterface.hpp"
 
-class EmulatedInterface : public AcqInterface {
+class EmulatedInterface : public AcquisitionInterface {
     public:
 	    EmulatedInterface(const char* cfgFile);
 		

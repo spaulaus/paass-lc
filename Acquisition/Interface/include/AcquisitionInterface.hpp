@@ -1,22 +1,22 @@
 ///@brief Abstracted interface to acquistion API.
 ///@author Karl Smith
 
-#ifndef __ACQINTERFACE_HPP_
-#define __ACQINTERFACE_HPP_
+#ifndef __ACQUISTIONINTERFACE_HPP_
+#define __ACQUISTIONINTERFACE_HPP_
 
 #define NUMBER_OF_CHANNELS 16
 
 #include <cstdint>
 
-#include "AcqConfig.hpp"
+#include "AcquisitionConfig.hpp"
 #include "Lock.h"
 
-class AcqInterface {
+class AcquisitionInterface {
     public:
         typedef uint32_t word_t;
 
-        AcqInterface(const char* cfgFile);
-        virtual ~AcqInterface() {};
+        AcquisitionInterface(const char* cfgFile);
+        virtual ~AcquisitionInterface() {};
 
         /// This reads the slot configuration file.
         virtual bool ReadSlotConfig(const char *slotCfgFile = nullptr);
@@ -95,9 +95,9 @@ class AcqInterface {
         unsigned short numberCards;
         unsigned short slotMap[MAX_MODULES];
 
-        AcqConfig config;
+        AcquisitionConfig config;
 };
 
-#endif // __ACQINTERFACE_HPP_
+#endif // __ACQUISTIONINTERFACE_HPP_
 
 // vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 autoindent

@@ -52,7 +52,7 @@ private:
 
 public:
     ///Default constructor
-    MCA_ROOT(AcqInterface *pif, const char *basename);
+    MCA_ROOT(AcquisitionInterface *pif, const char *basename);
 
     ///Defaul destructor
     ~MCA_ROOT();

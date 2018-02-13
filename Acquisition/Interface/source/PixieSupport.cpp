@@ -393,7 +393,7 @@ bool ParameterChannelDumper::operator()(PixieFunctionParms <std::string> &par) {
 }
 
 bool ParameterModuleDumper::operator()(PixieFunctionParms <std::string> &par) {
-    AcqInterface::word_t value;
+    AcquisitionInterface::word_t value;
     par.pif->ReadSglModPar(par.par.c_str(), value, (int) par.mod);
     *file << par.mod << "\t" << par.par << "\t" << value << std::endl;
     return true;

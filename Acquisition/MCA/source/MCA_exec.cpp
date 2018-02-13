@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
             return EXIT_FAILURE;
     }
 
-    AcqInterface *pif;
+    AcquisitionInterface *pif;
 
 #ifdef PAASS_BUILD_XIA_INTERFACE
     pif = new PixieInterface("pixie.cfg");
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 
     //cxx, end any ongoing runs
     pif->EndRun();
-    pif->Boot(AcqInterface::BootType::MCA, true);
+    pif->Boot(AcquisitionInterface::BootType::MCA, true);
 
     pif->RemovePresetRunLength(0);
 

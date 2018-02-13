@@ -92,7 +92,7 @@ bool PixieInterface::Histogram::Write(ofstream &out) {
 }
 
 PixieInterface::PixieInterface(const char *fn) :
-    AcqInterface(fn)
+    AcqusitionInterface(fn)
 {
     //Overwrite the default path 'pxisys.ini' with the one specified in the scan file.
     PCISysIniFile = config.Get("global", "CrateConfig").c_str();

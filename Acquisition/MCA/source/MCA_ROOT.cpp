@@ -5,7 +5,7 @@
 #include <TFile.h>
 #include <TH1F.h>
 
-MCA_ROOT::MCA_ROOT(AcqInterface *pif, const char *basename) :
+MCA_ROOT::MCA_ROOT(AcquisitionInterface *pif, const char *basename) :
         MCA(pif) {
     OpenFile(basename);
 }
@@ -63,7 +63,7 @@ TH1F *MCA_ROOT::GetHistogram(int mod, int ch) {
 }
 
 bool MCA_ROOT::StoreData(int mod, int ch) {
-    AcqInterface::word_t histo[ADC_SIZE];
+    AcquisitionInterface::word_t histo[ADC_SIZE];
 
     _pif->ReadHistogram(histo, ADC_SIZE, mod, ch);
 

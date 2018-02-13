@@ -1,12 +1,12 @@
-#ifndef ACQCONFIG_HPP
-#define ACQCONFIG_HPP
+#ifndef ACQUISTIONCONFIG_HPP
+#define ACQUISTIONCONFIG_HPP
 
 #include <map>
 #include <set>
 
-class AcqConfig {
+class AcquisitionConfig {
     public:
-        AcqConfig();
+        AcquisitionConfig();
 
         bool ReadConfigFile(const char *cfgFile);
 
@@ -23,6 +23,6 @@ class AcqConfig {
         std::map<std::string, std::map<std::string, std::string>> configStrings;
 };
 
-#endif //ACQCONFIG_HPP
+#endif //ACQUISTIONCONFIG_HPP
 
 // vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 autoindent

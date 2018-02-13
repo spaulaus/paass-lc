@@ -9,18 +9,18 @@
 #include <bitset>
 #include <fstream>
 
-#include "AcqInterface.hpp"
+#include "AcquisitionInterface.hpp"
 
 extern bool hasColorTerm;
 
 template<typename T=int>
 struct PixieFunctionParms {
-    AcqInterface *pif;
+    AcquisitionInterface *pif;
     unsigned int mod;
     unsigned int ch;
     T par;
 
-    PixieFunctionParms(AcqInterface *p, T x) : pif(p) { par = x; }
+    PixieFunctionParms(AcquisitionInterface *p, T x) : pif(p) { par = x; }
 };
 
 template<typename T=int>
@@ -34,7 +34,7 @@ public:
 
 template<typename T>
 bool
-forChannel(AcqInterface *pif, int mod, int ch, PixieFunction<T> &f, T par) {
+forChannel(AcquisitionInterface *pif, int mod, int ch, PixieFunction<T> &f, T par) {
     PixieFunctionParms<T> parms(pif, par);
 
     bool hadError = false;
@@ -69,7 +69,7 @@ forChannel(AcqInterface *pif, int mod, int ch, PixieFunction<T> &f, T par) {
 }
 
 template<typename T>
-bool forModule(AcqInterface *pif, int mod, PixieFunction<T> &f, T par) {
+bool forModule(AcquisitionInterface *pif, int mod, PixieFunction<T> &f, T par) {
     PixieFunctionParms<T> parms(pif, par);
     bool hadError = false;
 

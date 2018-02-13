@@ -6,7 +6,7 @@
 
 #include "PixieSupport.h"
 
-class AcqInterface;
+class AcquisitionInterface;
 
 ///Abstract MCA class
 class MCA {
@@ -22,11 +22,11 @@ protected:
 
     ///Flag indicating if histogram construction was successful.
     bool _isOpen;
-    ///Pointer to the AcqInterface
-    AcqInterface *_pif;
+    ///Pointer to the AcquisitionInterface
+    AcquisitionInterface *_pif;
 public:
     ///Default constructor.
-    MCA(AcqInterface *pif);
+    MCA(AcquisitionInterface *pif);
 
     ///Default destructor.
     virtual ~MCA() {};

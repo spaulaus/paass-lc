@@ -49,7 +49,7 @@ const int CCSRA_CATCHER = 16;
 /// Only for SHE custom firmware w/ virtual digital-summed channels
 const int CCSRA_SUMMED_SINGLE_EVENT = 18;
 
-class PixieInterface : public AcqInterface {
+class PixieInterface : public AcqusitionInterface {
 public:
     static const size_t STAT_SIZE = N_DSP_PAR - DSP_IO_BORDER;
     static const size_t HISTO_SIZE = MAX_HISTOGRAM_LENGTH;
@@ -103,7 +103,7 @@ public:
 
     bool Boot(int mode = 0x7f, bool useWorkingSetFile = false);
 
-    bool Boot(AcqInterface::BootType mode, bool useWorkingSetFile = false);
+    bool Boot(AcqusitionInterface::BootType mode, bool useWorkingSetFile = false);
 
     bool WriteSglModPar(const char *name, word_t val, int mod, word_t *pval = nullptr);
 

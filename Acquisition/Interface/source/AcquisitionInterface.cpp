@@ -1,4 +1,4 @@
-#include "AcqInterface.hpp"
+#include "AcquisitionInterface.hpp"
 
 #include <fstream>
 #include <iomanip>
@@ -10,7 +10,7 @@
 
 using namespace std;
 
-AcqInterface::AcqInterface(const char *cfgFile) : 
+AcquisitionInterface::AcquisitionInterface(const char *cfgFile) : 
     lock("PixieInterface") 
 {
     Display::SetColorTerm();
@@ -26,7 +26,7 @@ AcqInterface::AcqInterface(const char *cfgFile) :
 }
 
 
-bool AcqInterface::ReadSlotConfig(const char *slotF) {
+bool AcquisitionInterface::ReadSlotConfig(const char *slotF) {
     char restOfLine[CONFIG_LINE_LENGTH];
 
     if (slotF == NULL)

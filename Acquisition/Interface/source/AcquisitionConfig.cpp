@@ -1,4 +1,4 @@
-#include "AcqConfig.hpp"
+#include "AcquisitionConfig.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-AcqConfig::AcqConfig() {
+AcquisitionConfig::AcquisitionConfig() {
     // Set-up valid configuration keys if they don't exist yet
     if (validConfigKeys.empty()) {
         // module files
@@ -29,7 +29,7 @@ AcqConfig::AcqConfig() {
     }
 }
 
-bool AcqConfig::ReadConfigFile(const char *fn) {
+bool AcquisitionConfig::ReadConfigFile(const char *fn) {
     ifstream in(fn);
     if (!in)
         return false;
@@ -138,7 +138,7 @@ bool AcqConfig::ReadConfigFile(const char *fn) {
     return true;
 }
 
-std::string AcqConfig::ParseModuleTypeTag(std::string value) {
+std::string AcquisitionConfig::ParseModuleTypeTag(std::string value) {
     std::string moduleType = "invalid";
     int adcRes = -1, msps = -1;
     string revision = "";
@@ -207,7 +207,7 @@ std::string AcqConfig::ParseModuleTypeTag(std::string value) {
 
 }
 
-string AcqConfig::ConfigFileName(const string &type, const string &str) {
+string AcquisitionConfig::ConfigFileName(const string &type, const string &str) {
     //If the file name starts with a '.' or a '/' then we assume the BaseDir should be ignored.
     if (str[0] == '.' || str[0] == '/') return str;
 
@@ -227,7 +227,7 @@ string AcqConfig::ConfigFileName(const string &type, const string &str) {
     return baseDir + '/' + str;
 }
 
-std::string AcqConfig::Get(std::string moduleType, std::string tag){
+std::string AcquisitionConfig::Get(std::string moduleType, std::string tag){
     return configStrings[moduleType][tag];
 }
 
