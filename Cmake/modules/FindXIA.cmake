@@ -15,8 +15,8 @@ unset(XIA_LIBRARY_DIR CACHE)
 find_path(XIA_LIBRARY_DIR
         NAMES libPixie16App.a libPixie16Sys.a
         HINTS ${XIA_ROOT_DIR}
-        PATHS /opt/xia/current /opt/xia/api /opt/xia/software
-        PATH_SUFFIXES software
+        PATHS /opt/xia
+        PATH_SUFFIXES current api software
         DOC "Path to pixie library.")
 
 get_filename_component(XIA_LIBRARY_DIR "${XIA_LIBRARY_DIR}" REALPATH)
@@ -26,15 +26,25 @@ if (NOT XIA_FIRMWARE_DIR)
 endif (NOT XIA_FIRMWARE_DIR)
 set(XIA_FIRMWARE_DIR ${XIA_FIRMWARE_DIR} CACHE PATH "Path to folder containing XIA firmware.")
 
-#The order is strange here as we are really interested in the libraries first
-# then we determine the root directory from there.
+find_path(XIA_APP_INCLUDES
+        NAMES pixie16app_defs.h
+        PATHS ${XIA_LIBRARY_DIR} "${XIA_LIBRARY_DIR}/../"
+        PATH_SUFFIXES app include
+        DOC "Path to XIA app includes.")
+
+find_path(XIA_SYS_INCLUDES
+        NAMES pixie16sys_defs.h
+        PATHS ${XIA_LIBRARY_DIR} "${XIA_LIBRARY_DIR}/../"
+        PATH_SUFFIXES sys include
+        DOC "Path to XIA sys includes.")
 
 # Support the REQUIRED and QUIET arguments, and set XIA_FOUND if found.
 include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(XIA DEFAULT_MSG XIA_LIBRARY_DIR)
 
 if (XIA_FOUND)
-    set(XIA_INCLUDE_DIR ${XIA_LIBRARY_DIR}/inc ${XIA_LIBRARY_DIR}/sys ${XIA_LIBRARY_DIR}/app ${XIA_LIBRARY_DIR}/../include)
+    set(XIA_INCLUDE_DIR ${XIA_APP_INCLUDES} ${XIA_SYS_INCLUDES})
+    list(REMOVE_DUPLICATES XIA_INCLUDE_DIR)
     set(XIA_LIBRARIES -lPixie16App -lPixie16Sys)
 endif ()
 
