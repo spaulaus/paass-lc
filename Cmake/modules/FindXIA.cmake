@@ -3,13 +3,12 @@
 # Sets the usual variables expected for find_package scripts:
 #
 # XIA_LIBRARY_DIR
+# XIA_INCLUDE_DIR
+# XIA_LIBRARIES
 # XIA_FOUND - true if XIA was found.
+# XIA_FIRMWARE_DIR - Directory to be searched for firmwares for pixie.cfg.
 #
 # @authors K. Smith, C. R. Thornsberry, S. V. Paulauskas
-
-#Unset any cached value to ensure a fresh search is performed. 
-#This permits the user to change the XIA_ROOT_DIR and have subsequent paths updated.
-unset(XIA_LIBRARY_DIR CACHE)
 
 #Find the library path by looking for the library.
 find_path(XIA_LIBRARY_DIR
@@ -21,8 +20,12 @@ find_path(XIA_LIBRARY_DIR
 
 get_filename_component(XIA_LIBRARY_DIR "${XIA_LIBRARY_DIR}" REALPATH)
 
+#Unset any cached value to ensure a fresh search is performed.
+#This permits the user to change the XIA_FIRMWARE_DIR and have subsequent paths updated.
+unset(XIA_FIRMWARE_DIR CACHE)
+
 if (NOT XIA_FIRMWARE_DIR)
-    get_filename_component(XIA_FIRMWARE_DIR "${XIA_LIBRARY_DIR}/../.." REALPATH)
+    get_filename_component(XIA_FIRMWARE_DIR "${XIA_LIBRARY_DIR}/../firmwares" REALPATH)
 endif (NOT XIA_FIRMWARE_DIR)
 set(XIA_FIRMWARE_DIR ${XIA_FIRMWARE_DIR} CACHE PATH "Path to folder containing XIA firmware.")
 
@@ -31,12 +34,14 @@ find_path(XIA_APP_INCLUDES
         PATHS ${XIA_LIBRARY_DIR} "${XIA_LIBRARY_DIR}/../"
         PATH_SUFFIXES app include
         DOC "Path to XIA app includes.")
+set(XIA_APP_INCLUDES ${XIA_APP_INCLUDES} CACHE INTERNAL "App includes")
 
 find_path(XIA_SYS_INCLUDES
         NAMES pixie16sys_defs.h
         PATHS ${XIA_LIBRARY_DIR} "${XIA_LIBRARY_DIR}/../"
         PATH_SUFFIXES sys include
         DOC "Path to XIA sys includes.")
+set(XIA_SYS_INCLUDES ${XIA_SYS_INCLUDES} CACHE INTERNAL "Sys Includes")
 
 # Support the REQUIRED and QUIET arguments, and set XIA_FOUND if found.
 include(FindPackageHandleStandardArgs)
@@ -83,9 +88,9 @@ function(XIA_CONFIG)
     #Following are lists of keys and the glob expr to find the files
     set(CONFIG_NAME CrateConfig SlotFile DspSetFile)
     set(CONFIG_EXPR
-            test/pxisys*.ini #CrateConfig
-            configuration/slot_def.set #SlotFile
-            configuration/default.set #DspSetFile
+            share/pxisys/pxisys*.ini #CrateConfig
+            share/slot_def.set #SlotFile
+            share/default.set #DspSetFile
             )
 
     foreach (CONFIG_STEP RANGE 0 2)
@@ -137,25 +142,24 @@ function(XIA_CONFIG)
 
     file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "\n# Module Tags\n")
 
-    #Look in the root directory for the XIA library
     if (NOT EXISTS ${XIA_FIRMWARE_DIR})
         message(WARNING "Configuration Error - Invalid Pixie firmware directory: ${XIA_FIRMWARE_DIR}")
         return()
     endif (NOT EXISTS ${XIA_FIRMWARE_DIR})
     subdirlist(XIA_FIRMWARE_DIRS ${XIA_FIRMWARE_DIR})
 
-    #remove directories without subdirectories firmware and dsp.
+    #remove directories without subdirectories fpga and dsp.
     foreach (FIRMWARE_DIR ${XIA_FIRMWARE_DIRS})
-        if (NOT (EXISTS ${FIRMWARE_DIR}/firmware OR EXISTS ${FIRMWARE_FIR}/dsp))
-            list(REMOVE_ITEM XIA_FIRMWARE_DIRS ${FIRMWARE_DIR})
-        endif (NOT (EXISTS ${FIRMWARE_DIR}/firmware OR EXISTS ${FIRMWARE_FIR}/dsp))
-    endforeach (FIRMWARE_DIR ${XIA_FIRMWARE_DIRS})
+        if (NOT (EXISTS ${FIRMWARE_DIR}/fpga OR EXISTS ${FIRMWARE_FIR}/dsp))
+            list(REMOVE_ITEM XIA_ROOT_DIRS ${FIRMWARE_DIR})
+        endif (NOT (EXISTS ${FIRMWARE_DIR}/fpga OR EXISTS ${FIRMWARE_FIR}/dsp))
+    endforeach (FIRMWARE_DIR ${XIA_ROOT_DIRS})
 
     #Following are lists of keys and the glob expr to find the files
     set(CONFIG_NAME SpFpgaFile ComFpgaFile DspConfFile DspVarFile)
     set(CONFIG_EXPR
-            firmware/fippixie16*.bin #SpFpgaFile
-            firmware/syspixie16*.bin #ComFpgaFile
+            fpga/fippixie16*.bin #SpFpgaFile
+            fpga/syspixie16*.bin #ComFpgaFile
             dsp/Pixie16DSP*.ldr #DspConfFile
             dsp/Pixie16DSP*.var #DspVarFile
             )
@@ -163,7 +167,8 @@ function(XIA_CONFIG)
     foreach (FIRMWARE_DIR ${XIA_FIRMWARE_DIRS})
         #determine the module type from the fippi SpFpga File
         unset(MODULE_TYPE)
-        file(GLOB FILE_MATCHES RELATIVE ${FIRMWARE_DIR} ${FIRMWARE_DIR}/firmware/fippixie16*.bin)
+        file(GLOB FILE_MATCHES RELATIVE ${FIRMWARE_DIR} ${FIRMWARE_DIR}/fpga/fippixie16*.bin)
+        message(STATUS "'${FIRMWARE_DIR}'")
         foreach (FILENAME ${FILE_MATCHES})
             string(REGEX MATCH "[01234567890]+b[0123456789]+m" TYPE ${FILENAME})
             string(REGEX MATCH "rev[abcdf]" REVISION ${FILENAME})
@@ -240,7 +245,7 @@ function(XIA_CONFIG)
             #Append the config file
             file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg "${KEY}\t\t${FILE_MATCHES}\n")
         endforeach (CONFIG_STEP RANGE 0 3)
-    endforeach (FIRMWARE_DIR ${XIA_FIRMWARE_DIRS})
+    endforeach (FIRMWARE_DIR ${XIA_ROOT_DIRS})
 
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)
 endfunction()
