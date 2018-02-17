@@ -15,7 +15,7 @@ unset(XIA_LIBRARY_DIR CACHE)
 find_path(XIA_LIBRARY_DIR
         NAMES libPixie16App.a libPixie16Sys.a
         HINTS ${XIA_ROOT_DIR}
-        PATHS /opt/xia/current /opt/xia/software
+        PATHS /opt/xia/current /opt/xia/api /opt/xia/software
         PATH_SUFFIXES software
         DOC "Path to pixie library.")
 
