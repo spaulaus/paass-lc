@@ -15,7 +15,7 @@ find_path(XIA_LIBRARY_DIR
         NAMES libPixie16App.a libPixie16Sys.a
         HINTS ${XIA_ROOT_DIR}
         PATHS /opt/xia
-        PATH_SUFFIXES current api software
+        PATH_SUFFIXES api current/software
         DOC "Path to pixie library.")
 
 get_filename_component(XIA_LIBRARY_DIR "${XIA_LIBRARY_DIR}" REALPATH)
@@ -26,6 +26,9 @@ unset(XIA_FIRMWARE_DIR CACHE)
 
 if (NOT XIA_FIRMWARE_DIR)
     get_filename_component(XIA_FIRMWARE_DIR "${XIA_LIBRARY_DIR}/../firmwares" REALPATH)
+    if (NOT EXISTS ${XIA_FIRMWARE_DIR})
+        get_filename_component(XIA_FIRMWARE_DIR "${XIA_LIBRARY_DIR}/../../" REALPATH)
+    endif (NOT EXISTS ${XIA_FIRMWARE_DIR})
 endif (NOT XIA_FIRMWARE_DIR)
 set(XIA_FIRMWARE_DIR ${XIA_FIRMWARE_DIR} CACHE PATH "Path to folder containing XIA firmware.")
 
@@ -92,15 +95,23 @@ function(XIA_CONFIG)
             share/slot_def.set #SlotFile
             share/default.set #DspSetFile
             )
+    set(ALT_CONFIG_EXPR
+            test/pxisys*.ini #CrateConfig
+            configuration/slot_def.set #SlotFile
+            configuration/default.set #DspSetFile
+            )
 
     foreach (CONFIG_STEP RANGE 0 2)
         #Get key name and expression form the list
         list(GET CONFIG_NAME ${CONFIG_STEP} KEY)
         list(GET CONFIG_EXPR ${CONFIG_STEP} GLOB_EXPR)
+        list(GET ALT_CONFIG_EXPR ${CONFIG_STEP} ALT_GLOB_EXPR)
 
         #Find all files matching the expression
         # Returns the path of the file relative to the base directory.
-        file(GLOB FILE_MATCHES RELATIVE ${XIA_ROOT_DIR} ${XIA_ROOT_DIR}/${GLOB_EXPR})
+        file(GLOB FILE_MATCHES RELATIVE ${XIA_ROOT_DIR}
+            ${XIA_ROOT_DIR}/${GLOB_EXPR}
+            ${XIA_ROOT_DIR}/${ALT_GLOB_EXPR})
 
         #Check that a unique match was found
         list(LENGTH FILE_MATCHES NUM_MATCHES)
@@ -150,9 +161,9 @@ function(XIA_CONFIG)
 
     #remove directories without subdirectories fpga and dsp.
     foreach (FIRMWARE_DIR ${XIA_FIRMWARE_DIRS})
-        if (NOT (EXISTS ${FIRMWARE_DIR}/fpga OR EXISTS ${FIRMWARE_FIR}/dsp))
-            list(REMOVE_ITEM XIA_ROOT_DIRS ${FIRMWARE_DIR})
-        endif (NOT (EXISTS ${FIRMWARE_DIR}/fpga OR EXISTS ${FIRMWARE_FIR}/dsp))
+        if (NOT ((EXISTS ${FIRMWARE_DIR}/fpga OR EXISTS ${FIRMWARE_DIR}/firmware) AND EXISTS ${FIRMWARE_DIR}/dsp))
+            list(REMOVE_ITEM XIA_FIRMWARE_DIRS ${FIRMWARE_DIR})
+        endif (NOT ((EXISTS ${FIRMWARE_DIR}/fpga OR EXISTS ${FIRMWARE_DIR}/firmware) AND EXISTS ${FIRMWARE_DIR}/dsp))
     endforeach (FIRMWARE_DIR ${XIA_ROOT_DIRS})
 
     #Following are lists of keys and the glob expr to find the files
@@ -163,12 +174,18 @@ function(XIA_CONFIG)
             dsp/Pixie16DSP*.ldr #DspConfFile
             dsp/Pixie16DSP*.var #DspVarFile
             )
+    set(ALT_CONFIG_EXPR
+            firmware/fippixie16*.bin #SpFpgaFile
+            firmware/syspixie16*.bin #ComFpgaFile
+            dsp/Pixie16DSP*.ldr #DspConfFile
+            dsp/Pixie16DSP*.var #DspVarFile
+            )
 
     foreach (FIRMWARE_DIR ${XIA_FIRMWARE_DIRS})
         #determine the module type from the fippi SpFpga File
         unset(MODULE_TYPE)
-        file(GLOB FILE_MATCHES RELATIVE ${FIRMWARE_DIR} ${FIRMWARE_DIR}/fpga/fippixie16*.bin)
-        message(STATUS "'${FIRMWARE_DIR}'")
+        file(GLOB FILE_MATCHES RELATIVE ${FIRMWARE_DIR}
+            ${FIRMWARE_DIR}/fpga/fippixie16*.bin ${FIRMWARE_DIR}/firmware/fippixie16*.bin)
         foreach (FILENAME ${FILE_MATCHES})
             string(REGEX MATCH "[01234567890]+b[0123456789]+m" TYPE ${FILENAME})
             string(REGEX MATCH "rev[abcdf]" REVISION ${FILENAME})
@@ -201,7 +218,7 @@ function(XIA_CONFIG)
                         "#ERROR: Incomplete ModuleType found! Please correct and remove this comment.\n")
             endif (${MODULE_TYPE} MATCHES "unknown")
         else (NUM_MATCHES EQUAL 1)
-            message(STATUS "WARNING: Multiple module types (${MODULE_TYPE}) found in:")
+            message(STATUS "WARNING: Could not find a unique module type in:")
             message(STATUS "    ${FIRMWARE_DIR}")
             if (NUM_MATCHES EQUAL 0)
                 file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg
@@ -220,10 +237,13 @@ function(XIA_CONFIG)
             #Get key name and expression form the list
             list(GET CONFIG_NAME ${CONFIG_STEP} KEY)
             list(GET CONFIG_EXPR ${CONFIG_STEP} GLOB_EXPR)
+            list(GET ALT_CONFIG_EXPR ${CONFIG_STEP} ALT_GLOB_EXPR)
 
             #Find all files matching the expression
             # Returns the path of the file relative to the base directory.
-            file(GLOB FILE_MATCHES RELATIVE ${FIRMWARE_DIR} ${FIRMWARE_DIR}/${GLOB_EXPR})
+            file(GLOB FILE_MATCHES RELATIVE ${FIRMWARE_DIR}
+                 ${FIRMWARE_DIR}/${GLOB_EXPR} ${FIRMWARE_DIR}/${ALT_GLOB_EXPR})
+            list(REMOVE_DUPLICATES FILE_MATCHES)
 
             #Check that a unique match was found
             list(LENGTH FILE_MATCHES NUM_MATCHES)
