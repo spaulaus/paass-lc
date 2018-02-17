@@ -34,7 +34,7 @@ include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(XIA DEFAULT_MSG XIA_LIBRARY_DIR)
 
 if (XIA_FOUND)
-    set(XIA_INCLUDE_DIR ${XIA_LIBRARY_DIR}/inc ${XIA_LIBRARY_DIR}/sys ${XIA_LIBRARY_DIR}/app)
+    set(XIA_INCLUDE_DIR ${XIA_LIBRARY_DIR}/inc ${XIA_LIBRARY_DIR}/sys ${XIA_LIBRARY_DIR}/app ${XIA_LIBRARY_DIR}/../include)
     set(XIA_LIBRARIES -lPixie16App -lPixie16Sys)
 endif ()
 
