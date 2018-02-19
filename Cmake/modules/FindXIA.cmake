@@ -159,6 +159,12 @@ function(XIA_CONFIG)
     endif (NOT EXISTS ${XIA_FIRMWARE_DIR})
     subdirlist(XIA_FIRMWARE_DIRS ${XIA_FIRMWARE_DIR})
 
+    if(NOT XIA_FIRMWARE_DIRS)
+        message(STATUS "We did not find any firmware directories to configure!")
+        file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/pixie.cfg
+                "#ERROR: No firmware found to configure! Add your firmware to ${XIA_FIRMWARE_DIR}\n")
+    endif(NOT XIA_FIRMWARE_DIRS)
+
     #remove directories without subdirectories fpga and dsp.
     foreach (FIRMWARE_DIR ${XIA_FIRMWARE_DIRS})
         if (NOT ((EXISTS ${FIRMWARE_DIR}/fpga OR EXISTS ${FIRMWARE_DIR}/firmware) AND EXISTS ${FIRMWARE_DIR}/dsp))
@@ -278,7 +284,9 @@ macro(SUBDIRLIST result curdir)
             LIST(APPEND dirlist ${child})
         ENDIF ()
     ENDFOREACH ()
-    LIST(REMOVE_DUPLICATES dirlist)
+    IF(dirlist)
+        LIST(REMOVE_DUPLICATES dirlist)
+    ENDIF(dirlist)
     SET(${result} ${dirlist})
 endmacro(SUBDIRLIST)
 
