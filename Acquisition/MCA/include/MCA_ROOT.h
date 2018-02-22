@@ -2,6 +2,8 @@
 #ifndef MCA_ROOT_H
 #define MCA_ROOT_H
 
+#include <iostream>
+
 #include "MCA.h"
 #include <stdio.h>
 #include <unistd.h>
@@ -27,7 +29,8 @@ private:
         cerr_redirect(const char *logFile) {
             for (int i = 0; i < BUFSIZ; i++)
                 buf[i] = '\0';
-            freopen(logFile, "a", stderr);
+            if(!freopen(logFile, "a", stderr))
+                std::cerr << "cerr_redirect::cerr_redirect(logFile) - Couldn't reopen the stream!" << std::endl;
             setbuf(stderr, buf);
         };
 
