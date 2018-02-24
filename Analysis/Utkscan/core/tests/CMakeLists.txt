@@ -7,6 +7,11 @@
 #        PaassResourceStatic ${LIBS})
 #install(TARGETS unittest-DetectorSummary DESTINATION bin/unittests)
 
+add_executable(unittest-RootHandler unittest-RootHandler.cpp ../source/RootHandler.cpp)
+target_link_libraries(unittest-RootHandler UnitTest++ ${LIBS} ${ROOT_LIBRARIES})
+install(TARGETS unittest-RootHandler DESTINATION bin/unittests)
+add_test(RootHandler unittest-RootHandler)
+
 add_executable(unittest-WalkCorrector unittest-WalkCorrector.cpp ../source/WalkCorrector.cpp)
 target_link_libraries(unittest-WalkCorrector UnitTest++ ${LIBS})
 install(TARGETS unittest-WalkCorrector DESTINATION bin/unittests)

@@ -13,61 +13,54 @@
 
 using namespace std;
 
-RootHandler::RootHandler(const char *fileName, const char *treeName) {
-    file = new TFile(fileName, "recreate"); //! overwrite tree for now
-    tree = new TTree(treeName, treeName);
+RootHandler *RootHandler::instance_ = NULL;
+
+/** Instance is created upon first call */
+RootHandler *RootHandler::get() {
+    if (!instance_)
+        instance_ = new RootHandler("histograms.root");
+    return (instance_);
 }
 
-bool RootProcessor::AddBranch(RawEvent &rawev) {
-    DetectorDriver *driver = DetectorDriver::get();
-    if (file == NULL || tree == NULL) {
-        cout << "Failed to create ROOT objects for "
-             << name << " processor" << endl;
-        return false;
-    }
+RootHandler *RootHandler::get(const std::string &fileName) {
+    if (!instance_)
+        instance_ = new RootHandler(fileName);
+    return (instance_);
+}
 
-    const vector<EventProcessor *> &drvProcess = driver->GetProcessors();
+RootHandler::RootHandler(const std::string &fileName) {
+    file_ = new TFile(fileName.c_str(), "recreate"); //! overwrite tree for now
+}
 
-    for (vector<EventProcessor *>::const_iterator it = drvProcess.begin();
-         it != drvProcess.end(); it++) {
-        if ((*it)->AddBranch(tree)) {
-            vecProcess.push_back(*it);
-            set_union((*it)->GetTypes().begin(), (*it)->GetTypes().end(),
-                      associatedTypes.begin(), associatedTypes.end(),
-                      inserter(associatedTypes, associatedTypes.begin()));
+void RootHandler::RegisterHistogram(const std::string &name, const std::string &title, const unsigned int &xbins,
+                                    const unsigned int &yBins/* = 0*/, const unsigned int &zBins/* = 0*/) {
+
+}
+
+RootHandler::~RootHandler() {
+    if (!treeList_.empty()) {
+        for (const auto &tree : treeList_) {
+            cout << "RootHandler::~RootHandler - Saving " << tree->GetEntries() << " tree entries to "
+                 << tree->GetTitle() << endl;
+            tree->AutoSave();
         }
     }
-    return EventProcessor::Init(rawev);
-}
 
-bool RootProcessor::Update(RawEvent &event) {
-    if (!EventProcessor::Process(event))
-        return false;
-
-    for (vector<EventProcessor *>::iterator it = vecProcess.begin();
-         it != vecProcess.end(); it++) {
-        (*it)->FillBranch();
-    }
-
-    tree->Fill();
-    if (tree->GetEntries() % 1000 == 0) {
-        tree->AutoSave();
-    }
-
-    EndProcess();
-    return true;
-}
-
-RootProcessor::~RootProcessor() {
-    if (tree != NULL) {
-        cout << "  saving " << tree->GetEntries() << " tree entries" << endl;
-        tree->AutoSave();
-    }
-
-    if (file != NULL) {
-        file->Close();
-        delete file; // this also frees the tree
+    if (file_ != NULL) {
+        file_->Close();
+        delete file_; // this also frees the tree
     }
 }
 
-#endif // useroot
+void RootHandler::AddBranch(TTree *tree, const std::string &name, const std::string &definition) {
+    if (!file_)
+        throw invalid_argument("The File wasn't opened!");
+}
+
+void RootHandler::Update() {
+    for (const auto &tree : treeList_) {
+        tree->Fill();
+        if (tree->GetEntries() % 1000 == 0)
+            tree->AutoSave();
+    }
+}
