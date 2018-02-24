@@ -171,11 +171,6 @@ private:
     std::map<std::string, int> mneList;
     /** Map of dammid -> title, helps debugging duplicated dammids*/
     std::map<int, std::string> titleList;
-
-    /** A function to round the value before passing it to DAMM
-    * \param [in] val : the value to round
-    * \return the rounded value */
-    int Round(double val) const;
 };
 
 #endif // __PLOTS_HPP_

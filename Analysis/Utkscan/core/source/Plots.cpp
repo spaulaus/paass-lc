@@ -21,7 +21,7 @@ Plots::Plots(int offset, int range, std::string name) {
 }
 
 bool Plots::BananaTest(const int &id, const double &x, const double &y) {
-    return (bantesti_(id, Round(x), Round(y)));
+    return (bantesti_(id, round(x), round(y)));
 }
 
 /** Check if the id falls within the expected range */
@@ -167,12 +167,4 @@ bool Plots::Plot(const std::string &mne, double val1, double val2, double val3,
     if (!Exists(mne))
         return false;
     return Plot(mneList.find(mne)->second, val1, val2, val3, name);
-}
-
-int Plots::Round(double val) const {
-    double intpart;
-    if (modf(val, &intpart) < 0.5)
-        return (floor(val));
-    else
-        return (ceil(val));
 }
