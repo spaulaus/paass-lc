@@ -43,21 +43,28 @@ void UtkUnpacker::ProcessRawEvent() {
         isDetectorDriverInitialized_ = true;
     DetectorLibrary *detectorLibrary = DetectorLibrary::get();
     set<string> usedDetectors;
-    Messenger m;
-    stringstream ss;
+    static Messenger m;
+    static stringstream ss;
 
     static clock_t systemStartTime;
     static struct tms systemTimes;
-    static double lastTimeOfPreviousEvent;
+
     static unsigned int eventCounter = 0;
+
+    ///@TODO This should be dependent on the module configuration that's specified in the config. This is
+    /// dependent on the Revision node in the configuration file. This will not work properly for mixed module systems.
+    static const auto pixieClockInSeconds = Globals::get()->GetClockInSeconds();
 
     if (eventCounter == 0)
         InitializeDriver(driver, detectorLibrary, rawev, systemStartTime);
-    else if (eventCounter % 5000 == 0 || eventCounter == 1)
+
+    ///@TODO Add a verbosity flag here to hide this information if the user wishes it.
+    if (eventCounter % 100000 == 0 || eventCounter == 1)
         PrintProcessingTimeInformation(systemStartTime, times(&systemTimes), GetEventStartTime(), eventCounter);
+    eventCounter++;
 
     if (Globals::get()->HasRejectionRegion()) {
-        double eventTime = (GetEventStartTime() - GetFirstTime()) * Globals::get()->GetClockInSeconds();
+        double eventTime = (GetEventStartTime() - GetFirstTime()) * pixieClockInSeconds;
         vector <pair<unsigned int, unsigned int>> rejectRegions = Globals::get()->GetRejectionRegions();
 
         for (vector<pair<unsigned int, unsigned int> >::iterator region = rejectRegions.begin();
@@ -66,10 +73,15 @@ void UtkUnpacker::ProcessRawEvent() {
                 return;
     }
 
-    driver->plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) * Globals::get()->GetClockInSeconds() * 1e9);
-    driver->plot(D_BUFFER_END_TIME, GetRealStopTime() * Globals::get()->GetClockInSeconds() * 1e9);
-    driver->plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) * Globals::get()->GetClockInSeconds() * 1e9);
-    driver->plot(D_EVENT_MULTIPLICITY, rawEvent.size());
+    ///@TODO : Need to figure out why the plot command is so obnoxiously slow. I'm commenting these out for now until
+    /// we can figure out the issues. These histograms are not used very often anyway.
+    //static double lastTimeOfPreviousEvent;
+    //static const auto pixieClockInNanoseconds = pixieClockInSeconds * 1e9;
+    //driver->plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) * pixieClockInNanoseconds);
+    //driver->plot(D_BUFFER_END_TIME, GetRealStopTime() * pixieClockInNanoseconds);
+    //driver->plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) * pixieClockInNanoseconds);
+    //driver->plot(D_EVENT_MULTIPLICITY, rawEvent.size());
+    //lastTimeOfPreviousEvent = GetRealStopTime();
 
     //loop over the list of channels that fired in this event
     for (deque<XiaData *>::iterator it = rawEvent.begin(); it != rawEvent.end(); it++) {
@@ -115,9 +127,6 @@ void UtkUnpacker::ProcessRawEvent() {
     } catch (exception &ex) {
         throw;
     }
-
-    eventCounter++;
-    lastTimeOfPreviousEvent = GetRealStopTime();
 }
 
 /// This method plots information about the running time of the program, the
