@@ -51,7 +51,6 @@
 #ifdef useroot //Some processors REQUIRE ROOT to function
 #include "Anl1471Processor.hpp"
 #include "IS600Processor.hpp"
-#include "RootProcessor.hpp"
 #include "TwoChanTimingProcessor.hpp"
 #endif
 
@@ -157,8 +156,6 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new TwoChanTimingProcessor());
         } else if (name == "VandleOrnl2012Processor") {
             vecProcess.push_back(new VandleOrnl2012Processor());
-        } else if (name == "RootProcessor") { //Must be the last for silly reasons.
-            vecProcess.push_back(new RootProcessor("tree.root", "tree"));
         }
 #endif
         else {

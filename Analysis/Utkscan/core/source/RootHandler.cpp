@@ -1,32 +1,24 @@
-/** \file RootProcessor.cpp
+/** \file RootHandler.cpp
  * \brief Implemenation of class to dump event info to a root tree
- * \author David Miller
+ * \author David Miller and S. V. Paulauskas
  * \date Jan 2010
  */
-
-#ifdef useroot
-
 #include <algorithm>
 #include <iostream>
 
 #include <TTree.h>
 
 #include "DetectorDriver.hpp"
-#include "RootProcessor.hpp"
+#include "RootHandler.hpp"
 
-using std::cout;
-using std::endl;
+using namespace std;
 
-/** Open a file for tree output */
-RootProcessor::RootProcessor(const char *fileName, const char *treeName)
-        : EventProcessor() {
-    name = "RootProcessor";
+RootHandler::RootHandler(const char *fileName, const char *treeName) {
     file = new TFile(fileName, "recreate"); //! overwrite tree for now
     tree = new TTree(treeName, treeName);
 }
 
-/** Add branches to the tree from the event processors in the driver */
-bool RootProcessor::Init(RawEvent &rawev) {
+bool RootProcessor::AddBranch(RawEvent &rawev) {
     DetectorDriver *driver = DetectorDriver::get();
     if (file == NULL || tree == NULL) {
         cout << "Failed to create ROOT objects for "
@@ -48,8 +40,7 @@ bool RootProcessor::Init(RawEvent &rawev) {
     return EventProcessor::Init(rawev);
 }
 
-/** Fill the tree for each event, saving to file occasionally */
-bool RootProcessor::Process(RawEvent &event) {
+bool RootProcessor::Update(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
 
@@ -67,15 +58,14 @@ bool RootProcessor::Process(RawEvent &event) {
     return true;
 }
 
-/** Finish flushing the file to disk, and clean up memory */
 RootProcessor::~RootProcessor() {
     if (tree != NULL) {
         cout << "  saving " << tree->GetEntries() << " tree entries" << endl;
         tree->AutoSave();
     }
+
     if (file != NULL) {
         file->Close();
-
         delete file; // this also frees the tree
     }
 }
