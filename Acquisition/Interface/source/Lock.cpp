@@ -50,7 +50,6 @@ Lock::Lock(string name) {
     } else {
         pid_t pid;
 
-        ///@TODO - We need to update this so that we use strtol instead of fscanf to convert string to int
         auto numberOfFilledItems = fscanf(lockFile, "%10d", &pid);
         if(numberOfFilledItems < 1)
             cerr << "Lock::Lock - We couldn't convert " << lockFile << " to a PID" << endl;
