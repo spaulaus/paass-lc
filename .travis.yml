@@ -29,7 +29,7 @@ matrix:
             - libroot*
       env:
         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF"
+        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF -DPAASS_BUILD_SETUP=ON"
     - os: linux
       addons:
         apt:
@@ -42,7 +42,7 @@ matrix:
             - libncurses5-dev
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON"
+        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_SETUP=ON"
     - os: linux
       addons:
         apt:
@@ -56,13 +56,17 @@ matrix:
             - libroot*
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF"
+        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF -DPAASS_BUILD_SETUP=ON"
 
 before_install:
   - sudo apt-get -qq update --install-suggests
   - eval "${MATRIX_EVAL}"
+  - export ORIG_DIR=$PWD
   - git clone https://github.com/unittest-cpp/unittest-cpp.git && cd unittest-cpp/builds/
   - cmake ../ && sudo make install && cd ../../
+  - mkdir -p /opt/plx/ && cd /opt/plx
+  - git clone https://github.com/spaulaus/plx-api.git && ln -s plx-api current && cd plx-api
+  - export PLX_SDK_DIR=$PWD && make all && cd $ORIG_DIR
   - git clone https://github.com/spaulaus/xia-api.git && cd xia-api
   - mkdir build && cd build && cmake ../ -DCMAKE_INSTALL_PREFIX=/opt && make install && cd ../../
   - ln -s /opt/xia/api /opt/xia/current
