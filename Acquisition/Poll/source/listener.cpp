@@ -144,12 +144,16 @@ int main() {
                        size_of_int); // Copy the end packet flag
                 fname[fname_size] = '\0'; // Terminate the filename string
 
-                system("clear");
+                ///@TODO Need to move this to UnixWrappers (or something) to make it DRY appears in monitor.cpp too
+                bool terminalCleared = system("clear") == 0;
+                if(!terminalCleared)
+                    std::cerr << "monitor.cpp::main - We were unable to clear the terminal!!" << std::endl;
 
                 std::cout << " recv: " << recv_bytes << " bytes\n";
                 std::cout << "  Packet length: " << total_size << " bytes\n";
                 std::cout << "  Poll2 filename: " << fname << "\n";
 
+                ///@TODO : Need to update this so that we use the StringManipulation::FormatHumanReadableSizes
                 int magnitude = order(new_size);
                 if (magnitude < 3) {
                     std::cout << "  Total file size: " << new_size << " B\n";

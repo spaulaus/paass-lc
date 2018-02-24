@@ -157,7 +157,9 @@ int main() {
                 break;
             }
 
-            system("clear");
+            bool terminalCleared = system("clear") == 0;
+            if(!terminalCleared)
+                std::cerr << "monitor.cpp::main - We were unable to clear the terminal!!" << std::endl;
 
             //std::cout << " Received:\t" << recv_bytes << " bytes\n";
 

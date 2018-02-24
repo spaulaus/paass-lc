@@ -19,6 +19,7 @@
 using namespace Display;
 
 using std::cout;
+using std::cerr;
 using std::endl;
 using std::find;
 using std::list;
@@ -49,11 +50,15 @@ Lock::Lock(string name) {
     } else {
         pid_t pid;
 
-        fscanf(lockFile, "%10d", &pid);
+        auto numberOfFilledItems = fscanf(lockFile, "%10d", &pid);
+        if(numberOfFilledItems < 1)
+            cerr << "Lock::Lock - We couldn't convert " << lockFile << " to a PID" << endl;
+
         cout << ErrorStr() << endl;
         cout << "  Lockfile " << InfoStr(fileName)
              << " already created by process " << pid << endl;
         fclose(lockFile);
+        ///@TODO We should NEVER exit in this way. It can cause issues like resources not being freed. ALWAYS use throw
         exit(EXIT_FAILURE);
     }
 }

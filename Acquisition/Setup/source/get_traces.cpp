@@ -394,8 +394,11 @@ int main(int argc, char *argv[]) {
     fout.write((char *) data, sizeof(unsigned short) * size);
     fout.close();
 
-    if (callGnuplot)
-        system("gnuplot 'plotTraces' ");
+    if (callGnuplot) {
+        bool plottedTraces = system("gnuplot 'plotTraces' ") == 0;
+        if(!plottedTraces)
+            cerr << "get_trace::main - Could not plot the traces with gnuplot!!" << endl;
+    }
     cout << "Traces data are in '/tmp/traces.dat' file." << endl;
 
     delete[] data;
