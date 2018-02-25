@@ -46,7 +46,7 @@ public:
     /// @param [in] val2 : the y value or weight for a 1D histogram
     /// @param [in] val3 : the z value or weight in a 2D histogram
     /// @return true if successful
-    void Plot(const unsigned int &id, const double &xval, const double &yval = -1, const double &zval = -1);
+    bool Plot(const unsigned int &id, const double &xval, const double &yval = -1, const double &zval = -1);
 
     /// Wrapper function for the ROOT TH* constructors. We've simplified things to make it look more like DAMM for now.
     ///@param[in] id : The numerical ID of the histogram to register. The method prepends it with an "h", ex. h1
@@ -63,7 +63,7 @@ public:
     void RegisterTree(const std::string &treeName);
 
     ///Method that will update all the trees and histograms in the system.
-    void Update();
+    void Flush();
 
 private:
     ///The static instance of the RootHandler that everybody can access.
