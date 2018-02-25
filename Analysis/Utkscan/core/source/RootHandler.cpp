@@ -13,7 +13,10 @@
 
 using namespace std;
 
-RootHandler *RootHandler::instance_ = NULL;
+RootHandler *RootHandler::instance_ = nullptr;
+TFile *RootHandler::file_ = nullptr; //!< The ROOT file that all the information will be stored in.
+std::set<TTree *> RootHandler::treeList_; //!< The list of trees known to the system
+std::map<unsigned int, TH1 *> RootHandler::histogramList_; //!< The list of 1D histograms known to the system
 
 /** Instance is created upon first call */
 RootHandler *RootHandler::get() {

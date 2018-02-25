@@ -77,9 +77,9 @@ private:
     ///@param [in] fileName : The name of the ROOT File
     RootHandler(const std::string &fileName);
 
-    TFile *file_; //!< The ROOT file that all the information will be stored in.
-    std::set<TTree *> treeList_; //!< The list of trees known to the system
-    std::map<unsigned int, TH1 *> histogramList_; //!< The list of 1D histograms known to the system
+    static TFile *file_; //!< The ROOT file that all the information will be stored in.
+    static std::set<TTree *> treeList_; //!< The list of trees known to the system
+    static std::map<unsigned int, TH1 *> histogramList_; //!< The list of 1D histograms known to the system
 };
 
 #endif // __ROOTHANDLER_HPP_
