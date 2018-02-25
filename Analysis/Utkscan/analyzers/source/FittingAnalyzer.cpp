@@ -20,6 +20,7 @@
 
 #include "FittingAnalyzer.hpp"
 #include "GslFitter.hpp"
+#include "PaassExceptions.hpp"
 
 #ifdef USE_ROOT
 
