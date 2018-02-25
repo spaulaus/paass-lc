@@ -27,6 +27,10 @@ set(PLOTTING_SOURCES
         Plots.cpp
         PlotsRegister.cpp)
 
+if(ROOT_FOUND)
+    list(APPEND PLOTTING_SOURCES RootHandler.cpp)
+endif(ROOT_FOUND)
+
 if (NOT PAASS_USE_HRIBF)
     set(MAIN_SOURCES utkscan.cpp HisFile.cpp)
 else (PAASS_USE_HRIBF)
