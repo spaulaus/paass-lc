@@ -56,7 +56,8 @@ extern "C" void drrsub_(uint32_t &iexist) {
 // Catch the exit call from scanor and clean up c++ objects CRT
 extern "C" void cleanup_() {
     // Do some cleanup.
-    cout << "\nCleaning up..\n";
+    cout << "utkscanor.cpp::cleanup_ - Cleaning up the objects that we created and writing ROOT file to disk.";
     scanner->Close();
+    delete RootHandler::get();
     delete scanner;
 }
