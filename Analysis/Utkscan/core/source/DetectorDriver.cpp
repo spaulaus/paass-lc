@@ -3,17 +3,9 @@
  * \author S. N. Liddick, D. Miller, K. Miernik, S. V. Paulauskas
  * \date July 2, 2007
 */
-#include <algorithm>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <iterator>
-#include <limits>
-#include <map>
-#include <sstream>
+#include "DetectorDriver.hpp"
 
 #include "DammPlotIds.hpp"
-#include "DetectorDriver.hpp"
 #include "DetectorDriverXmlParser.hpp"
 #include "DetectorLibrary.hpp"
 #include "Display.h"
@@ -24,6 +16,15 @@
 #include "RawEvent.hpp"
 #include "TraceAnalyzer.hpp"
 #include "TreeCorrelator.hpp"
+
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <iterator>
+#include <limits>
+#include <map>
+#include <sstream>
 
 using namespace std;
 using namespace dammIds::raw;
@@ -36,7 +37,7 @@ DetectorDriver *DetectorDriver::get() {
     return instance;
 }
 
-DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
+DetectorDriver::DetectorDriver() : histo_(OFFSET, RANGE, "DetectorDriver") {
     try {
         DetectorDriverXmlParser parser;
         parser.ParseNode(this);
@@ -78,7 +79,7 @@ void DetectorDriver::Init(RawEvent &rawev) {
 }
 
 void DetectorDriver::ProcessEvent(RawEvent &rawev) {
-    plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
+    histo_.Plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     try {
         for (vector<ChanEvent *>::const_iterator it = rawev.GetEventList().begin(); it != rawev.GetEventList().end(); ++it) {
             PlotRaw((*it));
@@ -133,19 +134,16 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
 /// Analyzers and Processors.
 void DetectorDriver::DeclarePlots() {
     try {
-        DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
-        DeclareHistogram2D(DD_RUNTIME_SEC, SE, S6, "run time - s");
-        DeclareHistogram2D(DD_RUNTIME_MSEC, SE, S7, "run time - ms");
-
         if (Globals::get()->HasRawHistogramsDefined()) {
+            histo_.DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
+            histo_.DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
+            histo_.DeclareHistogram1D(D_SUBEVENT_GAP, SE, "Time Between Channels in 10 ns / bin");
+            histo_.DeclareHistogram1D(D_EVENT_LENGTH, SE, "Event Length in ns");
+            histo_.DeclareHistogram1D(D_EVENT_GAP, SE, "Time Between Events in ns");
+            histo_.DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7, "Number of Channels Event");
+            histo_.DeclareHistogram1D(D_BUFFER_END_TIME,SE, "Buffer Length in ns");
+                        
             DetectorLibrary *modChan = DetectorLibrary::get();
-            DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");
-            DeclareHistogram1D(D_HAS_TRACE, S8, "channels with traces");
-            DeclareHistogram1D(D_SUBEVENT_GAP, SE, "Time Between Channels in 10 ns / bin");
-            DeclareHistogram1D(D_EVENT_LENGTH, SE, "Event Length in ns");
-            DeclareHistogram1D(D_EVENT_GAP, SE, "Time Between Events in ns");
-            DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7, "Number of Channels Event");
-            DeclareHistogram1D(D_BUFFER_END_TIME, SE, "Buffer Length in ns");
             DetectorLibrary::size_type maxChan = modChan->size();
 
             for (DetectorLibrary::size_type i = 0; i < maxChan; i++) {
@@ -161,21 +159,17 @@ void DetectorDriver::DeclarePlots() {
                       << " - " << id.GetType()
                       << ":" << id.GetSubtype()
                       << " L" << id.GetLocation();
-                DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str());
-                DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str());
-                DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str());
-                if (Globals::get()->GetPixieRevision() == "A")
-                    DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str());
-                DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str());
+
+                histo_.DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str());
+                histo_.DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str());
+                histo_.DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str());
+                histo_.DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str());
             }
         }
-
-        for (vector<TraceAnalyzer *>::const_iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++)
-            (*it)->DeclarePlots();
-
-        for (vector<EventProcessor *>::const_iterator it = vecProcess.begin(); it != vecProcess.end(); it++)
-            (*it)->DeclarePlots();
-
+        for (const auto &analyzer : vecAnalyzer)
+            analyzer->DeclarePlots();
+        for (const auto &processor : vecProcess)
+            processor->DeclarePlots();
     } catch (exception &e) {
         cout << Display::ErrorStr("Exception caught at DetectorDriver::DeclarePlots") << endl;
         throw;
@@ -199,7 +193,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
         return (0);
 
     if (!trace.empty()) {
-        plot(D_HAS_TRACE, id);
+        histo_.Plot(D_HAS_TRACE, id);
 
         for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++)
             (*it)->Analyze(trace, chanCfg);
@@ -210,7 +204,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
             energy = chan->GetEnergy() + randoms->Generate();
         } else {
             energy = filteredEnergies.front();
-            plot(D_FILTER_ENERGY + id, energy);
+            histo_.Plot(D_FILTER_ENERGY + id, energy);
         }
 
         //Saves the time in nanoseconds
@@ -252,12 +246,12 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
 }
 
 int DetectorDriver::PlotRaw(const ChanEvent *chan) {
-    plot(D_RAW_ENERGY + chan->GetID(), chan->GetEnergy());
+    histo_.Plot(D_RAW_ENERGY + chan->GetID(), chan->GetEnergy());
     return (0);
 }
 
 int DetectorDriver::PlotCal(const ChanEvent *chan) {
-    plot(D_CAL_ENERGY + chan->GetID(), chan->GetCalibratedEnergy());
+    histo_.Plot(D_CAL_ENERGY + chan->GetID(), chan->GetCalibratedEnergy());
     return (0);
 }
 

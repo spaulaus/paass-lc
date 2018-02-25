@@ -66,18 +66,7 @@ public:
 
     const WalkCorrector *walk_; //!< Instance of the walk correction
     const Calibrator *cali_;//!< Instance of the calibrator
-    Plots histo;//!< Instance of the histogram class
-
-    /*! \brief Plots into histogram defined by dammId
-    * \param [in] dammId : The histogram number to define
-    * \param [in] val1 : the x value
-    * \param [in] val2 : the y value
-    * \param [in] val3 : the z value
-    * \param [in] name : the name of the histogram */
-    virtual void plot(int dammId, double val1, double val2 = -1,
-                      double val3 = -1, const char *name = "h") {
-        histo.Plot(dammId, val1, val2, val3, name);
-    }
+    Plots histo_;//!< Instance of the histogram class
 
     /*! \brief Control of the event processing
     *
@@ -186,25 +175,6 @@ private:
                    be used as detector types */
     std::string cfg_; //!< The configuration file to read
     std::pair<double, time_t> pixieToWallClock; /**< rough estimate of pixie to wall clock */
-
-
-    /*! Declares a 1D histogram calls the C++ wrapper for DAMM
-    * \param [in] dammId : The histogram number to define
-    * \param [in] xSize : The range of the x-axis
-    * \param [in] title : The title for the histogram */
-    virtual void DeclareHistogram1D(int dammId, int xSize, const char *title) {
-        histo.DeclareHistogram1D(dammId, xSize, title);
-    }
-
-    /*! \brief Declares a 2D histogram calls the C++ wrapper for DAMM
-    * \param [in] dammId : The histogram number to define
-    * \param [in] xSize : The range of the x-axis
-    * \param [in] ySize : The range of the y-axis
-    * \param [in] title : The title of the histogram */
-    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize,
-                                    const char *title) {
-        histo.DeclareHistogram2D(dammId, xSize, ySize, title);
-    }
 };
 
 #endif // __DETECTORDRIVER_HPP_
