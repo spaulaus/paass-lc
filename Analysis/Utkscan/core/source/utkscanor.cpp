@@ -1,11 +1,15 @@
-///@authors S. V. Paulauskas
+///@file utkscanor.cpp
+///@brief The main file that provides us with functionality with SCANOR from HRIBF libraries.
+///@author S. V. Paulauskas
+///@date September 23, 2016
+
 #include <iostream>
 
 #include <cstring>
 
-// Local files
 #include "DetectorDriver.hpp"
 #include "GetArguments.hpp"
+#include "Scanor.hpp"
 #include "ScanorInterface.hpp"
 #include "UtkScanInterface.hpp"
 #include "UtkUnpacker.hpp"
@@ -33,12 +37,9 @@ extern "C" void startup_() {
     // Initialize the scanner and handle command line arguments from SCANOR
     cout << "utkscan.cpp : Performing the setup routine" << endl;
     scanner->Setup(GetNumberArguments(), GetArguments(), unpacker);
-
-
 }
 
-///@brief Defines the main interface with the SCANOR library, the program
-/// essentially starts here.
+///@brief Defines the main interface with the SCANOR library, the program essentially starts here.
 ///@param [in] iexist : unused paramter from SCANOR call
 extern "C" void drrsub_(uint32_t &iexist) {
     try {

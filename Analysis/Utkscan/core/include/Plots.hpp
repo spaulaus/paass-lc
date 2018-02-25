@@ -12,7 +12,6 @@
 #include <set>
 #include <string>
 
-#include "HisFile.hpp"
 #include "PlotsRegister.hpp"
 #include "RootHandler.hpp"
 

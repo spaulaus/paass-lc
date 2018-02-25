@@ -62,6 +62,11 @@ DetectorDriver::~DetectorDriver() {
     for (vector<TraceAnalyzer *>::iterator it = vecAnalyzer.begin(); it != vecAnalyzer.end(); it++)
         delete (*it);
     vecAnalyzer.clear();
+
+    ///@TODO : Figure out a better place for this to go. For now we'll leave it here. This will close our our ROOT
+    /// File properly.
+    delete RootHandler::get();
+
     instance = NULL;
 }
 
@@ -133,6 +138,9 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
 /// also calls the DeclarePlots method that is present in all of the
 /// Analyzers and Processors.
 void DetectorDriver::DeclarePlots() {
+    histo_.DeclareHistogram1D(D_HIT_SPECTRUM, S7, "channel hit spectrum");
+    histo_.DeclareHistogram2D(DD_RUNTIME_SEC, SD, S7, "run time - s");
+    histo_.DeclareHistogram2D(DD_RUNTIME_MSEC, SD, S7, "run time - ms");
     try {
         if (Globals::get()->HasRawHistogramsDefined()) {
             histo_.DeclareHistogram1D(D_NUMBER_OF_EVENTS, S4, "event counter");

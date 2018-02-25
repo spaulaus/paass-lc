@@ -2,15 +2,16 @@
  * \brief Implement a block declaration scheme for DAMM plots
  * @authors D. Miller, K. Miernik, S. V. Paulauskas
  */
-
-#include <iostream>
-#include <sstream>
-
-#include <cmath>
-#include <cstring>
-
 #include "Plots.hpp"
 #include "PaassExceptions.hpp"
+
+#ifdef USE_HRIBF
+#include "Scanor.hpp"
+#endif
+
+#include <iostream>
+
+#include <cstring>
 
 using namespace std;
 
@@ -24,7 +25,11 @@ Plots::Plots(int offset, int range, std::string name) {
 }
 
 bool Plots::BananaTest(const int &id, const double &x, const double &y) {
+#ifdef USE_HRIBF
     return (bantesti_(id, round(x), round(y)));
+#else
+    return false;
+#endif
 }
 
 /** Check if the id falls within the expected range */
@@ -66,8 +71,11 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title, int hal
     // Mnemonic is optional and added only if longer then 0
     if (mne.size() > 0)
         mneList.insert(pair<string, int>(mne, dammId));
-
+#ifdef USE_HRIBF
+    hd1d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh, title, strlen(title));
+#else
     rootHandler_->RegisterHistogram(dammId + offset_, title, xHistLength);
+#endif
     titleList.insert(pair<int, string>(dammId, string(title)));
     return true;
 }
@@ -105,7 +113,11 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize, const char *tit
     if (mne.size() > 0)
         mneList.insert(pair<string, int>(mne, dammId));
 
+#ifdef USE_HRIBF
+    hd2d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh, ySize, yHistLength, yLow, yHigh, title, strlen(title));
+#else
     rootHandler_->RegisterHistogram(dammId + offset_, title, xSize, ySize);
+#endif
     titleList.insert(pair<int, string>(dammId, string(title)));
     return true;
 }
@@ -129,7 +141,16 @@ bool Plots::Plot(int dammId, double val1, double val2, double val3, const char *
 #endif
         return false;
     }
+#ifdef USE_HRIBF
+    if (val2 == -1 && val3 == -1)
+        count1cc_(dammId + offset_, int(val1), 1);
+    else if (val3 == -1 || val3 == 0)
+        count1cc_(dammId + offset_, int(val1), int(val2));
+    else
+        set2cc_(dammId + offset_, int(val1), int(val2), int(val3));
+#else
     return rootHandler_->Plot(dammId + offset_, val1, val2, val3);
+#endif
 }
 
 bool Plots::Plot(const std::string &mne, double val1, double val2, double val3, const char *name) {

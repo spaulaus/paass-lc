@@ -19,7 +19,7 @@ using namespace std;
 using namespace dammIds::raw;
 
 UtkUnpacker::UtkUnpacker()  : Unpacker() {
-
+    ///Does nothing at all
 }
 
 ///The only thing that we do here is call the destructor of the
@@ -30,8 +30,6 @@ UtkUnpacker::UtkUnpacker()  : Unpacker() {
 UtkUnpacker::~UtkUnpacker() {
     if(driver_)
         delete DetectorDriver::get();
-    if(rootHandler_)
-        delete RootHandler::get();
 }
 
 /// This method initializes the DetectorLibrary and DetectorDriver classes so
@@ -59,8 +57,6 @@ void UtkUnpacker::ProcessRawEvent() {
     if(eventCounter == 0) {
         driver_ = DetectorDriver::get();
         detectorLibrary_ = DetectorLibrary::get();
-        rootHandler_ = RootHandler::get();
-        RegisterHistograms(rootHandler_);
         InitializeDriver(driver_, detectorLibrary_, rawev, systemStartTime);
     }
 
@@ -83,10 +79,10 @@ void UtkUnpacker::ProcessRawEvent() {
     /// we can figure out the issues. These histograms are not used very often anyway.
     static double lastTimeOfPreviousEvent;
     static const auto pixieClockInNanoseconds = pixieClockInSeconds * 1e9;
-    rootHandler_->Plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) * pixieClockInNanoseconds);
-    rootHandler_->Plot(D_BUFFER_END_TIME, GetRealStopTime() * pixieClockInNanoseconds);
-    rootHandler_->Plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) * pixieClockInNanoseconds);
-    rootHandler_->Plot(D_EVENT_MULTIPLICITY, rawEvent.size());
+    driver_->histo_.Plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) * pixieClockInNanoseconds);
+    driver_->histo_.Plot(D_BUFFER_END_TIME, GetRealStopTime() * pixieClockInNanoseconds);
+    driver_->histo_.Plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) * pixieClockInNanoseconds);
+    driver_->histo_.Plot(D_EVENT_MULTIPLICITY, rawEvent.size());
     lastTimeOfPreviousEvent = GetRealStopTime();
 
     //loop over the list of channels that fired in this event
@@ -95,7 +91,7 @@ void UtkUnpacker::ProcessRawEvent() {
         if (!(*it))
             continue;
 
-        RawStats((*it), rootHandler_);
+        RawStats((*it), driver_);
 
         if ((*it)->GetId() == std::numeric_limits<unsigned int>::max()) {
             ss << "pattern 0 ignore";
@@ -140,7 +136,7 @@ void UtkUnpacker::ProcessRawEvent() {
 /// spectra are critical when we are trying to debug potential data losses in
 /// the system. These spectra print the total number of counts in a given
 /// (milli)second of time.
-void UtkUnpacker::RawStats(XiaData *event_, RootHandler *rootHandler) {
+void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver) {
     static const int specNoBins = SD;
     static double runTimeSecs = 0, remainNumSecs = 0;
     static double runTimeMsecs = 0, remainNumMsecs = 0;
@@ -154,10 +150,10 @@ void UtkUnpacker::RawStats(XiaData *event_, RootHandler *rootHandler) {
     rowNumMsecs = int(runTimeMsecs / specNoBins);
     remainNumMsecs = runTimeMsecs - rowNumMsecs * specNoBins;
 
-    rootHandler->Plot(D_HIT_SPECTRUM + OFFSET, event_->GetId());
-    rootHandler->Plot(DD_RUNTIME_SEC + OFFSET, remainNumSecs, rowNumSecs);
-    rootHandler->Plot(DD_RUNTIME_MSEC + OFFSET, remainNumMsecs, rowNumMsecs);
-    rootHandler->Plot(D_SCALAR + OFFSET + event_->GetId(), runTimeSecs);
+    driver->histo_.Plot(D_HIT_SPECTRUM, event_->GetId());
+    driver->histo_.Plot(DD_RUNTIME_SEC, remainNumSecs, rowNumSecs);
+    driver->histo_.Plot(DD_RUNTIME_MSEC, remainNumMsecs, rowNumMsecs);
+    driver->histo_.Plot(D_SCALAR + event_->GetId(), runTimeSecs);
 }
 
 /// First we initialize the DetectorLibrary, which reads the Map
@@ -221,10 +217,4 @@ void UtkUnpacker::PrintProcessingTimeInformation(const clock_t &start, const clo
        << (now - start) / hz << " seconds. Current timestamp is "
        << eventTime;
     m.run_message(ss.str());
-}
-
-void UtkUnpacker::RegisterHistograms(RootHandler *rootHandler) {
-    rootHandler->RegisterHistogram(D_HIT_SPECTRUM + OFFSET, "channel hit spectrum", S7);
-    rootHandler->RegisterHistogram(DD_RUNTIME_SEC + OFFSET, "run time - s", SE, S7);
-    rootHandler->RegisterHistogram(DD_RUNTIME_MSEC + OFFSET, "run time - ms", SE, S7);
 }

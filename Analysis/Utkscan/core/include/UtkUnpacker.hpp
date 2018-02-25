@@ -11,7 +11,6 @@
 #include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
 #include "RawEvent.hpp"
-#include "RootHandler.hpp"
 #include "Unpacker.hpp"
 
 ///A class that is derived from Unpacker that defines what we are going to do
@@ -29,7 +28,6 @@ public:
 
 private:
     DetectorDriver *driver_;
-    RootHandler *rootHandler_;
     DetectorLibrary *detectorLibrary_;
 
     ///@brief Process all events in the event list.
@@ -54,11 +52,7 @@ private:
     ///@param[in] event_ Pointer to the current XIA event.
     ///@param[in] driver Pointer to the DetectorDriver class that we're using.
     ///@param[in] addr_  Pointer to a ScanInterface object.
-    void RawStats(XiaData *event_, RootHandler *handler);
-
-    ///@brief Registers histograms that store basic information about the events
-    ///@param[in] rootHandler : Pointer to the RootHandler that we'll be registering with.
-    void RegisterHistograms(RootHandler *rootHandler);
+    void RawStats(XiaData *event_, DetectorDriver *driver);
 };
 
 #endif //__UTKUNPACKER_HPP__
