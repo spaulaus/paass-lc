@@ -42,21 +42,18 @@ bool Plots::Exists(const std::string &mne) const {
 }
 
 /** Constructors based on DeclareHistogram functions. */
-bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title,
-                               int halfWordsPerChan, int xHistLength,
+bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title, int halfWordsPerChan, int xHistLength,
                                int xLow, int xHigh, const std::string &mne) {
     if (!CheckRange(dammId)) {
         stringstream ss;
-        ss << "Plots: Histogram titled '" << title << "' requests id "
-           << dammId << " which is outside of allowed range ("
-           << range_ << ") of group with offset (" << offset_ << ").";
+        ss << "Plots: Histogram titled '" << title << "' requests id " << dammId
+           << " which is outside of allowed range (" << range_ << ") of group with offset (" << offset_ << ").";
         throw HistogramException(ss.str());
     }
     if (Exists(dammId) || Exists(mne)) {
         stringstream ss;
-        ss << "Plots: Histogram titled '" << title << "' requests id "
-           << dammId + offset_ << " which is already in use by"
-           << " histogram '" << titleList[dammId] << "'.";
+        ss << "Plots: Histogram titled '" << title << "' requests id " << dammId + offset_
+           << " which is already in use by" << " histogram '" << titleList[dammId] << "'.";
         throw HistogramException(ss.str());
     }
 
@@ -66,44 +63,34 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title,
     // Mnemonic is optional and added only if longer then 0
     if (mne.size() > 0)
         mneList.insert(pair<string, int>(mne, dammId));
-    hd1d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength,
-          xLow, xHigh, title, strlen(title));
+    hd1d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh, title, strlen(title));
     titleList.insert(pair<int, string>(dammId, string(title)));
     return true;
 }
 
-bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title,
-                               int halfWordsPerChan /* = 2*/,
+bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title, int halfWordsPerChan /* = 2*/,
                                const std::string &mne /*=empty*/ ) {
-    return DeclareHistogram1D(dammId, xSize, title, halfWordsPerChan,
-                              xSize, 0, xSize - 1, mne);
+    return DeclareHistogram1D(dammId, xSize, title, halfWordsPerChan, xSize, 0, xSize - 1, mne);
 }
 
-bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title,
-                               int halfWordsPerChan, int contraction,
+bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title, int halfWordsPerChan, int contraction,
                                const std::string &mne) {
-    return DeclareHistogram1D(dammId, xSize, title, halfWordsPerChan,
-                              xSize / contraction, 0, xSize / contraction - 1,
-                              mne);
+    return DeclareHistogram1D(dammId, xSize, title, halfWordsPerChan, xSize / contraction, 0, xSize / contraction - 1, mne);
 }
 
-bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
-                               const char *title, int halfWordsPerChan,
-                               int xHistLength, int xLow, int xHigh,
-                               int yHistLength, int yLow, int yHigh,
+bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title, int halfWordsPerChan,
+                               int xHistLength, int xLow, int xHigh, int yHistLength, int yLow, int yHigh,
                                const std::string &mne) {
     if (!CheckRange(dammId)) {
         stringstream ss;
-        ss << "Plots: Histogram titled '" << title << "' requests id "
-           << dammId << " which is outside of allowed range ("
-           << range_ << ") of group with offset (" << offset_ << ").";
+        ss << "Plots: Histogram titled '" << title << "' requests id " << dammId
+           << " which is outside of allowed range (" << range_ << ") of group with offset (" << offset_ << ").";
         throw HistogramException(ss.str());
     }
     if (Exists(dammId) || Exists(mne)) {
         stringstream ss;
-        ss << "Plots: Histogram titled '" << title << "' requests id "
-           << dammId + offset_ << " which is already in use by"
-           << " histogram '" << titleList[dammId] << "'.";
+        ss << "Plots: Histogram titled '" << title << "' requests id " << dammId + offset_
+           << " which is already in use by" << " histogram '" << titleList[dammId] << "'.";
         throw HistogramException(ss.str());
     }
 
@@ -114,33 +101,23 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
     if (mne.size() > 0)
         mneList.insert(pair<string, int>(mne, dammId));
 
-    hd2d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh,
-          ySize, yHistLength, yLow, yHigh, title, strlen(title));
+    hd2d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh, ySize, yHistLength, yLow, yHigh, title, strlen(title));
     titleList.insert(pair<int, string>(dammId, string(title)));
     return true;
 }
 
-bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
-                               const char *title,
-                               int halfWordsPerChan /* = 1*/,
+bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title, int halfWordsPerChan /* = 1*/,
                                const std::string &mne /* = empty*/) {
-    return DeclareHistogram2D(dammId, xSize, ySize, title, halfWordsPerChan,
-                              xSize, 0, xSize - 1,
-                              ySize, 0, ySize - 1, mne);
+    return DeclareHistogram2D(dammId, xSize, ySize, title, halfWordsPerChan, xSize, 0, xSize - 1, ySize, 0, ySize - 1, mne);
 }
 
-bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
-                               const char *title, int halfWordsPerChan,
-                               int xContraction, int yContraction,
+bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title, int halfWordsPerChan, int xContraction, int yContraction,
                                const std::string &mne) {
-    return DeclareHistogram2D(dammId, xSize, ySize, title, halfWordsPerChan,
-                              xSize / xContraction, 0, xSize / xContraction - 1,
-                              ySize / yContraction, 0, ySize / yContraction - 1,
-                              mne);
+    return DeclareHistogram2D(dammId, xSize, ySize, title, halfWordsPerChan, xSize / xContraction, 0,
+                              xSize / xContraction - 1, ySize / yContraction, 0, ySize / yContraction - 1, mne);
 }
 
-bool Plots::Plot(int dammId, double val1, double val2, double val3,
-                 const char *name) {
+bool Plots::Plot(int dammId, double val1, double val2, double val3, const char *name) {
     // We will not try to plot into histograms that have not been defined
     if (!Exists(dammId)) {
 #ifdef VERBOSE
@@ -162,8 +139,7 @@ bool Plots::Plot(int dammId, double val1, double val2, double val3,
     return (true);
 }
 
-bool Plots::Plot(const std::string &mne, double val1, double val2, double val3,
-                 const char *name) {
+bool Plots::Plot(const std::string &mne, double val1, double val2, double val3, const char *name) {
     if (!Exists(mne))
         return false;
     return Plot(mneList.find(mne)->second, val1, val2, val3, name);
