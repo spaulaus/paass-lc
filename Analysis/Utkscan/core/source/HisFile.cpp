@@ -74,6 +74,7 @@ void set2cc_(const int &dammID, const int &x, const int &y, const int &z) {
 #endif
 
 /// Strip trailing whitespace from a c-string
+///@TODO Move to string manipulation
 std::string rstrip(char *input_) {
     if (strlen(input_) == 0) { return std::string(""); }
 
