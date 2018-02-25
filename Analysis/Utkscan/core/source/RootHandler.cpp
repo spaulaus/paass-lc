@@ -28,28 +28,44 @@ RootHandler *RootHandler::get(const std::string &fileName) {
     return (instance_);
 }
 
+TFile *RootHandler::GetRootFile() { return file_; }
+
 RootHandler::RootHandler(const std::string &fileName) {
-    file_ = new TFile(fileName.c_str(), "recreate"); //! overwrite tree for now
-}
-
-void RootHandler::RegisterHistogram(const std::string &name, const std::string &title, const unsigned int &xbins,
-                                    const unsigned int &yBins/* = 0*/, const unsigned int &zBins/* = 0*/) {
-
+    file_ = new TFile(fileName.c_str(), "recreate");
 }
 
 RootHandler::~RootHandler() {
-    if (!treeList_.empty()) {
-        for (const auto &tree : treeList_) {
-            cout << "RootHandler::~RootHandler - Saving " << tree->GetEntries() << " tree entries to "
-                 << tree->GetTitle() << endl;
-            tree->AutoSave();
-        }
+    for (const auto &tree : treeList_) {
+        cout << "RootHandler::~RootHandler - Saving " << tree->GetEntries() << " tree entries to "
+             << tree->GetTitle() << endl;
+        tree->AutoSave();
     }
 
-    if (file_ != NULL) {
+    if(file_) {
+        file_->Write();
         file_->Close();
-        delete file_; // this also frees the tree
+        delete file_;
     }
+
+    instance_ = nullptr;
+}
+
+///@TODO Update this so that we're being a little more flexible with our histogramming. At the moment, I'm wanting to
+/// mimic the function calls to DAMM as closely as possible. This will reduce the amount of rewrites for now.
+TH1 *RootHandler::RegisterHistogram(const std::string &name, const std::string &title, const unsigned int &xBins,
+                                    const unsigned int &yBins/* = 0*/, const unsigned int &zBins/* = 0*/) {
+    auto histogram = histogramList_.find(name);
+    if (histogram != histogramList_.end())
+        return histogram->second;
+
+    if (!yBins && !zBins)
+        return histogramList_.emplace(make_pair(name, new TH1I(name.c_str(), title.c_str(), xBins, 0, xBins))).first->second;
+    if(yBins && !zBins)
+        return histogramList_.emplace(make_pair(name, new TH2I(name.c_str(), title.c_str(), xBins, 0, xBins, yBins, 0, yBins))).first->second;
+    if(!yBins)
+        return histogramList_.emplace(make_pair(name, new TH2I(name.c_str(), title.c_str(), xBins, 0, xBins, zBins, 0, zBins))).first->second;
+
+    return histogramList_.emplace(make_pair(name, new TH3I(name.c_str(), title.c_str(), xBins, 0, xBins, yBins, 0, yBins, zBins, 0, zBins))).first->second;
 }
 
 void RootHandler::AddBranch(TTree *tree, const std::string &name, const std::string &definition) {
