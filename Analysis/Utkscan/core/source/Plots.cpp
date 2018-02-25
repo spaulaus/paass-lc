@@ -10,6 +10,7 @@
 #include <cstring>
 
 #include "Plots.hpp"
+#include "PaassExceptions.hpp"
 
 using namespace std;
 
@@ -18,6 +19,8 @@ Plots::Plots(int offset, int range, std::string name) {
     range_ = range;
     name_ = name;
     PlotsRegister::get()->Add(offset_, range_, name_);
+    if(!rootHandler_)
+        rootHandler_ = RootHandler::get();
 }
 
 bool Plots::BananaTest(const int &id, const double &x, const double &y) {
@@ -58,12 +61,13 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title, int hal
     }
 
     pair<set<int>::iterator, bool> result = idList_.insert(dammId);
-    if (result.second == false)
+    if (!result.second)
         return false;
     // Mnemonic is optional and added only if longer then 0
     if (mne.size() > 0)
         mneList.insert(pair<string, int>(mne, dammId));
-    hd1d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh, title, strlen(title));
+
+    rootHandler_->RegisterHistogram(dammId + offset_, title, xHistLength);
     titleList.insert(pair<int, string>(dammId, string(title)));
     return true;
 }
@@ -95,13 +99,13 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize, const char *tit
     }
 
     pair<set<int>::iterator, bool> result = idList_.insert(dammId);
-    if (result.second == false)
+    if (!result.second)
         return (false);
     // Mnemonic is optional and added only if longer then 0
     if (mne.size() > 0)
         mneList.insert(pair<string, int>(mne, dammId));
 
-    hd2d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh, ySize, yHistLength, yLow, yHigh, title, strlen(title));
+    rootHandler_->RegisterHistogram(dammId + offset_, title, xSize, ySize);
     titleList.insert(pair<int, string>(dammId, string(title)));
     return true;
 }
@@ -111,32 +115,21 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize, const char *tit
     return DeclareHistogram2D(dammId, xSize, ySize, title, halfWordsPerChan, xSize, 0, xSize - 1, ySize, 0, ySize - 1, mne);
 }
 
-bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title, int halfWordsPerChan, int xContraction, int yContraction,
-                               const std::string &mne) {
+bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title, int halfWordsPerChan, int xContraction,
+                               int yContraction, const std::string &mne) {
     return DeclareHistogram2D(dammId, xSize, ySize, title, halfWordsPerChan, xSize / xContraction, 0,
                               xSize / xContraction - 1, ySize / yContraction, 0, ySize / yContraction - 1, mne);
 }
 
 bool Plots::Plot(int dammId, double val1, double val2, double val3, const char *name) {
-    // We will not try to plot into histograms that have not been defined
     if (!Exists(dammId)) {
 #ifdef VERBOSE
-        std::cerr << "Tried to fill histogram ID " << dammId << "belonging to "
-                  << name_ << ", which is not known to us. You MUST fix this "
-                  << "before continuing with execution." << endl;
-        //We will exit here since this is an error that should be fixed. 
-        exit(0);
+        std::cerr << "Tried to fill histogram ID " << dammId << "belonging to " << name_
+        << ", which is not known to us. You MUST fix this " << "before continuing with execution." << endl;
 #endif
-        return (false);
+        return false;
     }
-
-    if (val2 == -1 && val3 == -1)
-        count1cc_(dammId + offset_, int(val1), 1);
-    else if (val3 == -1 || val3 == 0)
-        count1cc_(dammId + offset_, int(val1), int(val2));
-    else
-        set2cc_(dammId + offset_, int(val1), int(val2), int(val3));
-    return (true);
+    return rootHandler_->Plot(dammId + offset_, val1, val2, val3);
 }
 
 bool Plots::Plot(const std::string &mne, double val1, double val2, double val3, const char *name) {

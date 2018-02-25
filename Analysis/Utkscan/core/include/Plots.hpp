@@ -12,9 +12,9 @@
 #include <set>
 #include <string>
 
-#include "Globals.hpp"
 #include "HisFile.hpp"
 #include "PlotsRegister.hpp"
+#include "RootHandler.hpp"
 
 //! Holds pointers to all Histograms
 class Plots {
@@ -44,7 +44,6 @@ public:
      * \param [in] mne : the name to check in the list */
     bool Exists(const std::string &mne) const;
 
-
     /*! \brief Declares a 1D histogram calls the C++ wrapper for DAMM
     * \param [in] dammId : The histogram number to define
     * \param [in] xSize : The range of the x-axis
@@ -55,10 +54,8 @@ public:
     * \param [in] xHigh : the High range of the histogram
     * \param [in] mne : the mnemonic for the histogram
     * \return true if things go all right */
-    bool DeclareHistogram1D(int dammId, int xSize, const char *title,
-                            int halfWordsPerChan, int xHistLength, int xLow,
-                            int xHigh,
-                            const std::string &mne = "");
+    bool DeclareHistogram1D(int dammId, int xSize, const char *title, int halfWordsPerChan, int xHistLength, int xLow,
+                            int xHigh, const std::string &mne = "");
 
     /*! \brief Declares a 1D histogram calls the C++ wrapper for DAMM
     * \param [in] dammId : The histogram number to define
@@ -67,8 +64,7 @@ public:
     * \param [in] halfWordsPerChan : the half words per channel in the his
     * \param [in] mne : the mnemonic for the histogram
     * \return true if things go all right */
-    bool DeclareHistogram1D(int dammId, int xSize, const char *title,
-                            int halfWordsPerChan = 2,
+    bool DeclareHistogram1D(int dammId, int xSize, const char *title, int halfWordsPerChan = 2,
                             const std::string &mne = "");
 
     /*! \brief Declares a 1D histogram calls the C++ wrapper for DAMM
@@ -79,8 +75,7 @@ public:
     * \param [in] contraction : the histogram contraction number
     * \param [in] mne : the mnemonic for the histogram
     * \return true if things go all right */
-    bool DeclareHistogram1D(int dammId, int xSize, const char *title,
-                            int halfWordsPerChan, int contraction,
+    bool DeclareHistogram1D(int dammId, int xSize, const char *title, int halfWordsPerChan, int contraction,
                             const std::string &mne = "");
 
     /*! \brief Declares a 2D histogram calls the C++ wrapper for DAMM
@@ -97,10 +92,8 @@ public:
     * \param [in] yHigh : the High for the y-range of the histogram
     * \param [in] mne : the mnemonic for the histogram
     * \return true if things go all right */
-    bool DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title,
-                            int halfWordsPerChan, int xHistLength, int xLow,
-                            int xHigh, int yHistLength, int yLow, int yHigh,
-                            const std::string &mne = "");
+    bool DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title, int halfWordsPerChan, int xHistLength,
+                            int xLow, int xHigh, int yHistLength, int yLow, int yHigh, const std::string &mne = "");
 
     /*! \brief Declares a 2D histogram calls the C++ wrapper for DAMM
     * \param [in] dammId : The histogram number to define
@@ -110,8 +103,7 @@ public:
     * \param [in] halfWordPerChan : the half words per channel in the his
     * \param [in] mne : the mnemonic for the histogram
     * \return true if things go all right */
-    bool DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title,
-                            int halfWordPerChan = 1,
+    bool DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title, int halfWordPerChan = 1,
                             const std::string &mne = "");
 
     /*! \brief Declares a 2D histogram calls the C++ wrapper for DAMM
@@ -124,8 +116,7 @@ public:
     * \param [in] yContraction : the histogram y contraction number
     * \param [in] mne : the mnemonic for the histogram
     * \return true if things go all right */
-    bool DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title,
-                            int halfWordsPerChan, int xContraction,
+    bool DeclareHistogram2D(int dammId, int xSize, int ySize, const char *title, int halfWordsPerChan, int xContraction,
                             int yContraction, const std::string &mne = "");
 
     /*! \brief Plots into histogram defined by dammId
@@ -135,8 +126,7 @@ public:
     * \param [in] val3 : the z value or weight in a 2D histogram
     * \param [in] name : the name of the histogram in ROOT (not implemented now)
     * \return true if successful */
-    bool Plot(int dammId, double val1, double val2 = -1, double val3 = -1,
-              const char *name = "h");
+    bool Plot(int dammId, double val1, double val2 = -1, double val3 = -1, const char *name = "h");
 
     /*! \brief Plots into histogram defined by mne
     * \param [in] mne  : the mnemonic to plot into
@@ -145,8 +135,7 @@ public:
     * \param [in] val3 : the z value
     * \param [in] name : the name of the histogram
     * \return true if successful */
-    bool Plot(const std::string &mne, double val1, double val2 = -1,
-              double val3 = -1, const char *name = "h");
+    bool Plot(const std::string &mne, double val1, double val2 = -1, double val3 = -1, const char *name = "h");
 
     /** Method to test if a parameter is inside of a loaded banana
     *
@@ -159,6 +148,7 @@ public:
 
 private:
     static PlotsRegister *plots_register_;//!< Instance of the plots register
+    RootHandler *rootHandler_; //!< Instance of the ROOT Handler so we can plot histograms.
     /** Holds offset for a given set of plots */
     int offset_;
     /** Holds allowed range for a given set of plots*/
