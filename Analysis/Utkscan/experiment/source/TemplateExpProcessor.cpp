@@ -15,10 +15,8 @@
 #include "TemplateExpProcessor.hpp"
 #include "TimingMapBuilder.hpp"
 
-#ifdef useroot
 static double tof_;
 static double tEnergy;
-#endif
 
 namespace dammIds {
     namespace experiment {
@@ -41,29 +39,23 @@ TemplateExpProcessor::TemplateExpProcessor() : EventProcessor(OFFSET, RANGE, "Te
     gCutoff_ = 0.; ///Set the gamma cutoff energy to a default of 0.
     SetAssociatedTypes();
     SetupAsciiOutput();
-#ifdef useroot
     SetupRootOutput();
-#endif
 }
 
 TemplateExpProcessor::TemplateExpProcessor(const double &gcut) : EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
     gCutoff_ = gcut;
     SetAssociatedTypes();
     SetupAsciiOutput();
-#ifdef useroot
     SetupRootOutput();
-#endif
 }
 
 ///Destructor to close output files and clean up pointers
 TemplateExpProcessor::~TemplateExpProcessor() {
     poutstream_->close();
     delete (poutstream_);
-#ifdef useroot
     prootfile_->Write();
     prootfile_->Close();
     delete (prootfile_);
-#endif
 }
 
 ///Associates this Experiment Processor with template and ge detector types
@@ -79,12 +71,10 @@ void TemplateExpProcessor::SetupAsciiOutput(void) {
     poutstream_ = new ofstream(name.str().c_str());
 }
 
-#ifdef useroot
-
 ///Sets up ROOT output file, tree, branches, histograms.
 void TemplateExpProcessor::SetupRootOutput(void) {
     stringstream rootname;
-    rootname << Globals::get()->GetOutputPath() << Globals::get()->GetOutputFileName() << ".root";
+    rootname << Globals::get()->GetOutputPath() << Globals::get()->GetOutputFileName() << "-Template.root";
     prootfile_ = new TFile(rootname.str().c_str(), "RECREATE");
     proottree_ = new TTree("data", "");
     proottree_->Branch("tof", &tof_, "tof/D");
@@ -92,8 +82,6 @@ void TemplateExpProcessor::SetupRootOutput(void) {
     ptvsge_ = new TH2D("tvsge", "", 1000, -100, 900, 16000, 0, 16000);
     ptsize_ = new TH1D("tsize", "", 40, 0, 40);
 }
-
-#endif
 
 ///We do nothing here since we're completely dependent on the results of others
 bool TemplateExpProcessor::PreProcess(RawEvent &event) {
@@ -125,9 +113,7 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
 
     ///Plot the size of the template events vector in two ways
     plot(D_TSIZE, tEvts.size());
-#ifdef useroot
     ptsize_->Fill(tEvts.size());
-#endif
 
     ///Obtain some useful logic statuses
     bool isTapeMoving = TreeCorrelator::get()->place("TapeMove")->status();
@@ -149,14 +135,14 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
             ///Output template and ge energy to text file if we had a beta along with the runtime in seconds.
             if (hasBeta)
                 *poutstream_ << (*tit)->GetEnergy() << " " << gEnergy << " " << clockInSeconds << endl;
-#ifdef useroot
             ///Fill ROOT histograms and tree with the information
+
             ptvsge_->Fill((*tit)->GetEnergy(), gEnergy);
             tEnergy = (*tit)->GetEnergy();
             tof_ = (*tit)->GetTime() - chan->GetWalkCorrectedTime();
             proottree_->Fill();
             tEnergy = tof_ = -9999;
-#endif
+
             ///Plot the Ge energy with a cut
             if (gEnergy > gCutoff_)
                 plot(D_GEENERGY, gEnergy);

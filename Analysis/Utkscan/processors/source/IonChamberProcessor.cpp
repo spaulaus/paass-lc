@@ -11,12 +11,8 @@
 #include "RawEvent.hpp"
 #include "IonChamberProcessor.hpp"
 
-#ifdef useroot
-
 #include <TBranch.h>
 #include <TTree.h>
-
-#endif
 
 using namespace std;
 using namespace dammIds::ionChamber;
@@ -175,8 +171,6 @@ void IonChamberProcessor::Data::Clear(void) {
     mult = 0;
 }
 
-#ifdef useroot
-
 bool IonChamberProcessor::AddBranch(TTree *tree) {
     if (tree) {
         TBranch *branch = tree->Branch(name.c_str(), &data,
@@ -190,5 +184,3 @@ void IonChamberProcessor::FillBranch(void) {
     if (!HasEvent())
         data.Clear();
 }
-
-#endif // USEROOT

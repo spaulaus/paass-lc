@@ -10,14 +10,10 @@
 
 #include "EventProcessor.hpp"
 
-#ifdef useroot
-
 #include <TFile.h>
 #include <TTree.h>
 #include <TH2D.h>
 #include <TH1D.h>
-
-#endif
 
 /// Working template class for experiment processors
 class TemplateExpProcessor : public EventProcessor {
@@ -53,8 +49,6 @@ private:
     std::ofstream *poutstream_; //!< Pointer to ouptut ASCII file stream.
     double gCutoff_; //!< Variable used to set gamma cutoff energy
 
-#ifdef useroot
-
     /** Method to setup the ROOT output, tree and histograms */
     void SetupRootOutput(void);
 
@@ -62,7 +56,6 @@ private:
     TTree *proottree_; //! pointer to root tree
     TH2D *ptvsge_;    //! pointer to ROOT 2D histogram
     TH1D *ptsize_;     //! pointer to ROOT 1D histogram
-#endif
 };
 
 #endif

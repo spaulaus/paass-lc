@@ -16,10 +16,8 @@
 #include "IS600Processor.hpp"
 #include "VandleProcessor.hpp"
 
-#ifdef useroot
 static double tof_;
 static double qdc_;
-#endif
 
 namespace dammIds {
     namespace experiment {
@@ -71,10 +69,10 @@ IS600Processor::IS600Processor() : EventProcessor(OFFSET, RANGE,
     name << Globals::get()->GetOutputPath()
          << Globals::get()->GetOutputFileName() << ".dat";
     outstream = new ofstream(name.str().c_str());
-#ifdef useroot
+
     stringstream rootname;
     rootname << Globals::get()->GetOutputPath()
-             << Globals::get()->GetOutputFileName() << ".root";
+             << Globals::get()->GetOutputFileName() << "-IS600.root";
     cout << rootname.str() << endl;
     rootfile_ = new TFile(rootname.str().c_str(), "RECREATE");
     roottree_ = new TTree("vandle", "");
@@ -82,17 +80,14 @@ IS600Processor::IS600Processor() : EventProcessor(OFFSET, RANGE,
     roottree_->Branch("qdc", &qdc_, "qdc/D");
     qdctof_ = new TH2D("qdctof", "", 1000, -100, 900, 16000, 0, 16000);
     vsize_ = new TH1D("vsize", "", 40, 0, 40);
-#endif
 }
 
 IS600Processor::~IS600Processor() {
     outstream->close();
     delete (outstream);
-#ifdef useroot
     rootfile_->Write();
     rootfile_->Close();
     delete (rootfile_);
-#endif
 }
 
 ///We do nothing here since we're completely dependent on the resutls of others
@@ -131,9 +126,7 @@ bool IS600Processor::Process(RawEvent &event) {
     static const vector<ChanEvent *> &labr3Evts =
             event.GetSummary("labr3:mrbig")->GetList();
 
-#ifdef useroot
     vsize_->Fill(vbars.size());
-#endif
 
     //Obtain some useful logic statuses
     double lastProtonTime =
@@ -180,13 +173,12 @@ bool IS600Processor::Process(RawEvent &event) {
             bool isLowStart = start.GetQdc() < 300;
 
             *outstream << tof << " " << bar.GetQdc() << endl;
-#ifdef useroot
+
             qdctof_->Fill(tof, bar.GetQdc());
             qdc_ = bar.GetQdc();
             tof_ = tof;
             roottree_->Fill();
             qdc_ = tof_ = -9999;
-#endif
 
             plot(DD_DEBUGGING1, tof * plotMult_ + plotOffset_, bar.GetQdc());
             if (!isTapeMoving && !isLowStart)
