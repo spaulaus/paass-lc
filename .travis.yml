@@ -42,7 +42,7 @@ matrix:
             - libncurses5-dev
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_SETUP=ON"
+        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_SETUP=ON"
     - os: linux
       addons:
         apt:
