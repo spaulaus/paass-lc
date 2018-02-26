@@ -26,7 +26,7 @@ TEST(TestRootHandler) {
     handler->RegisterHistogram(id2, "test2d-xz", 10, 0, 10);
     handler->RegisterHistogram(id3, "test3d", 10, 10, 10);
 
-    CHECK_THROW(handler->Plot(123,123), std::invalid_argument);
+    CHECK(!handler->Plot(123,123));
 
     auto seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator (seed);
