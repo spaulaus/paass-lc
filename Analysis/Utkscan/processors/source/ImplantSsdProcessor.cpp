@@ -78,59 +78,59 @@ void ImplantSsdProcessor::DeclarePlots(void) {
     const int traceBins = SC;
     const int tdiffBins = SA;
 
-    DeclareHistogram2D(DD_ALL_ENERGY__LOCATION, implantEnergyBins, locationBins, "SSD Strip vs Implant E");
-    DeclareHistogram2D(DD_IMPLANT_ENERGY__LOCATION, implantEnergyBins, locationBins, "SSD Strip vs Implant E");
-    DeclareHistogram2D(DD_DECAY_ENERGY__LOCATION, decayEnergyBins, locationBins, "SSD Strip vs Decay E");
-    DeclareHistogram2D(DD_FISSION_ENERGY__LOCATION, fissionEnergyBins, locationBins, "SSD Strip vs Fission E");
-    DeclareHistogram2D(DD_ENERGY__LOCATION_BEAM, unknownEnergyBins, locationBins, "SSD Strip vs E w/ beam");
-    DeclareHistogram2D(DD_ENERGY__LOCATION_NOBEAM, unknownEnergyBins, locationBins, "SSD Strip vs E w/ no beam");
-    DeclareHistogram2D(DD_ENERGY__LOCATION_VETO, implantEnergyBins, locationBins, "SSD Strip vs E w/ veto");
-    DeclareHistogram2D(DD_ENERGY__LOCATION_PROJLIKE, implantEnergyBins, locationBins, "SSD Strip vs E projectile");
-    DeclareHistogram2D(DD_ENERGY__LOCATION_UNKNOWN, unknownEnergyBins, locationBins, "SSD Strip vs E (unknown)");
+    histo.DeclareHistogram2D(DD_ALL_ENERGY__LOCATION, implantEnergyBins, locationBins, "SSD Strip vs Implant E");
+    histo.DeclareHistogram2D(DD_IMPLANT_ENERGY__LOCATION, implantEnergyBins, locationBins, "SSD Strip vs Implant E");
+    histo.DeclareHistogram2D(DD_DECAY_ENERGY__LOCATION, decayEnergyBins, locationBins, "SSD Strip vs Decay E");
+    histo.DeclareHistogram2D(DD_FISSION_ENERGY__LOCATION, fissionEnergyBins, locationBins, "SSD Strip vs Fission E");
+    histo.DeclareHistogram2D(DD_ENERGY__LOCATION_BEAM, unknownEnergyBins, locationBins, "SSD Strip vs E w/ beam");
+    histo.DeclareHistogram2D(DD_ENERGY__LOCATION_NOBEAM, unknownEnergyBins, locationBins, "SSD Strip vs E w/ no beam");
+    histo.DeclareHistogram2D(DD_ENERGY__LOCATION_VETO, implantEnergyBins, locationBins, "SSD Strip vs E w/ veto");
+    histo.DeclareHistogram2D(DD_ENERGY__LOCATION_PROJLIKE, implantEnergyBins, locationBins, "SSD Strip vs E projectile");
+    histo.DeclareHistogram2D(DD_ENERGY__LOCATION_UNKNOWN, unknownEnergyBins, locationBins, "SSD Strip vs E (unknown)");
 
-    DeclareHistogram2D(DD_LOC_VETO__LOC_SSD, vetoLocationBins, locationBins, "Veto pos vs SSD pos");
+    histo.DeclareHistogram2D(DD_LOC_VETO__LOC_SSD, vetoLocationBins, locationBins, "Veto pos vs SSD pos");
     histo.DeclareHistogram2D(DD_TOTENERGY__ENERGY, implantEnergyBins, implantEnergyBins,
                              "Tot energy vs. SSD energy (/8)", 1, S3, S3);
 
-    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 0, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 1, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 2, decayEnergyBins, timeBins, "DSSD Ty,Ex (400ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 3, decayEnergyBins, timeBins, "DSSD Ty,Ex (1us/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 4, decayEnergyBins, timeBins, "DSSD Ty,Ex (10us/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 5, decayEnergyBins, timeBins, "DSSD Ty,Ex (100us/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 6, decayEnergyBins, timeBins, "DSSD Ty,Ex (1ms/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 7, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ms/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 8, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ms/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 0, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ns/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 1, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ns/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 2, decayEnergyBins, timeBins, "DSSD Ty,Ex (400ns/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 3, decayEnergyBins, timeBins, "DSSD Ty,Ex (1us/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 4, decayEnergyBins, timeBins, "DSSD Ty,Ex (10us/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 5, decayEnergyBins, timeBins, "DSSD Ty,Ex (100us/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 6, decayEnergyBins, timeBins, "DSSD Ty,Ex (1ms/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 7, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ms/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_ALL_ENERGY__TX + 8, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ms/ch)(xkeV)");
 
-    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 0, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 1, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 2, decayEnergyBins, timeBins, "DSSD Ty,Ex (400ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 3, decayEnergyBins, timeBins, "DSSD Ty,Ex (1us/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 4, decayEnergyBins, timeBins, "DSSD Ty,Ex (10us/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 5, decayEnergyBins, timeBins, "DSSD Ty,Ex (100us/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 6, decayEnergyBins, timeBins, "DSSD Ty,Ex (1ms/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 7, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ms/ch)(xkeV)");
-    DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 8, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ms/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 0, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ns/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 1, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ns/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 2, decayEnergyBins, timeBins, "DSSD Ty,Ex (400ns/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 3, decayEnergyBins, timeBins, "DSSD Ty,Ex (1us/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 4, decayEnergyBins, timeBins, "DSSD Ty,Ex (10us/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 5, decayEnergyBins, timeBins, "DSSD Ty,Ex (100us/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 6, decayEnergyBins, timeBins, "DSSD Ty,Ex (1ms/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 7, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ms/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_DECAY_NOBEAM_ENERGY__TX + 8, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ms/ch)(xkeV)");
 
-    DeclareHistogram2D(DD_VETO_ENERGY__TX + 0, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_VETO_ENERGY__TX + 1, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_VETO_ENERGY__TX + 2, decayEnergyBins, timeBins, "DSSD Ty,Ex (400ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_VETO_ENERGY__TX + 3, decayEnergyBins, timeBins, "DSSD Ty,Ex (1us/ch)(xkeV)");
-    DeclareHistogram2D(DD_VETO_ENERGY__TX + 4, decayEnergyBins, timeBins, "DSSD Ty,Ex (10us/ch)(xkeV)");
-    DeclareHistogram2D(DD_VETO_ENERGY__TX + 5, decayEnergyBins, timeBins, "DSSD Ty,Ex (100us/ch)(xkeV)");
-    DeclareHistogram2D(DD_VETO_ENERGY__TX + 6, decayEnergyBins, timeBins, "DSSD Ty,Ex (1ms/ch)(xkeV)");
-    DeclareHistogram2D(DD_VETO_ENERGY__TX + 7, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ms/ch)(xkeV)");
-    DeclareHistogram2D(DD_VETO_ENERGY__TX + 8, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ms/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_VETO_ENERGY__TX + 0, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ns/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_VETO_ENERGY__TX + 1, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ns/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_VETO_ENERGY__TX + 2, decayEnergyBins, timeBins, "DSSD Ty,Ex (400ns/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_VETO_ENERGY__TX + 3, decayEnergyBins, timeBins, "DSSD Ty,Ex (1us/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_VETO_ENERGY__TX + 4, decayEnergyBins, timeBins, "DSSD Ty,Ex (10us/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_VETO_ENERGY__TX + 5, decayEnergyBins, timeBins, "DSSD Ty,Ex (100us/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_VETO_ENERGY__TX + 6, decayEnergyBins, timeBins, "DSSD Ty,Ex (1ms/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_VETO_ENERGY__TX + 7, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ms/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_VETO_ENERGY__TX + 8, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ms/ch)(xkeV)");
 
-    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 0, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 1, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 2, decayEnergyBins, timeBins, "DSSD Ty,Ex (400ns/ch)(xkeV)");
-    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 3, decayEnergyBins, timeBins, "DSSD Ty,Ex (1us/ch)(xkeV)");
-    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 4, decayEnergyBins, timeBins, "DSSD Ty,Ex (10us/ch)(xkeV)");
-    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 5, decayEnergyBins, timeBins, "DSSD Ty,Ex (100us/ch)(xkeV)");
-    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 6, decayEnergyBins, timeBins, "DSSD Ty,Ex (1ms/ch)(xkeV)");
-    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 7, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ms/ch)(xkeV)");
-    DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 8, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ms/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 0, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ns/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 1, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ns/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 2, decayEnergyBins, timeBins, "DSSD Ty,Ex (400ns/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 3, decayEnergyBins, timeBins, "DSSD Ty,Ex (1us/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 4, decayEnergyBins, timeBins, "DSSD Ty,Ex (10us/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 5, decayEnergyBins, timeBins, "DSSD Ty,Ex (100us/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 6, decayEnergyBins, timeBins, "DSSD Ty,Ex (1ms/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 7, decayEnergyBins, timeBins, "DSSD Ty,Ex (10ms/ch)(xkeV)");
+    histo.DeclareHistogram2D(DD_FIRST_DECAY_ENERGY__TX + 8, decayEnergyBins, timeBins, "DSSD Ty,Ex (100ms/ch)(xkeV)");
 
     for (int i = 0; i < MAX_TOF; i++) {
         histo.DeclareHistogram2D(DD_ALL_ENERGY__TOFX + i, implantEnergyBins, tofBins, "SSD Energy vs TOF (/16)", 1, S4, S4);
@@ -140,11 +140,11 @@ void ImplantSsdProcessor::DeclarePlots(void) {
                                  "SSD Energy vs TOF (/16), gated", 1, S4, S4);
     }
 
-    DeclareHistogram1D(D_TDIFF_FOIL_IMPLANT, tdiffBins, "DT foil to implant");
-    DeclareHistogram1D(D_TDIFF_FOIL_IMPLANT_MULT1, tdiffBins, "DT foil to implant, mult. gated");
+    histo.DeclareHistogram1D(D_TDIFF_FOIL_IMPLANT, tdiffBins, "DT foil to implant");
+    histo.DeclareHistogram1D(D_TDIFF_FOIL_IMPLANT_MULT1, tdiffBins, "DT foil to implant, mult. gated");
 
     for (unsigned int i = 0; i < numTraces; i++)
-        DeclareHistogram1D(D_FAST_DECAY_TRACE + i, traceBins, "fast decay trace");
+        histo.DeclareHistogram1D(D_FAST_DECAY_TRACE + i, traceBins, "fast decay trace");
 }
 
 bool ImplantSsdProcessor::Process(RawEvent &event) {
@@ -229,10 +229,10 @@ bool ImplantSsdProcessor::Process(RawEvent &event) {
              it != mcpEvents.end(); it++) {
             double dt = info.time - (*it)->GetTime();
 
-            plot(D_TDIFF_FOIL_IMPLANT, 500 + dt);
+            histo.Plot(D_TDIFF_FOIL_IMPLANT, 500 + dt);
             if (mcpEvents.size() == 1) {
                 digitalTof = -10. * dt;
-                plot(D_TDIFF_FOIL_IMPLANT_MULT1, 500 + dt);
+                histo.Plot(D_TDIFF_FOIL_IMPLANT_MULT1, 500 + dt);
             }
             dtMin = min(dtMin, dt);
         }
@@ -294,22 +294,22 @@ bool ImplantSsdProcessor::Process(RawEvent &event) {
             double tof = (*it)->GetCalibratedEnergy();
             int ntof = (*it)->GetChanID().GetLocation();
 
-            plot(DD_ALL_ENERGY__TOFX + ntof - 1, info.energy, tof);
+            histo.Plot(DD_ALL_ENERGY__TOFX + ntof - 1, info.energy, tof);
             if (!std::isnan(digitalTof) && digitalTof > 1500. && digitalTof < 2000)
-                plot(DD_ALL_ENERGY__TOFX_GATED + ntof - 1, info.energy, tof);
+                histo.Plot(DD_ALL_ENERGY__TOFX_GATED + ntof - 1, info.energy, tof);
             if (info.type == EventInfo::IMPLANT_EVENT) {
-                plot(DD_IMPLANT_ENERGY__TOFX + ntof - 1, info.energy, tof);
+                histo.Plot(DD_IMPLANT_ENERGY__TOFX + ntof - 1, info.energy, tof);
             } else if (info.type == EventInfo::PROTON_EVENT) {
-                plot(DD_VETO_ENERGY__TOFX + ntof - 1, info.energy, tof);
+                histo.Plot(DD_VETO_ENERGY__TOFX + ntof - 1, info.energy, tof);
             }
         }
         // TAC channel 0 is missing, so use it for the digital tof
         if (!std::isnan(digitalTof)) {
-            plot(DD_ALL_ENERGY__TOFX, info.energy, digitalTof);
+            histo.Plot(DD_ALL_ENERGY__TOFX, info.energy, digitalTof);
             if (info.type == EventInfo::IMPLANT_EVENT) {
-                plot(DD_IMPLANT_ENERGY__TOFX, info.energy, digitalTof);
+                histo.Plot(DD_IMPLANT_ENERGY__TOFX, info.energy, digitalTof);
             } else if (info.type == EventInfo::PROTON_EVENT) {
-                plot(DD_VETO_ENERGY__TOFX, info.energy, digitalTof);
+                histo.Plot(DD_VETO_ENERGY__TOFX, info.energy, digitalTof);
             }
         }
     }
@@ -320,8 +320,8 @@ bool ImplantSsdProcessor::Process(RawEvent &event) {
         unsigned int posVeto = chVeto->GetChanID().GetLocation();
         double vetoEnergy = chVeto->GetCalibratedEnergy();
 
-        plot(DD_LOC_VETO__LOC_SSD, posVeto, location);
-        plot(DD_TOTENERGY__ENERGY, vetoEnergy + info.energy, info.energy);
+        histo.Plot(DD_LOC_VETO__LOC_SSD, posVeto, location);
+        histo.Plot(DD_TOTENERGY__ENERGY, vetoEnergy + info.energy, info.energy);
     }
 
     if (info.pileUp) {
@@ -451,51 +451,51 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int loc,
 
     static double prevVeto = 0;
 
-    plot(DD_ALL_ENERGY__LOCATION, info.energy, loc);
+    histo.Plot(DD_ALL_ENERGY__LOCATION, info.energy, loc);
 
     switch (info.type) {
         case EventInfo::IMPLANT_EVENT:
-            plot(DD_IMPLANT_ENERGY__LOCATION, info.energy, loc);
+            histo.Plot(DD_IMPLANT_ENERGY__LOCATION, info.energy, loc);
             break;
         case EventInfo::FISSION_EVENT:
-            plot(DD_FISSION_ENERGY__LOCATION, info.energy / 10, loc);
+            histo.Plot(DD_FISSION_ENERGY__LOCATION, info.energy / 10, loc);
         case EventInfo::ALPHA_EVENT:
         case EventInfo::DECAY_EVENT:
-            plot(DD_DECAY_ENERGY__LOCATION, info.energy, loc);
+            histo.Plot(DD_DECAY_ENERGY__LOCATION, info.energy, loc);
             if (info.beamOn) {
-                plot(DD_ENERGY__LOCATION_BEAM, info.energy, loc);
+                histo.Plot(DD_ENERGY__LOCATION_BEAM, info.energy, loc);
             } else {
-                plot(DD_ENERGY__LOCATION_NOBEAM, info.energy, loc);
+                histo.Plot(DD_ENERGY__LOCATION_NOBEAM, info.energy, loc);
             }
             if (cond == Correlator::VALID_DECAY) {
                 for (unsigned int i = 0; i < numGranularities; i++) {
                     int timeBin = int(info.dtime * clockInSeconds / timeResolution[i]);
 
-                    plot(DD_DECAY_ALL_ENERGY__TX + i, info.energy, timeBin);
+                    histo.Plot(DD_DECAY_ALL_ENERGY__TX + i, info.energy, timeBin);
                     if (!info.beamOn) {
-                        plot(DD_DECAY_NOBEAM_ENERGY__TX + i, info.energy, timeBin);
+                        histo.Plot(DD_DECAY_NOBEAM_ENERGY__TX + i, info.energy, timeBin);
                     }
                     if (info.generation == 1) {
-                        plot(DD_FIRST_DECAY_ENERGY__TX + i, info.energy, timeBin);
+                        histo.Plot(DD_FIRST_DECAY_ENERGY__TX + i, info.energy, timeBin);
                     }
                 }
             }
             break;
         case EventInfo::PROJECTILE_EVENT:
-            plot(DD_ENERGY__LOCATION_PROJLIKE, info.energy, loc);
+            histo.Plot(DD_ENERGY__LOCATION_PROJLIKE, info.energy, loc);
             break;
         case EventInfo::PROTON_EVENT:
-            plot(DD_ENERGY__LOCATION_VETO, info.energy, loc);
+            histo.Plot(DD_ENERGY__LOCATION_VETO, info.energy, loc);
             for (unsigned int i = 0; i < numGranularities; i++) {
                 double dt = info.time - prevVeto; // time to previous veto
                 int timeBin = int(dt * clockInSeconds / timeResolution[i]);
-                plot(DD_VETO_ENERGY__TX + i, info.energy, timeBin);
+                histo.Plot(DD_VETO_ENERGY__TX + i, info.energy, timeBin);
             }
             prevVeto = info.time;
             break;
         case EventInfo::UNKNOWN_EVENT:
         default:
-            plot(DD_ENERGY__LOCATION_UNKNOWN, info.energy, loc);
+            histo.Plot(DD_ENERGY__LOCATION_UNKNOWN, info.energy, loc);
             break;
     }
 

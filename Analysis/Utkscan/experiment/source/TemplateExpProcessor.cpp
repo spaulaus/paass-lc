@@ -30,9 +30,9 @@ using namespace std;
 using namespace dammIds::experiment;
 
 void TemplateExpProcessor::DeclarePlots(void) {
-    DeclareHistogram1D(D_TSIZE, S3, "Num Template Evts");
-    DeclareHistogram1D(D_GEENERGY, SA, "Gamma Energy with Cut");
-    DeclareHistogram2D(DD_TENVSGEN, SA, SA, "Template En vs. Ge En");
+    histo.DeclareHistogram1D(D_TSIZE, S3, "Num Template Evts");
+    histo.DeclareHistogram1D(D_GEENERGY, SA, "Gamma Energy with Cut");
+    histo.DeclareHistogram2D(DD_TENVSGEN, SA, SA, "Template En vs. Ge En");
 }
 
 TemplateExpProcessor::TemplateExpProcessor() : EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
@@ -112,7 +112,7 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
     }
 
     ///Plot the size of the template events vector in two ways
-    plot(D_TSIZE, tEvts.size());
+    histo.Plot(D_TSIZE, tEvts.size());
     ptsize_->Fill(tEvts.size());
 
     ///Obtain some useful logic statuses
@@ -130,7 +130,7 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
 
             ///Plot the Template Energy vs. Ge Energy if tape isn't moving
             if (!isTapeMoving)
-                plot(DD_TENVSGEN, gEnergy, (*tit)->GetEnergy());
+                histo.Plot(DD_TENVSGEN, gEnergy, (*tit)->GetEnergy());
 
             ///Output template and ge energy to text file if we had a beta along with the runtime in seconds.
             if (hasBeta)
@@ -145,7 +145,7 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
 
             ///Plot the Ge energy with a cut
             if (gEnergy > gCutoff_)
-                plot(D_GEENERGY, gEnergy);
+                histo.Plot(D_GEENERGY, gEnergy);
         }
     }
     EndProcess();

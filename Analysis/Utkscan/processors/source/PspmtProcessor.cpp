@@ -78,55 +78,55 @@ void PspmtProcessor::DeclarePlots(void) {
     const int Bins = 2500;
 
     // Raw 700-707
-    DeclareHistogram1D(D_RAW1, energyBins, "Pspmt1 Raw");
-    DeclareHistogram1D(D_RAW2, energyBins, "Pspmt2 Raw");
-    DeclareHistogram1D(D_RAW3, energyBins, "Pspmt3 Raw");
-    DeclareHistogram1D(D_RAW4, energyBins, "Pspmt4 Raw");
-    DeclareHistogram1D(D_RAWD, energyBins, "Pspmt Dynode");
-    DeclareHistogram1D(D_SUM, energyBins, "Pspmt Sum");
-    DeclareHistogram2D(DD_POS1_RAW, Bins, Bins, "Pspmt Pos1 Raw");
-    DeclareHistogram2D(DD_POS2_RAW, Bins, Bins, "Pspmt Pos2 Raw");
-    DeclareHistogram2D(DD_POS1, posBins, posBins, "Pspmt Pos1");
-    DeclareHistogram2D(DD_POS2, posBins, posBins, "Pspmt Pos2");
+    histo.DeclareHistogram1D(D_RAW1, energyBins, "Pspmt1 Raw");
+    histo.DeclareHistogram1D(D_RAW2, energyBins, "Pspmt2 Raw");
+    histo.DeclareHistogram1D(D_RAW3, energyBins, "Pspmt3 Raw");
+    histo.DeclareHistogram1D(D_RAW4, energyBins, "Pspmt4 Raw");
+    histo.DeclareHistogram1D(D_RAWD, energyBins, "Pspmt Dynode");
+    histo.DeclareHistogram1D(D_SUM, energyBins, "Pspmt Sum");
+    histo.DeclareHistogram2D(DD_POS1_RAW, Bins, Bins, "Pspmt Pos1 Raw");
+    histo.DeclareHistogram2D(DD_POS2_RAW, Bins, Bins, "Pspmt Pos2 Raw");
+    histo.DeclareHistogram2D(DD_POS1, posBins, posBins, "Pspmt Pos1");
+    histo.DeclareHistogram2D(DD_POS2, posBins, posBins, "Pspmt Pos2");
 
     // From QDC and traces 
     // 710-
-    DeclareHistogram1D(D_ENERGY_TRACE1, energyBins, "Energy1 from trace");
-    DeclareHistogram1D(D_ENERGY_TRACE2, energyBins, "Energy2 from trace");
-    DeclareHistogram1D(D_ENERGY_TRACE3, energyBins, "Energy3 from trace");
-    DeclareHistogram1D(D_ENERGY_TRACE4, energyBins, "Energy4 from trace");
-    DeclareHistogram1D(D_ENERGY_TRACED, energyBins, "EnergyD from trace");
-    DeclareHistogram1D(D_ENERGY_TRACESUM, energyBins, "Pspmt Sum");
-    DeclareHistogram2D(DD_POS1_RAW_TRACE, posBins, posBins,
+    histo.DeclareHistogram1D(D_ENERGY_TRACE1, energyBins, "Energy1 from trace");
+    histo.DeclareHistogram1D(D_ENERGY_TRACE2, energyBins, "Energy2 from trace");
+    histo.DeclareHistogram1D(D_ENERGY_TRACE3, energyBins, "Energy3 from trace");
+    histo.DeclareHistogram1D(D_ENERGY_TRACE4, energyBins, "Energy4 from trace");
+    histo.DeclareHistogram1D(D_ENERGY_TRACED, energyBins, "EnergyD from trace");
+    histo.DeclareHistogram1D(D_ENERGY_TRACESUM, energyBins, "Pspmt Sum");
+    histo.DeclareHistogram2D(DD_POS1_RAW_TRACE, posBins, posBins,
                        "Pspmt pos Raw by Trace1");
-    DeclareHistogram2D(DD_POS2_RAW_TRACE, posBins, posBins,
+    histo.DeclareHistogram2D(DD_POS2_RAW_TRACE, posBins, posBins,
                        "Pspmt pos Raw by Trace2");
-    DeclareHistogram2D(DD_POS1_TRACE, posBins, posBins, "Pspmt pos by Trace1");
-    DeclareHistogram2D(DD_POS2_TRACE, posBins, posBins, "Pspmt pos by Trace2");
+    histo.DeclareHistogram2D(DD_POS1_TRACE, posBins, posBins, "Pspmt pos by Trace1");
+    histo.DeclareHistogram2D(DD_POS2_TRACE, posBins, posBins, "Pspmt pos by Trace2");
 
 
     // 720- QDC
-    DeclareHistogram1D(D_QDC_TRACE1, energyBins, "Energy1 from QDC");
-    DeclareHistogram1D(D_QDC_TRACE2, energyBins, "Energy2 from QDC");
-    DeclareHistogram1D(D_QDC_TRACE3, energyBins, "Energy3 from QDC");
-    DeclareHistogram1D(D_QDC_TRACE4, energyBins, "Energy4 from QDC");
-    DeclareHistogram1D(D_QDC_TRACED, energyBins, "EnergyD from QDC");
+    histo.DeclareHistogram1D(D_QDC_TRACE1, energyBins, "Energy1 from QDC");
+    histo.DeclareHistogram1D(D_QDC_TRACE2, energyBins, "Energy2 from QDC");
+    histo.DeclareHistogram1D(D_QDC_TRACE3, energyBins, "Energy3 from QDC");
+    histo.DeclareHistogram1D(D_QDC_TRACE4, energyBins, "Energy4 from QDC");
+    histo.DeclareHistogram1D(D_QDC_TRACED, energyBins, "EnergyD from QDC");
 
     // Simple Correlations
-    // DeclareHistogram2D(DD_ESLEW_X, energyBins, posBins,"X Map with slew");
-    //DeclareHistogram2D(DD_ESLEW_Y, energyBins, posBins,"Y Map with slew");
+    // histo.DeclareHistogram2D(DD_ESLEW_X, energyBins, posBins,"X Map with slew");
+    //histo.DeclareHistogram2D(DD_ESLEW_Y, energyBins, posBins,"Y Map with slew");
 
     // Trace
-    DeclareHistogram2D(DD_DOUBLE_TRACE, traceBins, traceBins2, "Double traces");
-    DeclareHistogram2D(DD_SINGLE_TRACE, traceBins, traceBins2, "Single trace");
+    histo.DeclareHistogram2D(DD_DOUBLE_TRACE, traceBins, traceBins2, "Double traces");
+    histo.DeclareHistogram2D(DD_SINGLE_TRACE, traceBins, traceBins2, "Single trace");
 
     // For R&D
-    // DeclareHistogram2D(DD_TEMP0, Bins, Bins, "Sum gated position1");
-    DeclareHistogram1D(D_TEMP1, energyBins, "Pspmt1 Pgate");
-    DeclareHistogram1D(D_TEMP2, energyBins, "Pspmt2 Pgate");
-    DeclareHistogram1D(D_TEMP3, energyBins, "Pspmt3 Pgate");
-    DeclareHistogram1D(D_TEMP4, energyBins, "Pspmt4 Pgate");
-    DeclareHistogram1D(D_TEMP5, energyBins, "Dynode Pgate");
+    // histo.DeclareHistogram2D(DD_TEMP0, Bins, Bins, "Sum gated position1");
+    histo.DeclareHistogram1D(D_TEMP1, energyBins, "Pspmt1 Pgate");
+    histo.DeclareHistogram1D(D_TEMP2, energyBins, "Pspmt2 Pgate");
+    histo.DeclareHistogram1D(D_TEMP3, energyBins, "Pspmt3 Pgate");
+    histo.DeclareHistogram1D(D_TEMP4, energyBins, "Pspmt4 Pgate");
+    histo.DeclareHistogram1D(D_TEMP5, energyBins, "Dynode Pgate");
 }
 
 
@@ -189,46 +189,46 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
             if (ch == 0) {
                 qdc1 = qdc;
                 tre1 = trace_energy;
-                plot(D_QDC_TRACE1, qdc1);
-                plot(D_ENERGY_TRACE1, tre1);
+                histo.Plot(D_QDC_TRACE1, qdc1);
+                histo.Plot(D_ENERGY_TRACE1, tre1);
             } else if (ch == 1) {
                 qdc2 = qdc;
                 tre2 = trace_energy;
-                plot(D_QDC_TRACE2, qdc2);
-                plot(D_ENERGY_TRACE2, tre2);
+                histo.Plot(D_QDC_TRACE2, qdc2);
+                histo.Plot(D_ENERGY_TRACE2, tre2);
             } else if (ch == 2) {
                 qdc3 = qdc;
                 tre3 = trace_energy;
-                plot(D_QDC_TRACE3, qdc3);
-                plot(D_ENERGY_TRACE3, tre3);
+                histo.Plot(D_QDC_TRACE3, qdc3);
+                histo.Plot(D_ENERGY_TRACE3, tre3);
             } else if (ch == 3) {
                 qdc4 = qdc;
                 tre4 = trace_energy;
-                plot(D_QDC_TRACE4, qdc4);
-                plot(D_ENERGY_TRACE4, tre4);
+                histo.Plot(D_QDC_TRACE4, qdc4);
+                histo.Plot(D_ENERGY_TRACE4, tre4);
             } else if (ch == 4) {
                 qdcd = qdc;
                 tred = trace_energy;
-                plot(D_QDC_TRACED, qdcd);
-                plot(D_ENERGY_TRACED, tred);
+                histo.Plot(D_QDC_TRACED, qdcd);
+                histo.Plot(D_ENERGY_TRACED, tred);
             }
         }
 
         if (ch == 0) {
             q1 = calEnergy;
-            plot(D_RAW1, q1);
+            histo.Plot(D_RAW1, q1);
         } else if (ch == 1) {
             q2 = calEnergy;
-            plot(D_RAW2, q2);
+            histo.Plot(D_RAW2, q2);
         } else if (ch == 2) {
             q3 = calEnergy;
-            plot(D_RAW3, q3);
+            histo.Plot(D_RAW3, q3);
         } else if (ch == 3) {
             q4 = calEnergy;
-            plot(D_RAW4, q4);
+            histo.Plot(D_RAW4, q4);
         } else if (ch == 4) {
             qd = calEnergy;
-            plot(D_RAWD, qd);
+            histo.Plot(D_RAWD, qd);
         }
 
         if (q1 > 0 && q2 > 0 && q3 > 0 && q4 > 0) {
@@ -242,7 +242,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
             xleft = (qleft / qsum) * 512 + 100;
             ytop = (qtop / qsum) * 512 + 100;
             ybottom = (qbottom / qsum) * 512 + 100;
-            plot(D_SUM, qsum);
+            histo.Plot(D_SUM, qsum);
         }
 
         if (tre1 > 0 && tre2 > 0 && tre3 > 0 && tre4 > 0) {
@@ -262,14 +262,14 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
             pytre_t = trunc(slope * ytre_t - intercept);
             pytre_b = trunc(slope * ytre_b - intercept);
 
-            plot(D_ENERGY_TRACESUM, qtre_s);
+            histo.Plot(D_ENERGY_TRACESUM, qtre_s);
 
             if (tre1 > threshold && tre2 > threshold && tre3 > threshold &&
                 tre4 > threshold) {
-                plot(DD_POS1_RAW_TRACE, xtre_r, ytre_t);
-                plot(DD_POS2_RAW_TRACE, xtre_l, ytre_b);
-                plot(DD_POS1_TRACE, pxtre_r, pytre_t);
-                plot(DD_POS2_TRACE, pxtre_l, pytre_b);
+                histo.Plot(DD_POS1_RAW_TRACE, xtre_r, ytre_t);
+                histo.Plot(DD_POS2_RAW_TRACE, xtre_l, ytre_b);
+                histo.Plot(DD_POS1_TRACE, pxtre_r, pytre_t);
+                histo.Plot(DD_POS2_TRACE, pxtre_l, pytre_b);
             }
         }
 
@@ -285,7 +285,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
 //            yqdc_t=(qqdc_t/qqdc_s)*512+100;
 //            yqdc_b=(qqdc_b/qqdc_s)*512+100;
 
-            plot(D_ENERGY_TRACESUM, qqdc_s);
+            histo.Plot(D_ENERGY_TRACESUM, qqdc_s);
         }
 
         if (q1 > threshold && q2 > threshold && q3 > threshold &&
@@ -295,22 +295,22 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
             pytop = trunc(slope * ytop - intercept);
             pybottom = trunc(slope * ybottom - intercept);
 
-            plot(DD_POS1_RAW, xright, ytop);
-            plot(DD_POS2_RAW, xleft, ybottom);
-            plot(DD_POS1, pxright, pytop);
-            plot(DD_POS2, pxleft, pybottom);
+            histo.Plot(DD_POS1_RAW, xright, ytop);
+            histo.Plot(DD_POS2_RAW, xleft, ybottom);
+            histo.Plot(DD_POS1, pxright, pytop);
+            histo.Plot(DD_POS2, pxleft, pybottom);
 
             if (xright > 341 && xright < 356 && ytop > 200 && ytop < 211) {
-                plot(D_TEMP0, f * q1);
-                plot(D_TEMP1, f * q2);
-                plot(D_TEMP2, f * q3);
-                plot(D_TEMP3, f * q4);
-                plot(D_TEMP4, f * qd);
+                histo.Plot(D_TEMP0, f * q1);
+                histo.Plot(D_TEMP1, f * q2);
+                histo.Plot(D_TEMP2, f * q3);
+                histo.Plot(D_TEMP3, f * q4);
+                histo.Plot(D_TEMP4, f * qd);
             }
 
             for (vector<unsigned int>::iterator ittr = trace.begin();
                  ittr != trace.end(); ittr++)
-                plot(DD_SINGLE_TRACE, ittr - trace.begin(), traceNum, *ittr);
+                histo.Plot(DD_SINGLE_TRACE, ittr - trace.begin(), traceNum, *ittr);
         }
     } // end of channel event
 

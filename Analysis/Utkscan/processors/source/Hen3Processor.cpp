@@ -72,23 +72,23 @@ EventData Hen3Processor::BestBetaForNeutron(double nTime) {
 }
 
 void Hen3Processor::DeclarePlots(void) {
-    DeclareHistogram1D(D_MULT_HEN3, S4, "3Hen event multiplicity");
-    DeclareHistogram1D(D_MULT_NEUTRON, S4, "3Hen real neutron multiplicity");
-    DeclareHistogram1D(beta::D_MULT_NEUTRON, S4, "Beta gated 3Hen real neutron multiplicity");
+    histo.DeclareHistogram1D(D_MULT_HEN3, S4, "3Hen event multiplicity");
+    histo.DeclareHistogram1D(D_MULT_NEUTRON, S4, "3Hen real neutron multiplicity");
+    histo.DeclareHistogram1D(beta::D_MULT_NEUTRON, S4, "Beta gated 3Hen real neutron multiplicity");
 
-    DeclareHistogram1D(D_ENERGY_HEN3, SE, "3Hen raw energy");
-    DeclareHistogram1D(D_ENERGY_NEUTRON, SE, "Neutron raw energy");
+    histo.DeclareHistogram1D(D_ENERGY_HEN3, SE, "3Hen raw energy");
+    histo.DeclareHistogram1D(D_ENERGY_NEUTRON, SE, "Neutron raw energy");
 
-    DeclareHistogram1D(beta::D_ENERGY_NEUTRON, SE, "Beta gated neutron raw energy");
+    histo.DeclareHistogram1D(beta::D_ENERGY_NEUTRON, SE, "Beta gated neutron raw energy");
 
-    DeclareHistogram1D(beta::D_TDIFF_HEN3_BETA, S8, "time diff hen3 - beta + 100 (1 us/ch)");
-    DeclareHistogram1D(beta::D_TDIFF_NEUTRON_BETA, S8, "time diff neutron - beta + 100 (1 us/ch)");
-    DeclareHistogram1D(D_ENERGY_HEN3_TAPE, SE, "3Hen raw energy, tape move period");
+    histo.DeclareHistogram1D(beta::D_TDIFF_HEN3_BETA, S8, "time diff hen3 - beta + 100 (1 us/ch)");
+    histo.DeclareHistogram1D(beta::D_TDIFF_NEUTRON_BETA, S8, "time diff neutron - beta + 100 (1 us/ch)");
+    histo.DeclareHistogram1D(D_ENERGY_HEN3_TAPE, SE, "3Hen raw energy, tape move period");
 
-    DeclareHistogram1D(D_TIME_NEUTRON, SD, "Neutron events vs cycle time (1 ms / bin");
+    histo.DeclareHistogram1D(D_TIME_NEUTRON, SD, "Neutron events vs cycle time (1 ms / bin");
 
-    DeclareHistogram2D(DD_DISTR_HEN3, S5, S5, "3Hen event distribution");
-    DeclareHistogram2D(DD_DISTR_NEUTRON, S5, S5, "3Hen neutron distribution");
+    histo.DeclareHistogram2D(DD_DISTR_HEN3, S5, S5, "3Hen event distribution");
+    histo.DeclareHistogram2D(DD_DISTR_NEUTRON, S5, S5, "3Hen neutron distribution");
 }
 
 bool Hen3Processor::PreProcess(RawEvent &event) {
@@ -138,13 +138,13 @@ bool Hen3Processor::Process(RawEvent &event) {
                 hen3Summary->GetList().begin();
              it != hen3Summary->GetList().end(); it++) {
             double energy = (*it)->GetEnergy();
-            plot(D_ENERGY_HEN3_TAPE, energy);
+            histo.Plot(D_ENERGY_HEN3_TAPE, energy);
         }
         return true;
     }
 
-    plot(D_MULT_HEN3, hen3_count);
-    plot(D_MULT_NEUTRON, neutron_count);
+    histo.Plot(D_MULT_HEN3, hen3_count);
+    histo.Plot(D_MULT_NEUTRON, neutron_count);
 
     int beta_gated_neutron_multi = 0;
     for (vector<ChanEvent *>::const_iterator it = hen3Summary->GetList().begin();
@@ -154,15 +154,15 @@ bool Hen3Processor::Process(RawEvent &event) {
         double energy = chan->GetEnergy();
         double time = chan->GetTime();
 
-        plot(D_ENERGY_HEN3, energy);
+        histo.Plot(D_ENERGY_HEN3, energy);
 
         stringstream neutron_name;
         neutron_name << "Neutron_" << location;
         if (TreeCorrelator::get()->place(neutron_name.str())->status()) {
-            plot(D_ENERGY_NEUTRON, energy);
+            histo.Plot(D_ENERGY_NEUTRON, energy);
             double decayTime = (time - cycleTime) * clockInSeconds;
             int decayTimeBin = int(decayTime / cycleTimePlotResolution_);
-            plot(D_TIME_NEUTRON, decayTimeBin);
+            histo.Plot(D_TIME_NEUTRON, decayTimeBin);
         }
 
         string place = chan->GetChanID().GetPlaceName();
@@ -177,11 +177,11 @@ bool Hen3Processor::Process(RawEvent &event) {
             }
             if (TreeCorrelator::get()->
                     place(neutron_name.str())->status()) {
-                plot(beta::D_TDIFF_NEUTRON_BETA, dt);
-                plot(beta::D_ENERGY_NEUTRON, energy);
+                histo.Plot(beta::D_TDIFF_NEUTRON_BETA, dt);
+                histo.Plot(beta::D_ENERGY_NEUTRON, energy);
                 ++beta_gated_neutron_multi;
             }
-            plot(beta::D_TDIFF_HEN3_BETA, dt);
+            histo.Plot(beta::D_TDIFF_HEN3_BETA, dt);
         }
 
         /** These plots show He3 bar location hit
@@ -216,11 +216,11 @@ bool Hen3Processor::Process(RawEvent &event) {
             xpos = 100 - 2 * location;
         }
 
-        plot(DD_DISTR_HEN3, xpos, ypos);
+        histo.Plot(DD_DISTR_HEN3, xpos, ypos);
         if (TreeCorrelator::get()->place(neutron_name.str())->status())
-            plot(DD_DISTR_NEUTRON, xpos, ypos);
+            histo.Plot(DD_DISTR_NEUTRON, xpos, ypos);
     }
-    plot(beta::D_MULT_NEUTRON, beta_gated_neutron_multi);
+    histo.Plot(beta::D_MULT_NEUTRON, beta_gated_neutron_multi);
 
     EndProcess();
     return true;

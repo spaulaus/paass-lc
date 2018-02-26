@@ -108,42 +108,6 @@ protected:
     /** Plots class for given Processor, takes care of declaration
     * and plotting within boundaries allowed by PlotsRegistry */
     Plots histo;
-
-    /*! \brief Implementation of the plot command to interface with the DAMM
-    * routines
-    *
-    * This is also done in the Trace class, redundant?
-    * \param [in] dammId : The histogram number to plot into
-    * \param [in] val1 : The x value to plot
-    * \param [in] val2 : The y value to plot (if 2D histogram)
-    * \param [in] val3 : The z value to plot (if 2D histogram)
-    * \param [in] name : The name of the histogram
-    */
-    virtual void plot(int dammId, double val1, double val2 = -1,
-                      double val3 = -1, const char *name = "h") {
-        histo.Plot(dammId, val1, val2, val3, name);
-    }
-
-    /*! \brief Declares a 1D histogram calls the C++ wrapper for DAMM
-    * \param [in] dammId : The histogram number to define
-    * \param [in] xSize : The range of the x-axis
-    * \param [in] title : The title for the histogram
-    */
-    virtual void DeclareHistogram1D(int dammId, int xSize, const char *title) {
-        histo.DeclareHistogram1D(dammId, xSize, title);
-    }
-
-    /*! \brief Declares a 2D histogram calls the C++ wrapper for DAMM
-    * \param [in] dammId : The histogram number to define
-    * \param [in] xSize : The range of the x-axis
-    * \param [in] ySize : The range of the y-axis
-    * \param [in] title : The title of the histogram
-    */
-    virtual void DeclareHistogram2D(int dammId, int xSize, int ySize,
-                                    const char *title) {
-        histo.DeclareHistogram2D(dammId, xSize, ySize, title);
-    }
-
 private:
     tms tmsBegin; //!< The beginning processor time
     double userTime;//!< The user time spent in the processor

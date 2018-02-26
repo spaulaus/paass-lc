@@ -30,8 +30,8 @@ TemplateProcessor::TemplateProcessor(const double &a) : EventProcessor(OFFSET, R
 }
 
 void TemplateProcessor::DeclarePlots(void) {
-    DeclareHistogram1D(D_ENERGY, SA, "Energy");
-    DeclareHistogram2D(DD_TEMPLATE_VS_PULSER, SA, SA, "Template Energy vs. Pulser Energy");
+    histo.DeclareHistogram1D(D_ENERGY, SA, "Energy");
+    histo.DeclareHistogram2D(DD_TEMPLATE_VS_PULSER, SA, SA, "Template Energy vs. Pulser Energy");
 }
 
 bool TemplateProcessor::PreProcess(RawEvent &event) {
@@ -43,7 +43,7 @@ bool TemplateProcessor::PreProcess(RawEvent &event) {
     for (vector<ChanEvent *>::const_iterator it = evts_.begin(); it != evts_.end(); it++) {
         unsigned int location = (*it)->GetChanID().GetLocation();
         if (location == 0)
-            plot(D_ENERGY, (*it)->GetEnergy() * a_);
+            histo.Plot(D_ENERGY, (*it)->GetEnergy() * a_);
     }
     return true;
 }
@@ -58,7 +58,7 @@ bool TemplateProcessor::Process(RawEvent &event) {
         unsigned int loc = (*it)->GetChanID().GetLocation();
         for (vector<ChanEvent *>::const_iterator itA = pulserEvents.begin(); itA != pulserEvents.end(); itA++)
             if (loc == 0)
-                plot(DD_TEMPLATE_VS_PULSER, (*it)->GetEnergy(), (*itA)->GetEnergy());
+                histo.Plot(DD_TEMPLATE_VS_PULSER, (*it)->GetEnergy(), (*itA)->GetEnergy());
     }
     return true;
 }

@@ -58,54 +58,54 @@ void BetaScintProcessor::DeclarePlots(void) {
 
     stringstream title;
 
-    DeclareHistogram1D(D_MULT_BETA, S4, "Beta multiplicity");
+    histo.DeclareHistogram1D(D_MULT_BETA, S4, "Beta multiplicity");
 
     title.str("");
     title << "Beta energy/" << energyContraction_;
-    DeclareHistogram1D(D_ENERGY_BETA, energyBins, title.str().c_str());
+    histo.DeclareHistogram1D(D_ENERGY_BETA, energyBins, title.str().c_str());
 
-    DeclareHistogram1D(D_MULT_BETA_THRES_GATED, S4, "Beta multiplicity threshold gated");
+    histo.DeclareHistogram1D(D_MULT_BETA_THRES_GATED, S4, "Beta multiplicity threshold gated");
 
     title.str("");
     title << "Beta energy/" << energyContraction_ << " threshold gated";
-    DeclareHistogram1D(D_ENERGY_BETA_THRES_GATED, energyBins, title.str().c_str());
+    histo.DeclareHistogram1D(D_ENERGY_BETA_THRES_GATED, energyBins, title.str().c_str());
 
-    DeclareHistogram1D(D_MULT_BETA_GAMMA_GATED, S4, "Beta multiplicity gamma gated");
+    histo.DeclareHistogram1D(D_MULT_BETA_GAMMA_GATED, S4, "Beta multiplicity gamma gated");
 
     title.str("");
     title << "Beta energy/" << energyContraction_ << " gamma gated";
-    DeclareHistogram1D(D_ENERGY_BETA_GAMMA_GATED, energyBins, title.str().c_str());
+    histo.DeclareHistogram1D(D_ENERGY_BETA_GAMMA_GATED, energyBins, title.str().c_str());
 
     title.str("");
     title << "Beta energy/" << energyContraction_ << " vs gamma energy ";
-    DeclareHistogram2D(DD_ENERGY_BETA__GAMMA, energyBins, SC, title.str().c_str());
+    histo.DeclareHistogram2D(DD_ENERGY_BETA__GAMMA, energyBins, SC, title.str().c_str());
 
     stringstream title_end;
     title_end << "energy/" << energyContraction_ << " vs time " << timeSpectraTimeResolution << "/bin (s)";
 
     title.str("");
     title << "Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TOTAL, energyBins, timeBins, title.str().c_str());
+    histo.DeclareHistogram2D(DD_ENERGY_BETA__TIME_TOTAL, energyBins, timeBins, title.str().c_str());
 
     title.str("");
     title << "No-gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_NOG, energyBins, timeBins, title.str().c_str());
+    histo.DeclareHistogram2D(DD_ENERGY_BETA__TIME_NOG, energyBins, timeBins, title.str().c_str());
 
     title.str("");
     title << "Gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_G, energyBins, timeBins, title.str().c_str());
+    histo.DeclareHistogram2D(DD_ENERGY_BETA__TIME_G, energyBins, timeBins, title.str().c_str());
 
     title.str("");
     title << "Tape move Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_TOTAL, energyBins, timeBins, title.str().c_str());
+    histo.DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_TOTAL, energyBins, timeBins, title.str().c_str());
 
     title.str("");
     title << "Tape move No-gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NOG, energyBins, timeBins, title.str().c_str());
+    histo.DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_NOG, energyBins, timeBins, title.str().c_str());
 
     title.str("");
     title << "Tape move Gamma-gated Beta " << title_end.str();
-    DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_G, energyBins, timeBins, title.str().c_str());
+    histo.DeclareHistogram2D(DD_ENERGY_BETA__TIME_TM_G, energyBins, timeBins, title.str().c_str());
 }
 
 bool BetaScintProcessor::PreProcess(RawEvent &event) {
@@ -120,9 +120,9 @@ bool BetaScintProcessor::PreProcess(RawEvent &event) {
         double energy = (*it)->GetCalibratedEnergy();
         int energyBin = int(energy / energyContraction_);
         ++multiplicity;
-        plot(D_ENERGY_BETA, energyBin);
+        histo.Plot(D_ENERGY_BETA, energyBin);
     }
-    plot(D_MULT_BETA, multiplicity);
+    histo.Plot(D_MULT_BETA, multiplicity);
     return (true);
 }
 
@@ -158,7 +158,7 @@ bool BetaScintProcessor::Process(RawEvent &event) {
             if (itb->energy == energy && itb->time == time &&
                 itb->location == location) {
                 ++multiplicityThres;
-                plot(D_ENERGY_BETA_THRES_GATED, energyBin);
+                histo.Plot(D_ENERGY_BETA_THRES_GATED, energyBin);
                 //Break the deque loop since we found the matching event
                 break;
             }
@@ -175,28 +175,28 @@ bool BetaScintProcessor::Process(RawEvent &event) {
         double gb_dtime = (time - bestGamma.time) * clockInSeconds;
 
         if (GoodGammaBeta(gb_dtime)) {
-            plot(D_ENERGY_BETA_GAMMA_GATED, energyBin);
-            plot(DD_ENERGY_BETA__GAMMA, energyBin, bestGamma.energy);
+            histo.Plot(D_ENERGY_BETA_GAMMA_GATED, energyBin);
+            histo.Plot(DD_ENERGY_BETA__GAMMA, energyBin, bestGamma.energy);
             ++multiplicityGamma;
         }
 
         if (tapeMove) {
-            plot(DD_ENERGY_BETA__TIME_TM_TOTAL, energyBin, decayTimeBin);
+            histo.Plot(DD_ENERGY_BETA__TIME_TM_TOTAL, energyBin, decayTimeBin);
             if (GoodGammaBeta(gb_dtime))
-                plot(DD_ENERGY_BETA__TIME_TM_G, energyBin, decayTimeBin);
+                histo.Plot(DD_ENERGY_BETA__TIME_TM_G, energyBin, decayTimeBin);
             else
-                plot(DD_ENERGY_BETA__TIME_TM_NOG, energyBin, decayTimeBin);
+                histo.Plot(DD_ENERGY_BETA__TIME_TM_NOG, energyBin, decayTimeBin);
         } else {
-            plot(DD_ENERGY_BETA__TIME_TOTAL, energyBin, decayTimeBin);
+            histo.Plot(DD_ENERGY_BETA__TIME_TOTAL, energyBin, decayTimeBin);
             if (GoodGammaBeta(gb_dtime))
-                plot(DD_ENERGY_BETA__TIME_G, energyBin, decayTimeBin);
+                histo.Plot(DD_ENERGY_BETA__TIME_G, energyBin, decayTimeBin);
             else
-                plot(DD_ENERGY_BETA__TIME_NOG, energyBin, decayTimeBin);
+                histo.Plot(DD_ENERGY_BETA__TIME_NOG, energyBin, decayTimeBin);
         }
     }
 
-    plot(D_MULT_BETA_THRES_GATED, multiplicityThres);
-    plot(D_MULT_BETA_GAMMA_GATED, multiplicityGamma);
+    histo.Plot(D_MULT_BETA_THRES_GATED, multiplicityThres);
+    histo.Plot(D_MULT_BETA_GAMMA_GATED, multiplicityGamma);
 
     EndProcess();
     return (true);
