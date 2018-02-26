@@ -3,20 +3,21 @@
  * \author David Miller and S. V. Paulauskas
  * \date Jan 2010
  */
-#include <algorithm>
-#include <iostream>
+#include "RootHandler.hpp"
+
+#include "DetectorDriver.hpp"
 
 #include <TTree.h>
 
-#include "DetectorDriver.hpp"
-#include "RootHandler.hpp"
+#include <algorithm>
+#include <iostream>
 
 using namespace std;
 
 RootHandler *RootHandler::instance_ = nullptr;
 TFile *RootHandler::file_ = nullptr; //!< The ROOT file that all the information will be stored in.
-std::set<TTree *> RootHandler::treeList_; //!< The list of trees known to the system
-std::map<unsigned int, TH1 *> RootHandler::histogramList_; //!< The list of 1D histograms known to the system
+set<TTree *> RootHandler::treeList_; //!< The list of trees known to the system
+map<unsigned int, TH1 *> RootHandler::histogramList_; //!< The list of 1D histograms known to the system
 
 /** Instance is created upon first call */
 RootHandler *RootHandler::get() {

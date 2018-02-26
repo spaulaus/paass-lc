@@ -11,7 +11,8 @@
 #include <TH2.h>
 #include <TH3.h>
 
-#include <vector>
+#include <set>
+#include <map>
 
 //! A Class to handle outputting things into ROOT, registering histograms, filling trees, all that jazzy stuff.
 class RootHandler {
