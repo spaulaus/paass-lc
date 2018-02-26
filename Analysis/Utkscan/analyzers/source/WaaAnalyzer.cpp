@@ -23,7 +23,7 @@ namespace dammIds {
 }
 
 void WaaAnalyzer::DeclarePlots(void) {
-    DeclareHistogram2D(DD_TRACES, S7, S5, "traces data Waa");
+    histo.DeclareHistogram2D(DD_TRACES, S7, S5, "traces data Waa");
 }
 
 WaaAnalyzer::WaaAnalyzer() {
@@ -43,7 +43,7 @@ void WaaAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     static int row = 0;
     for (unsigned int i = 0; i < trace.size(); i++) {
         sum += trace[i] - baseline;
-        plot(DD_TRACES, i, row, trace[i]);
+        histo.Plot(DD_TRACES, i, row, trace[i]);
     }
     row++;
 
