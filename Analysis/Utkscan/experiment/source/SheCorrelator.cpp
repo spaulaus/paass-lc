@@ -12,7 +12,7 @@
 
 #include "SheCorrelator.hpp"
 #include "DetectorDriver.hpp"
-#include "Exceptions.hpp"
+#include "PaassExceptions.hpp"
 #include "Notebook.hpp"
 
 
@@ -64,12 +64,12 @@ bool SheCorrelator::add_event(SheEvent &event, int x, int y) {
     if (x < 0 || x >= size_x_) {
         stringstream ss;
         ss << "Requested event at non-existing X strip " << x << endl;
-        throw GeneralWarning(ss.str());
+        throw PaassWarning(ss.str());
     }
     if (y < 0 || y >= size_y_) {
         stringstream ss;
         ss << "Requested event at non-existing Y strip " << y << endl;
-        throw GeneralWarning(ss.str());
+        throw PaassWarning(ss.str());
     }
 
     if (event.get_type() == heavyIon)

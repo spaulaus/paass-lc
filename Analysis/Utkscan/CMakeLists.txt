@@ -61,11 +61,7 @@ else (PAASS_USE_HRIBF)
 endif (NOT PAASS_USE_HRIBF)
 
 target_link_libraries(${SCAN_NAME} ${LIBS} PaassScanStatic ResourceStatic PaassCoreStatic PugixmlStatic
-        PaassResourceStatic ${GSL_LIBRARIES})
-
-if (ROOT_FOUND)
-    target_link_libraries(${SCAN_NAME} ${ROOT_LIBRARIES})
-endif (ROOT_FOUND)
+        PaassResourceStatic ${GSL_LIBRARIES} ${ROOT_LIBRARIES})
 
 #------------------------------------------------------------------------------
 

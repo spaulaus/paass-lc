@@ -15,10 +15,8 @@
 #include "TemplateExpProcessor.hpp"
 #include "TimingMapBuilder.hpp"
 
-#ifdef useroot
 static double tof_;
 static double tEnergy;
-#endif
 
 namespace dammIds {
     namespace experiment {
@@ -32,38 +30,32 @@ using namespace std;
 using namespace dammIds::experiment;
 
 void TemplateExpProcessor::DeclarePlots(void) {
-    DeclareHistogram1D(D_TSIZE, S3, "Num Template Evts");
-    DeclareHistogram1D(D_GEENERGY, SA, "Gamma Energy with Cut");
-    DeclareHistogram2D(DD_TENVSGEN, SA, SA, "Template En vs. Ge En");
+    histo.DeclareHistogram1D(D_TSIZE, S3, "Num Template Evts");
+    histo.DeclareHistogram1D(D_GEENERGY, SA, "Gamma Energy with Cut");
+    histo.DeclareHistogram2D(DD_TENVSGEN, SA, SA, "Template En vs. Ge En");
 }
 
 TemplateExpProcessor::TemplateExpProcessor() : EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
     gCutoff_ = 0.; ///Set the gamma cutoff energy to a default of 0.
     SetAssociatedTypes();
     SetupAsciiOutput();
-#ifdef useroot
     SetupRootOutput();
-#endif
 }
 
 TemplateExpProcessor::TemplateExpProcessor(const double &gcut) : EventProcessor(OFFSET, RANGE, "TemplateExpProcessor") {
     gCutoff_ = gcut;
     SetAssociatedTypes();
     SetupAsciiOutput();
-#ifdef useroot
     SetupRootOutput();
-#endif
 }
 
 ///Destructor to close output files and clean up pointers
 TemplateExpProcessor::~TemplateExpProcessor() {
     poutstream_->close();
     delete (poutstream_);
-#ifdef useroot
     prootfile_->Write();
     prootfile_->Close();
     delete (prootfile_);
-#endif
 }
 
 ///Associates this Experiment Processor with template and ge detector types
@@ -79,12 +71,10 @@ void TemplateExpProcessor::SetupAsciiOutput(void) {
     poutstream_ = new ofstream(name.str().c_str());
 }
 
-#ifdef useroot
-
 ///Sets up ROOT output file, tree, branches, histograms.
 void TemplateExpProcessor::SetupRootOutput(void) {
     stringstream rootname;
-    rootname << Globals::get()->GetOutputPath() << Globals::get()->GetOutputFileName() << ".root";
+    rootname << Globals::get()->GetOutputPath() << Globals::get()->GetOutputFileName() << "-Template.root";
     prootfile_ = new TFile(rootname.str().c_str(), "RECREATE");
     proottree_ = new TTree("data", "");
     proottree_->Branch("tof", &tof_, "tof/D");
@@ -92,8 +82,6 @@ void TemplateExpProcessor::SetupRootOutput(void) {
     ptvsge_ = new TH2D("tvsge", "", 1000, -100, 900, 16000, 0, 16000);
     ptsize_ = new TH1D("tsize", "", 40, 0, 40);
 }
-
-#endif
 
 ///We do nothing here since we're completely dependent on the results of others
 bool TemplateExpProcessor::PreProcess(RawEvent &event) {
@@ -124,10 +112,8 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
     }
 
     ///Plot the size of the template events vector in two ways
-    plot(D_TSIZE, tEvts.size());
-#ifdef useroot
+    histo.Plot(D_TSIZE, tEvts.size());
     ptsize_->Fill(tEvts.size());
-#endif
 
     ///Obtain some useful logic statuses
     bool isTapeMoving = TreeCorrelator::get()->place("TapeMove")->status();
@@ -144,22 +130,22 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
 
             ///Plot the Template Energy vs. Ge Energy if tape isn't moving
             if (!isTapeMoving)
-                plot(DD_TENVSGEN, gEnergy, (*tit)->GetEnergy());
+                histo.Plot(DD_TENVSGEN, gEnergy, (*tit)->GetEnergy());
 
             ///Output template and ge energy to text file if we had a beta along with the runtime in seconds.
             if (hasBeta)
                 *poutstream_ << (*tit)->GetEnergy() << " " << gEnergy << " " << clockInSeconds << endl;
-#ifdef useroot
             ///Fill ROOT histograms and tree with the information
+
             ptvsge_->Fill((*tit)->GetEnergy(), gEnergy);
             tEnergy = (*tit)->GetEnergy();
             tof_ = (*tit)->GetTime() - chan->GetWalkCorrectedTime();
             proottree_->Fill();
             tEnergy = tof_ = -9999;
-#endif
+
             ///Plot the Ge energy with a cut
             if (gEnergy > gCutoff_)
-                plot(D_GEENERGY, gEnergy);
+                histo.Plot(D_GEENERGY, gEnergy);
         }
     }
     EndProcess();

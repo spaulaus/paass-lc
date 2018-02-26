@@ -32,7 +32,7 @@ GeProcessor::GeProcessor() : EventProcessor(OFFSET, RANGE, "GeProcessor") {
 }
 
 void GeProcessor::DeclarePlots(void) {
-    DeclareHistogram2D(DD_ENERGY, SE, S6, "Calibrated Ge Singles");
+    histo.DeclareHistogram2D(DD_ENERGY, SE, S6, "Calibrated Ge Singles");
 }
 
 bool GeProcessor::PreProcess(RawEvent &event) {
@@ -48,7 +48,7 @@ bool GeProcessor::PreProcess(RawEvent &event) {
         if ((*ge)->IsSaturated() || (*ge)->IsPileup())
             continue;
 
-        plot(DD_ENERGY, (*ge)->GetCalibratedEnergy(),
+        histo.Plot(DD_ENERGY, (*ge)->GetCalibratedEnergy(),
              (*ge)->GetChanID().GetLocation());
     }
     return true;

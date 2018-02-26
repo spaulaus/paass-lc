@@ -25,10 +25,11 @@ set(CORRELATION_SOURCES
 
 set(PLOTTING_SOURCES
         Plots.cpp
-        PlotsRegister.cpp)
+        PlotsRegister.cpp
+        RootHandler.cpp)
 
 if (NOT PAASS_USE_HRIBF)
-    set(MAIN_SOURCES utkscan.cpp HisFile.cpp)
+    set(MAIN_SOURCES utkscan.cpp)
 else (PAASS_USE_HRIBF)
     set(MAIN_SOURCES utkscanor.cpp)
 endif (NOT PAASS_USE_HRIBF)

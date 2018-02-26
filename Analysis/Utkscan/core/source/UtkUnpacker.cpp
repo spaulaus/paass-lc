@@ -18,13 +18,17 @@
 using namespace std;
 using namespace dammIds::raw;
 
+UtkUnpacker::UtkUnpacker()  : Unpacker() {
+    ///Does nothing at all
+}
+
 ///The only thing that we do here is call the destructor of the
 /// DetectorDriver. This will ensure that the memory is freed for all of the
 /// initialized detector and experiment processors and that information about
 /// the amount of time spent in each processor is output to the screen at the
 /// end of execution.
 UtkUnpacker::~UtkUnpacker() {
-    if(isDetectorDriverInitialized_)
+    if(driver_)
         delete DetectorDriver::get();
 }
 
@@ -37,27 +41,32 @@ UtkUnpacker::~UtkUnpacker() {
 /// methods to plot useful spectra and output processing information to the
 /// screen.
 void UtkUnpacker::ProcessRawEvent() {
-    static RawEvent rawev;
-    DetectorDriver *driver = DetectorDriver::get();
-    if(driver)
-        isDetectorDriverInitialized_ = true;
-    DetectorLibrary *detectorLibrary = DetectorLibrary::get();
-    set<string> usedDetectors;
-    Messenger m;
-    stringstream ss;
-
+    static unsigned int eventCounter = 0;
     static clock_t systemStartTime;
     static struct tms systemTimes;
-    static double lastTimeOfPreviousEvent;
-    static unsigned int eventCounter = 0;
 
-    if (eventCounter == 0)
-        InitializeDriver(driver, detectorLibrary, rawev, systemStartTime);
-    else if (eventCounter % 5000 == 0 || eventCounter == 1)
+    static RawEvent rawev;
+    static Messenger m;
+    static stringstream ss;
+    static set<string> usedDetectors;
+
+    ///@TODO This should be dependent on the module configuration that's specified in the config. This is
+    /// dependent on the Revision node in the configuration file. This will not work properly for mixed module systems.
+    static const auto pixieClockInSeconds = Globals::get()->GetClockInSeconds();
+
+    if(eventCounter == 0) {
+        driver_ = DetectorDriver::get();
+        detectorLibrary_ = DetectorLibrary::get();
+        InitializeDriver(driver_, detectorLibrary_, rawev, systemStartTime);
+    }
+
+    ///@TODO Add a verbosity flag here to hide this information if the user wishes it.
+    if (eventCounter % 100000 == 0 || eventCounter == 1)
         PrintProcessingTimeInformation(systemStartTime, times(&systemTimes), GetEventStartTime(), eventCounter);
+    eventCounter++;
 
     if (Globals::get()->HasRejectionRegion()) {
-        double eventTime = (GetEventStartTime() - GetFirstTime()) * Globals::get()->GetClockInSeconds();
+        double eventTime = (GetEventStartTime() - GetFirstTime()) * pixieClockInSeconds;
         vector <pair<unsigned int, unsigned int>> rejectRegions = Globals::get()->GetRejectionRegions();
 
         for (vector<pair<unsigned int, unsigned int> >::iterator region = rejectRegions.begin();
@@ -66,10 +75,15 @@ void UtkUnpacker::ProcessRawEvent() {
                 return;
     }
 
-    driver->plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) * Globals::get()->GetClockInSeconds() * 1e9);
-    driver->plot(D_BUFFER_END_TIME, GetRealStopTime() * Globals::get()->GetClockInSeconds() * 1e9);
-    driver->plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) * Globals::get()->GetClockInSeconds() * 1e9);
-    driver->plot(D_EVENT_MULTIPLICITY, rawEvent.size());
+    ///@TODO : Need to figure out why the plot command is so obnoxiously slow. I'm commenting these out for now until
+    /// we can figure out the issues. These histograms are not used very often anyway.
+    static double lastTimeOfPreviousEvent;
+    static const auto pixieClockInNanoseconds = pixieClockInSeconds * 1e9;
+    driver_->histo_.Plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) * pixieClockInNanoseconds);
+    driver_->histo_.Plot(D_BUFFER_END_TIME, GetRealStopTime() * pixieClockInNanoseconds);
+    driver_->histo_.Plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) * pixieClockInNanoseconds);
+    driver_->histo_.Plot(D_EVENT_MULTIPLICITY, rawEvent.size());
+    lastTimeOfPreviousEvent = GetRealStopTime();
 
     //loop over the list of channels that fired in this event
     for (deque<XiaData *>::iterator it = rawEvent.begin(); it != rawEvent.end(); it++) {
@@ -77,7 +91,7 @@ void UtkUnpacker::ProcessRawEvent() {
         if (!(*it))
             continue;
 
-        RawStats((*it), driver);
+        RawStats((*it), driver_);
 
         if ((*it)->GetId() == std::numeric_limits<unsigned int>::max()) {
             ss << "pattern 0 ignore";
@@ -87,7 +101,7 @@ void UtkUnpacker::ProcessRawEvent() {
         }
 
         ///@TODO this will fail if the user does not define enough modules in the map. Related to pixie16/paass:#103
-        if (detectorLibrary->at((*it)->GetId()).GetType() == "ignore")
+        if (detectorLibrary_->at((*it)->GetId()).GetType() == "ignore")
             continue;
 
         ///@TODO we need to ensure that all of the memory is getting freed
@@ -96,14 +110,14 @@ void UtkUnpacker::ProcessRawEvent() {
         ChanEvent *event = new ChanEvent(*(*it));
 
         ///@TODO This will also fail if the user doesn't define enough modules in the map. Related to pixie16/paass:#103
-        usedDetectors.insert((*detectorLibrary)[(*it)->GetId()].GetType());
+        usedDetectors.insert((*detectorLibrary_)[(*it)->GetId()].GetType());
         rawev.AddChan(event);
 
         ///@TODO Add back in the processing for the dtime.
     }//for(deque<PixieData*>::iterator
 
     try {
-        driver->ProcessEvent(rawev);
+        driver_->ProcessEvent(rawev);
         rawev.Zero(usedDetectors);
         usedDetectors.clear();
 
@@ -115,9 +129,6 @@ void UtkUnpacker::ProcessRawEvent() {
     } catch (exception &ex) {
         throw;
     }
-
-    eventCounter++;
-    lastTimeOfPreviousEvent = GetRealStopTime();
 }
 
 /// This method plots information about the running time of the program, the
@@ -126,8 +137,7 @@ void UtkUnpacker::ProcessRawEvent() {
 /// the system. These spectra print the total number of counts in a given
 /// (milli)second of time.
 void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver) {
-    int id = event_->GetId();
-    static const int specNoBins = SE;
+    static const int specNoBins = SD;
     static double runTimeSecs = 0, remainNumSecs = 0;
     static double runTimeMsecs = 0, remainNumMsecs = 0;
     static int rowNumSecs = 0, rowNumMsecs = 0;
@@ -140,10 +150,10 @@ void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver) {
     rowNumMsecs = int(runTimeMsecs / specNoBins);
     remainNumMsecs = runTimeMsecs - rowNumMsecs * specNoBins;
 
-    driver->plot(D_HIT_SPECTRUM, id);
-    driver->plot(DD_RUNTIME_SEC, remainNumSecs, rowNumSecs);
-    driver->plot(DD_RUNTIME_MSEC, remainNumMsecs, rowNumMsecs);
-    driver->plot(D_SCALAR + id, runTimeSecs);
+    driver->histo_.Plot(D_HIT_SPECTRUM, event_->GetId());
+    driver->histo_.Plot(DD_RUNTIME_SEC, remainNumSecs, rowNumSecs);
+    driver->histo_.Plot(DD_RUNTIME_MSEC, remainNumMsecs, rowNumMsecs);
+    driver->histo_.Plot(D_SCALAR + event_->GetId(), runTimeSecs);
 }
 
 /// First we initialize the DetectorLibrary, which reads the Map
@@ -208,4 +218,3 @@ void UtkUnpacker::PrintProcessingTimeInformation(const clock_t &start, const clo
        << eventTime;
     m.run_message(ss.str());
 }
-

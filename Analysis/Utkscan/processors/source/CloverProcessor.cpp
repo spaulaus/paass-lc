@@ -61,8 +61,8 @@ bool CloverProcessor::GoodGammaBeta(double gb_dtime) {
 }
 
 void CloverProcessor::symplot(int dammID, double bin1, double bin2) {
-    plot(dammID, bin1, bin2);
-    plot(dammID, bin2, bin1);
+    histo.Plot(dammID, bin1, bin2);
+    histo.Plot(dammID, bin2, bin1);
 }
 
 CloverProcessor::CloverProcessor(double gammaThreshold, double lowRatio,
@@ -215,141 +215,141 @@ void CloverProcessor::DeclarePlots(void) {
         addbackEvents_.push_back(empty);
     }
 
-    DeclareHistogram1D(D_ENERGY, energyBins1, "Gamma singles");
-    DeclareHistogram1D(D_ENERGY_MOVE, energyBins1,
+    histo.DeclareHistogram1D(D_ENERGY, energyBins1, "Gamma singles");
+    histo.DeclareHistogram1D(D_ENERGY_MOVE, energyBins1,
                        "Gamma singles tape move period");
-    DeclareHistogram1D(betaGated::D_ENERGY_MOVE, energyBins1,
+    histo.DeclareHistogram1D(betaGated::D_ENERGY_MOVE, energyBins1,
                        "Beta gated gamma tape move period");
-    DeclareHistogram1D(betaGated::D_ENERGY, energyBins1, "Beta gated gamma");
-    DeclareHistogram1D(betaGated::D_ENERGY_PROMPT, energyBins1,
+    histo.DeclareHistogram1D(betaGated::D_ENERGY, energyBins1, "Beta gated gamma");
+    histo.DeclareHistogram1D(betaGated::D_ENERGY_PROMPT, energyBins1,
                        "Beta gated gamma prompt");
-    DeclareHistogram1D(betaGated::D_ENERGY_BETA0, energyBins1,
+    histo.DeclareHistogram1D(betaGated::D_ENERGY_BETA0, energyBins1,
                        "Gamma beta0 gate prompt");
-    DeclareHistogram1D(betaGated::D_ENERGY_BETA1, energyBins1,
+    histo.DeclareHistogram1D(betaGated::D_ENERGY_BETA1, energyBins1,
                        "Gamma beta1 gate prompt");
-    DeclareHistogram2D(betaGated::DD_ENERGY__BETAGAMMALOC, energyBins2, S4,
+    histo.DeclareHistogram2D(betaGated::DD_ENERGY__BETAGAMMALOC, energyBins2, S4,
                        "Gamma vs. Clover loc * 3 + Beta loc prompt");
 
-    DeclareHistogram1D(D_MULT, S7, "Gamma multiplicity");
+    histo.DeclareHistogram1D(D_MULT, S7, "Gamma multiplicity");
 
-    DeclareHistogram1D(D_ADD_ENERGY, energyBins1, "Gamma addback");
-    DeclareHistogram1D(multi::D_ADD_ENERGY, energyBins1,
+    histo.DeclareHistogram1D(D_ADD_ENERGY, energyBins1, "Gamma addback");
+    histo.DeclareHistogram1D(multi::D_ADD_ENERGY, energyBins1,
                        "Gamma addback multi-gated");
-    DeclareHistogram1D(betaGated::D_ADD_ENERGY, energyBins1,
+    histo.DeclareHistogram1D(betaGated::D_ADD_ENERGY, energyBins1,
                        "Beta gated gamma addback");
-    DeclareHistogram1D(multi::betaGated::D_ADD_ENERGY, energyBins1,
+    histo.DeclareHistogram1D(multi::betaGated::D_ADD_ENERGY, energyBins1,
                        "Beta gated gamma addback multi-gated");
-    DeclareHistogram1D(betaGated::D_ADD_ENERGY_PROMPT, energyBins1,
+    histo.DeclareHistogram1D(betaGated::D_ADD_ENERGY_PROMPT, energyBins1,
                        "Beta gated gamma addback beta-prompt");
-    DeclareHistogram1D(multi::betaGated::D_ADD_ENERGY_PROMPT, energyBins1,
+    histo.DeclareHistogram1D(multi::betaGated::D_ADD_ENERGY_PROMPT, energyBins1,
                        "Beta gated gamma addback multi-gated beta-prompt");
 
-    DeclareHistogram1D(D_ADD_ENERGY_TOTAL, energyBins1, "Gamma total");
-    DeclareHistogram1D(multi::D_ADD_ENERGY_TOTAL, energyBins1,
+    histo.DeclareHistogram1D(D_ADD_ENERGY_TOTAL, energyBins1, "Gamma total");
+    histo.DeclareHistogram1D(multi::D_ADD_ENERGY_TOTAL, energyBins1,
                        "Gamma total multi-gated");
-    DeclareHistogram1D(betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
+    histo.DeclareHistogram1D(betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
                        "Beta gated gamma total");
-    DeclareHistogram1D(multi::betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
+    histo.DeclareHistogram1D(multi::betaGated::D_ADD_ENERGY_TOTAL, energyBins1,
                        "Beta gated gamma total multi-gated");
 
     // for each clover
     for (unsigned int i = 0; i < numClovers; i++) {
         stringstream ss;
         ss << "Clover " << i << " gamma";
-        DeclareHistogram1D(D_ENERGY_CLOVERX + i,
+        histo.DeclareHistogram1D(D_ENERGY_CLOVERX + i,
                            energyBins1, ss.str().c_str());
 
         ss.str("");
         ss << "Clover " << i << " beta gated gamma";
-        DeclareHistogram1D(betaGated::D_ENERGY_CLOVERX + i,
+        histo.DeclareHistogram1D(betaGated::D_ENERGY_CLOVERX + i,
                            energyBins1, ss.str().c_str());
 
         ss.str("");
         ss << "Clover " << i << " gamma addback";
-        DeclareHistogram1D(D_ADD_ENERGY_CLOVERX + i,
+        histo.DeclareHistogram1D(D_ADD_ENERGY_CLOVERX + i,
                            energyBins1, ss.str().c_str());
 
         ss.str("");
         ss << "Clover " << i << " beta gated gamma addback";
-        DeclareHistogram1D(betaGated::D_ADD_ENERGY_CLOVERX + i,
+        histo.DeclareHistogram1D(betaGated::D_ADD_ENERGY_CLOVERX + i,
                            energyBins1, ss.str().c_str());
     }
 
-    DeclareHistogram2D(DD_ENERGY, energyBins2, energyBins2, "Gamma gamma");
-    DeclareHistogram2D(DD_ENERGY_PROMPT, energyBins2, energyBins2,
+    histo.DeclareHistogram2D(DD_ENERGY, energyBins2, energyBins2, "Gamma gamma");
+    histo.DeclareHistogram2D(DD_ENERGY_PROMPT, energyBins2, energyBins2,
                        "Gamma gamma prompt");
-    DeclareHistogram2D(DD_ENERGY_CGATE1,
+    histo.DeclareHistogram2D(DD_ENERGY_CGATE1,
                        energyBins2, energyBins2,
                        "Gamma gamma cycle gate 1");
-    DeclareHistogram2D(DD_ENERGY_CGATE2,
+    histo.DeclareHistogram2D(DD_ENERGY_CGATE2,
                        energyBins2, energyBins2,
                        "Gamma gamma cycle gate 2");
 
-    DeclareHistogram2D(betaGated::DD_ENERGY,
+    histo.DeclareHistogram2D(betaGated::DD_ENERGY,
                        energyBins2, energyBins2,
                        "Gamma gamma beta prompt gated");
-    DeclareHistogram2D(betaGated::DD_ENERGY_PROMPT,
+    histo.DeclareHistogram2D(betaGated::DD_ENERGY_PROMPT,
                        energyBins2, energyBins2,
                        "Gamma gamma prompt beta prompt gated");
-    DeclareHistogram2D(betaGated::DD_ENERGY_BDELAYED,
+    histo.DeclareHistogram2D(betaGated::DD_ENERGY_BDELAYED,
                        energyBins2, energyBins2,
                        "Beta-gated gamma gamma - beta delayed");
 
-    DeclareHistogram2D(betaGated::DD_ENERGY_CGATE1,
+    histo.DeclareHistogram2D(betaGated::DD_ENERGY_CGATE1,
                        energyBins2, energyBins2,
                        "Beta gated gamma gamma cycle gate 1");
-    DeclareHistogram2D(betaGated::DD_ENERGY_CGATE2,
+    histo.DeclareHistogram2D(betaGated::DD_ENERGY_CGATE2,
                        energyBins2, energyBins2,
                        "Beta gated gamma gamma cycle gate 2");
 
-    DeclareHistogram2D(DD_ADD_ENERGY,
+    histo.DeclareHistogram2D(DD_ADD_ENERGY,
                        energyBins2, energyBins2, "Gamma gamma addback");
-    DeclareHistogram2D(multi::DD_ADD_ENERGY,
+    histo.DeclareHistogram2D(multi::DD_ADD_ENERGY,
                        energyBins2, energyBins2,
                        "Gamma gamma addback multi-gated");
-    DeclareHistogram2D(betaGated::DD_ADD_ENERGY,
+    histo.DeclareHistogram2D(betaGated::DD_ADD_ENERGY,
                        energyBins2, energyBins2,
                        "Beta-gated gamma-gamma addback");
-    DeclareHistogram2D(multi::betaGated::DD_ADD_ENERGY,
+    histo.DeclareHistogram2D(multi::betaGated::DD_ADD_ENERGY,
                        energyBins2, energyBins2,
                        "Beta-gated gamma-gamma addback multi-gated");
-    DeclareHistogram2D(betaGated::DD_ADD_ENERGY_PROMPT,
+    histo.DeclareHistogram2D(betaGated::DD_ADD_ENERGY_PROMPT,
                        energyBins2, energyBins2,
                        "Beta-gated Gamma gamma addback beta-prompt");
-    DeclareHistogram2D(multi::betaGated::DD_ADD_ENERGY_PROMPT,
+    histo.DeclareHistogram2D(multi::betaGated::DD_ADD_ENERGY_PROMPT,
                        energyBins2, energyBins2,
                        "Beta-gated gamma-gamma addback multi-gated beta-prompt");
 
-    DeclareHistogram2D(
+    histo.DeclareHistogram2D(
             DD_TDIFF__GAMMA_GAMMA_ENERGY,
             timeBins1, energyBins2,
             "Same clover, gamma energy, gamma-gamma time diff + 100 (10 ns)");
-    DeclareHistogram2D(
+    histo.DeclareHistogram2D(
             DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM,
             timeBins1,
             energyBins2,
             "Same clover, gamma energy sum, gamma-gamma time diff + 100 (10 ns)");
-    DeclareHistogram2D(
+    histo.DeclareHistogram2D(
             betaGated::DD_TDIFF__GAMMA_ENERGY,
             timeBins2, energyBins2,
             "Gamma energy, gamma - beta time diff + 100 (10 ns)");
-    DeclareHistogram2D(
+    histo.DeclareHistogram2D(
             betaGated::DD_TDIFF__BETA_ENERGY,
             timeBins1, energyBins2,
             "Beta energy/10, gamma- beta time diff + 100 (10 ns)");
 
 #ifdef GGATES
-    DeclareHistogram2D(DD_TDIFF__GATEX, timeBins1, S5,
+    histo.DeclareHistogram2D(DD_TDIFF__GATEX, timeBins1, S5,
                         "g_g time diff + 100 (10 ns) vs gate");
-    DeclareHistogram2D(betaGated::DD_TDIFF__GATEX, timeBins1, S5,
+    histo.DeclareHistogram2D(betaGated::DD_TDIFF__GATEX, timeBins1, S5,
                         "g_g beta gated time diff + 100 (10 ns) vs gate");
-    DeclareHistogram2D(DD_ENERGY__GATEX, energyBins2, S5,
+    histo.DeclareHistogram2D(DD_ENERGY__GATEX, energyBins2, S5,
                        "g_g gated gamma energy");
-    DeclareHistogram2D(betaGated::DD_ENERGY__GATEX, energyBins2, S5,
+    histo.DeclareHistogram2D(betaGated::DD_ENERGY__GATEX, energyBins2, S5,
                        "g_g_beta gated gamma energy vs gate");
-    DeclareHistogram2D(DD_ANGLE__GATEX, S2, S5,
+    histo.DeclareHistogram2D(DD_ANGLE__GATEX, S2, S5,
                        "g_g gated angle vs gate");
-    DeclareHistogram2D(betaGated::DD_ANGLE__GATEX, S2, S5,
+    histo.DeclareHistogram2D(betaGated::DD_ANGLE__GATEX, S2, S5,
                        "g_g_beta gated angle vs gate");
 #endif
 
@@ -514,15 +514,15 @@ bool CloverProcessor::Process(RawEvent &event) {
             double gEnergy = chan->GetCalibratedEnergy();
             if (gEnergy < gammaThreshold_)
                 continue;
-            plot(D_ENERGY_MOVE, gEnergy);
+            histo.Plot(D_ENERGY_MOVE, gEnergy);
             if (hasBeta)
-                plot(betaGated::D_ENERGY_MOVE, gEnergy);
+                histo.Plot(betaGated::D_ENERGY_MOVE, gEnergy);
         }
         EndProcess();
         return (true);
     }
 
-    plot(D_MULT, geEvents_.size());
+    histo.Plot(D_MULT, geEvents_.size());
 
     // Note that geEvents_ vector holds only good events (matched
     // low & high gain). See PreProcess
@@ -538,8 +538,8 @@ bool CloverProcessor::Process(RawEvent &event) {
         double decayTime = (gTime - cycleTime) * clockInSeconds;
         int det = leafToClover[chan->GetChanID().GetLocation()];
 
-        plot(D_ENERGY, gEnergy);
-        plot(D_ENERGY_CLOVERX + det, gEnergy);
+        histo.Plot(D_ENERGY, gEnergy);
+        histo.Plot(D_ENERGY_CLOVERX + det, gEnergy);
         granploty(DD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
 
         double gb_dtime = numeric_limits<double>::max();
@@ -550,15 +550,15 @@ bool CloverProcessor::Process(RawEvent &event) {
             int betaLocation = bestBeta.location;
 
             double plotResolution = clockInSeconds;
-            plot(betaGated::DD_TDIFF__GAMMA_ENERGY,
+            histo.Plot(betaGated::DD_TDIFF__GAMMA_ENERGY,
                  (int) (gb_dtime / plotResolution + 100), gEnergy);
-            plot(betaGated::DD_TDIFF__BETA_ENERGY,
+            histo.Plot(betaGated::DD_TDIFF__BETA_ENERGY,
                  (int) (gb_dtime / plotResolution + 100), betaEnergy / 10);
 
-            plot(betaGated::D_ENERGY, gEnergy);
+            histo.Plot(betaGated::D_ENERGY, gEnergy);
             if (GoodGammaBeta(gb_dtime)) {
-                plot(betaGated::D_ENERGY_PROMPT, gEnergy);
-                plot(betaGated::D_ENERGY_CLOVERX + det, gEnergy);
+                histo.Plot(betaGated::D_ENERGY_PROMPT, gEnergy);
+                histo.Plot(betaGated::D_ENERGY_CLOVERX + det, gEnergy);
                 granploty(betaGated::DD_ENERGY__TIMEX,
                           gEnergy, decayTime, timeResolution);
                 if (beamOn) {
@@ -579,11 +579,11 @@ bool CloverProcessor::Process(RawEvent &event) {
 
                 // individual beta gamma coinc spectra for each beta detector
                 if (betaLocation == 0) {
-                    plot(betaGated::D_ENERGY_BETA0, gEnergy);
+                    histo.Plot(betaGated::D_ENERGY_BETA0, gEnergy);
                 } else if (betaLocation == 1) {
-                    plot(betaGated::D_ENERGY_BETA1, gEnergy);
+                    histo.Plot(betaGated::D_ENERGY_BETA1, gEnergy);
                 }
-                plot(betaGated::DD_ENERGY__BETAGAMMALOC,
+                histo.Plot(betaGated::DD_ENERGY__BETAGAMMALOC,
                      gEnergy, det * 3 + betaLocation);
             }
         }
@@ -605,10 +605,10 @@ bool CloverProcessor::Process(RawEvent &event) {
              * to monitor addback subevent gates. */
             if (det == det2) {
                 double plotResolution = clockInSeconds;
-                plot(DD_TDIFF__GAMMA_GAMMA_ENERGY,
+                histo.Plot(DD_TDIFF__GAMMA_GAMMA_ENERGY,
                      (int) (gg_dtime / plotResolution + 100),
                      gEnergy);
-                plot(DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM,
+                histo.Plot(DD_TDIFF__GAMMA_GAMMA_ENERGY_SUM,
                      (int) (gg_dtime / plotResolution + 100),
                      gEnergy + gEnergy2);
             }
@@ -672,10 +672,10 @@ bool CloverProcessor::Process(RawEvent &event) {
                     (*it_gate)[1].IsWithin(e2)) {
 
                     double plotResolution = clockInSeconds;
-                    plot(DD_TDIFF__GATEX,
+                    histo.Plot(DD_TDIFF__GATEX,
                          (int)(gg_dtime / plotResolution + 100), ig);
                     if (hasBeta && GoodGammaBeta(gb_dtime))
-                        plot(betaGated::DD_TDIFF__GATEX,
+                        histo.Plot(betaGated::DD_TDIFF__GATEX,
                             (int)(gg_dtime / plotResolution + 100), ig);
 
                     /** Angular corelations:
@@ -687,17 +687,17 @@ bool CloverProcessor::Process(RawEvent &event) {
                      * bin 0 -> same clover (0 deg), 1 -> 90 deg, 2 -> 180 deg
                      */
                     if (det == det2) {
-                        plot(DD_ANGLE__GATEX, 0, ig);
+                        histo.Plot(DD_ANGLE__GATEX, 0, ig);
                         if (hasBeta && GoodGammaBeta(gb_dtime))
-                            plot(betaGated::DD_ANGLE__GATEX, 0, ig);
+                            histo.Plot(betaGated::DD_ANGLE__GATEX, 0, ig);
                     } else if (det % 2 != det2 % 2) {
-                        plot(DD_ANGLE__GATEX, 1, ig);
+                        histo.Plot(DD_ANGLE__GATEX, 1, ig);
                         if (hasBeta && GoodGammaBeta(gb_dtime))
-                            plot(betaGated::DD_ANGLE__GATEX, 1, ig);
+                            histo.Plot(betaGated::DD_ANGLE__GATEX, 1, ig);
                     } else {
-                        plot(DD_ANGLE__GATEX, 2, ig);
+                        histo.Plot(DD_ANGLE__GATEX, 2, ig);
                         if (hasBeta && GoodGammaBeta(gb_dtime))
-                            plot(betaGated::DD_ANGLE__GATEX, 2, ig);
+                            histo.Plot(betaGated::DD_ANGLE__GATEX, 2, ig);
                     }
 
                     for (vector<ChanEvent*>::const_iterator it3 = it2 + 1;
@@ -705,9 +705,9 @@ bool CloverProcessor::Process(RawEvent &event) {
                         double gEnergy3 = (*it3)->GetCalibratedEnergy();
                         if (gEnergy3 < gammaThreshold_)
                             continue;
-                        plot(DD_ENERGY__GATEX, gEnergy3, ig);
+                        histo.Plot(DD_ENERGY__GATEX, gEnergy3, ig);
                         if (hasBeta && GoodGammaBeta(gb_dtime))
-                            plot(betaGated::DD_ENERGY__GATEX, gEnergy3, ig);
+                            histo.Plot(betaGated::DD_ENERGY__GATEX, gEnergy3, ig);
                     }
                 }
                 ++ig;
@@ -734,13 +734,13 @@ bool CloverProcessor::Process(RawEvent &event) {
             gb_dtime = (gTime - bestBeta.time) * clockInSeconds;
         }
 
-        plot(D_ADD_ENERGY_TOTAL, gEnergy);
+        histo.Plot(D_ADD_ENERGY_TOTAL, gEnergy);
         if (gMulti == 1)
-            plot(multi::D_ADD_ENERGY_TOTAL, gEnergy);
+            histo.Plot(multi::D_ADD_ENERGY_TOTAL, gEnergy);
         if (hasBeta && GoodGammaBeta(gb_dtime)) {
-            plot(betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
+            histo.Plot(betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
             if (gMulti == 1)
-                plot(multi::betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
+                histo.Plot(multi::betaGated::D_ADD_ENERGY_TOTAL, gEnergy);
         }
     }
 
@@ -755,25 +755,25 @@ bool CloverProcessor::Process(RawEvent &event) {
             double gMulti = addbackEvents_[det][ev].multiplicity;
             double decayTime = (gTime - cycleTime) * clockInSeconds;
 
-            plot(D_ADD_ENERGY, gEnergy);
-            plot(D_ADD_ENERGY_CLOVERX + det, gEnergy);
+            histo.Plot(D_ADD_ENERGY, gEnergy);
+            histo.Plot(D_ADD_ENERGY_CLOVERX + det, gEnergy);
             granploty(DD_ADD_ENERGY__TIMEX, gEnergy, decayTime, timeResolution);
             if (gMulti == 1)
-                plot(multi::D_ADD_ENERGY, gEnergy);
+                histo.Plot(multi::D_ADD_ENERGY, gEnergy);
 
             double gb_dtime = numeric_limits<double>::max();
             if (hasBeta) {
                 EventData bestBeta = BestBetaForGamma(gTime);
                 gb_dtime = (gTime - bestBeta.time) * clockInSeconds;
 
-                plot(betaGated::D_ADD_ENERGY, gEnergy);
+                histo.Plot(betaGated::D_ADD_ENERGY, gEnergy);
                 if (gMulti == 1)
-                    plot(multi::betaGated::D_ADD_ENERGY, gEnergy);
-                plot(betaGated::D_ADD_ENERGY_CLOVERX + det, gEnergy);
+                    histo.Plot(multi::betaGated::D_ADD_ENERGY, gEnergy);
+                histo.Plot(betaGated::D_ADD_ENERGY_CLOVERX + det, gEnergy);
                 if (GoodGammaBeta(gb_dtime)) {
-                    plot(betaGated::D_ADD_ENERGY_PROMPT, gEnergy);
+                    histo.Plot(betaGated::D_ADD_ENERGY_PROMPT, gEnergy);
                     if (gMulti == 1)
-                        plot(multi::betaGated::D_ADD_ENERGY_PROMPT, gEnergy);
+                        histo.Plot(multi::betaGated::D_ADD_ENERGY_PROMPT, gEnergy);
                     granploty(betaGated::DD_ADD_ENERGY__TIMEX, gEnergy,
                               decayTime, timeResolution);
                 }
@@ -840,6 +840,6 @@ void CloverProcessor::DeclareHistogramGranY(int dammId, int xsize, int ysize,
 void CloverProcessor::granploty(int dammId, double x, double y,
                             const vector<float> &granularity) {
     for (unsigned int i = 0; i < granularity.size(); i++) {
-        plot(dammId + i, x, y / granularity[i]);
+        histo.Plot(dammId + i, x, y / granularity[i]);
     }
 }

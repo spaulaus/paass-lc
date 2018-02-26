@@ -119,32 +119,32 @@ void CloverCalibProcessor::DeclarePlots(void) {
     }
 
 
-    DeclareHistogram1D(calib::D_E_SUM, energyBins, "Gamma energy");
+    histo.DeclareHistogram1D(calib::D_E_SUM, energyBins, "Gamma energy");
     for (unsigned i = 0; i < cloverChans; ++i) {
         stringstream ss;
         ss << "Gamma energy crystal " << i << " Clover " << leafToClover[i];
-        DeclareHistogram1D(calib::D_E_CRYSTALX + i,
+        histo.DeclareHistogram1D(calib::D_E_CRYSTALX + i,
                            energyBins, ss.str().c_str());
     }
-    DeclareHistogram2D(calib::DD_E_DETX, energyBins, S5,
+    histo.DeclareHistogram2D(calib::DD_E_DETX, energyBins, S5,
                        "Gamma E vs. crystal number ");
-    DeclareHistogram2D(calib::DD_E_DETX_BETA_GATED, energyBins, S5,
+    histo.DeclareHistogram2D(calib::DD_E_DETX_BETA_GATED, energyBins, S5,
                        "Gamma E vs. crystal number beta gated");
 
-    DeclareHistogram2D(calib::DD_EGAMMA__EBETA_ALL,
+    histo.DeclareHistogram2D(calib::DD_EGAMMA__EBETA_ALL,
                        energyBins2, energyBins2,
                        "Gamma E, Beta E (all crystals)");
-    DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_ALL,
+    histo.DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_ALL,
                        timeBins, energyBins,
                        "dt gamma-beta, gamma E (all)");
 
-    DeclareHistogram2D(calib::DD_EGAMMA__EBETA_B0,
+    histo.DeclareHistogram2D(calib::DD_EGAMMA__EBETA_B0,
                        energyBins2, energyBins2, "Gamma E, beta E; beta 0");
-    DeclareHistogram2D(calib::DD_EGAMMA__EBETA_B1,
+    histo.DeclareHistogram2D(calib::DD_EGAMMA__EBETA_B1,
                        energyBins2, energyBins2, "Gamma E, beta E; beta 0");
-    DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_B0,
+    histo.DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_B0,
                        timeBins, energyBins, "dt gamma-beta, gamma E; beta 0");
-    DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_B1,
+    histo.DeclareHistogram2D(calib::DD_TDIFF__EGAMMA_B1,
                        timeBins, energyBins, "dt gamma-beta, gamma E; beta 0");
 
     for (unsigned b = 0; b < 2; ++b) {
@@ -153,24 +153,24 @@ void CloverCalibProcessor::DeclarePlots(void) {
             ss.str("");
             ss << "Gamma E, beta E; crystal " << i
                << " beta " << b << " (energy/2)";
-            DeclareHistogram2D(calib::DD_EGAMMA__EBETA + i * 2 + b,
+            histo.DeclareHistogram2D(calib::DD_EGAMMA__EBETA + i * 2 + b,
                                energyBins2, energyBins3, ss.str().c_str());
 
             ss.str("");
             ss << "dt gamma-beta, gamma E; crystal "
                << i << " beta " << b;
-            DeclareHistogram2D(calib::DD_TDIFF__EGAMMA + i * 2 + b,
+            histo.DeclareHistogram2D(calib::DD_TDIFF__EGAMMA + i * 2 + b,
                                timeBins, energyBins, ss.str().c_str());
         }
     }
 
-    DeclareHistogram1D(calib::D_ENERGY_HIGHGAIN, energyBins,
+    histo.DeclareHistogram1D(calib::D_ENERGY_HIGHGAIN, energyBins,
                        "Gamma singles, high gain");
-    DeclareHistogram1D(calib::D_ENERGY_LOWGAIN, energyBins,
+    histo.DeclareHistogram1D(calib::D_ENERGY_LOWGAIN, energyBins,
                        "Gamma singles, low gain");
-    DeclareHistogram2D(calib::DD_CLOVER_ENERGY_RATIO, S4, S6,
+    histo.DeclareHistogram2D(calib::DD_CLOVER_ENERGY_RATIO, S4, S6,
                        "high/low energy ratio (x10)");
-    DeclareHistogram1D(dammIds::clover::D_MULT, S3,
+    histo.DeclareHistogram1D(dammIds::clover::D_MULT, S3,
                        "Gamma multiplicity");
 }
 
@@ -193,13 +193,13 @@ bool CloverCalibProcessor::PreProcess(RawEvent &event) {
      */
     for (vector<ChanEvent *>::const_iterator itLow = lowEvents.begin();
          itLow != lowEvents.end(); ++itLow) {
-        plot(calib::D_ENERGY_LOWGAIN, (*itLow)->GetCalibratedEnergy());
+        histo.Plot(calib::D_ENERGY_LOWGAIN, (*itLow)->GetCalibratedEnergy());
     }
 
     for (vector<ChanEvent *>::const_iterator itHigh = highEvents.begin();
          itHigh != highEvents.end(); itHigh++) {
         unsigned int location = (*itHigh)->GetChanID().GetLocation();
-        plot(calib::D_ENERGY_HIGHGAIN, (*itHigh)->GetCalibratedEnergy());
+        histo.Plot(calib::D_ENERGY_HIGHGAIN, (*itHigh)->GetCalibratedEnergy());
 
         if ((*itHigh)->IsSaturated() || (*itHigh)->IsPileup())
             continue;
@@ -213,7 +213,7 @@ bool CloverCalibProcessor::PreProcess(RawEvent &event) {
         }
         if (itLow != lowEvents.end()) {
             double ratio = (*itHigh)->GetEnergy() / (*itLow)->GetEnergy();
-            plot(calib::DD_CLOVER_ENERGY_RATIO, location, ratio * 10.);
+            histo.Plot(calib::DD_CLOVER_ENERGY_RATIO, location, ratio * 10.);
             if ((ratio < lowRatio_ ||
                  ratio > highRatio_))
                 continue;
@@ -236,7 +236,7 @@ bool CloverCalibProcessor::Process(RawEvent &event) {
 
     bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
 
-    plot(D_MULT, geEvents_.size());
+    histo.Plot(D_MULT, geEvents_.size());
 
     for (vector<ChanEvent *>::iterator it = geEvents_.begin();
          it != geEvents_.end(); ++it) {
@@ -249,12 +249,12 @@ bool CloverCalibProcessor::Process(RawEvent &event) {
         double gTime = chan->GetWalkCorrectedTime();
         int det = chan->GetChanID().GetLocation();
 
-        plot(calib::D_E_CRYSTALX + det, gEnergy);
-        plot(calib::D_E_SUM, gEnergy);
-        plot(calib::DD_E_DETX, gEnergy, det);
+        histo.Plot(calib::D_E_CRYSTALX + det, gEnergy);
+        histo.Plot(calib::D_E_SUM, gEnergy);
+        histo.Plot(calib::DD_E_DETX, gEnergy, det);
 
         if (hasBeta) {
-            plot(calib::DD_E_DETX_BETA_GATED, gEnergy, det);
+            histo.Plot(calib::DD_E_DETX_BETA_GATED, gEnergy, det);
 
             EventData beta = TreeCorrelator::get()->place("Beta")->last();
             double gb_dtime = (gTime - beta.time);
@@ -262,26 +262,26 @@ bool CloverCalibProcessor::Process(RawEvent &event) {
             int betaLocation = beta.location;
             int timeShift = 20;
 
-            plot(calib::DD_TDIFF__EGAMMA_ALL,
+            histo.Plot(calib::DD_TDIFF__EGAMMA_ALL,
                  (gb_dtime + timeShift), gEnergy);
-            plot(calib::DD_EGAMMA__EBETA_ALL, gEnergy, betaEnergy);
+            histo.Plot(calib::DD_EGAMMA__EBETA_ALL, gEnergy, betaEnergy);
 
             if (betaLocation == 0) {
-                plot(calib::DD_EGAMMA__EBETA_B0,
+                histo.Plot(calib::DD_EGAMMA__EBETA_B0,
                      gEnergy, betaEnergy);
-                plot(calib::DD_TDIFF__EGAMMA_B0,
+                histo.Plot(calib::DD_TDIFF__EGAMMA_B0,
                      (gb_dtime + timeShift), gEnergy);
             } else if (betaLocation == 1) {
-                plot(calib::DD_EGAMMA__EBETA_B1,
+                histo.Plot(calib::DD_EGAMMA__EBETA_B1,
                      gEnergy, betaEnergy);
-                plot(calib::DD_TDIFF__EGAMMA_B1,
+                histo.Plot(calib::DD_TDIFF__EGAMMA_B1,
                      (gb_dtime + timeShift), gEnergy);
             }
 
-            plot(calib::DD_TDIFF__EGAMMA + 2 * det + betaLocation,
+            histo.Plot(calib::DD_TDIFF__EGAMMA + 2 * det + betaLocation,
                  (gb_dtime + timeShift), gEnergy);
 
-            plot(calib::DD_EGAMMA__EBETA + 2 * det + betaLocation,
+            histo.Plot(calib::DD_EGAMMA__EBETA + 2 * det + betaLocation,
                  gEnergy, betaEnergy / 2.0);
         }
     }

@@ -121,7 +121,6 @@ if(ROOT_FOUND)
     include_directories(${ROOT_INCLUDE_DIR})
     link_directories(${ROOT_LIBRARY_DIR})
     add_definitions("-D USE_ROOT")
-    add_definitions("-D useroot")
 endif(ROOT_FOUND)
 
 #------------------------------------------------------------------------------

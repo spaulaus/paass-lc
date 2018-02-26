@@ -26,12 +26,14 @@ TraceExtractor::TraceExtractor(const std::string &type, const std::string &subty
 
 void TraceExtractor::DeclarePlots(void) {
     const int traceBins = dammIds::analyzers::traceBins;
-    DeclareHistogram2D(DD_TRACE, traceBins, S7, "Trace Extractor");
+    histo.DeclareHistogram2D(DD_TRACE, traceBins, S7, "Trace Extractor");
 }
 
 void TraceExtractor::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     static unsigned int numPlottedTraces = 0;
     static unsigned int numTraces = S8;
+
+    histo.Plot(DD_TRACE, 1, 100);
 
     if (type_ == cfg.GetType() && subtype_ == cfg.GetSubtype() && cfg.HasTag(tag_) && numPlottedTraces < numTraces) {
         TraceAnalyzer::Analyze(trace, cfg);

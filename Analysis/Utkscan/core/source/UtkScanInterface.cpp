@@ -7,6 +7,7 @@
 
 #include "DetectorDriver.hpp"
 #include "Display.h"
+#include "RootHandler.hpp"
 #include "TreeCorrelator.hpp"
 #include "UtkScanInterface.hpp"
 #include "UtkUnpacker.hpp"
@@ -14,20 +15,11 @@
 
 using namespace std;
 
-// Define a pointer to an OutputHisFile for later use.
-#ifndef USE_HRIBF
-OutputHisFile *output_his = NULL;
-#endif
-
 /// Default constructor.
 UtkScanInterface::UtkScanInterface() : ScanInterface() {}
 
 /// Destructor.
 UtkScanInterface::~UtkScanInterface() {
-#ifndef USE_HRIBF
-    if (scan_init)
-        delete (output_his);
-#endif
 }
 
 /** Initialize the map file, the config file, the processor handler, 
@@ -55,14 +47,10 @@ bool UtkScanInterface::Initialize(string prefix_) {
     unpacker_->SetEventWidth(Globals::get()->GetEventLengthInTicks());
     Globals::get()->SetOutputFilename(GetOutputFilename());
     Globals::get()->SetOutputPath(GetOutputPath());
+    RootHandler::get(GetOutputPath() + GetOutputFilename() + ".root");
 
-    //We remove this whole block in the event that we are using the SCANOR
-    //@TODO find a better way to handle HRIBF...This should be cleaned up!!
 #ifndef USE_HRIBF
     try {
-        output_his = new OutputHisFile((GetOutputPath() + GetOutputFilename()).c_str());
-        output_his->SetDebugMode(false);
-
         /** The DetectorDriver constructor will load processors
          *  from the xml configuration file upon first call.
          *  The DeclarePlots function will instantiate the DetectorLibrary
@@ -75,7 +63,6 @@ bool UtkScanInterface::Initialize(string prefix_) {
          *  calibration and walk correction factors.
          */
         DetectorDriver::get()->DeclarePlots();
-        output_his->Finalize();
     } catch (exception &e) {
         cout << Display::ErrorStr(
                 prefix_ + "Exception caught at UtkScanInterface::Initialize")
