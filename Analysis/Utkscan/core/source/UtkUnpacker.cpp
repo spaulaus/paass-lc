@@ -63,6 +63,8 @@ void UtkUnpacker::ProcessRawEvent() {
     ///@TODO Add a verbosity flag here to hide this information if the user wishes it.
     if (eventCounter % 100000 == 0 || eventCounter == 1)
         PrintProcessingTimeInformation(systemStartTime, times(&systemTimes), GetEventStartTime(), eventCounter);
+    if (eventCounter % 1000000 == 0)
+        RootHandler::get()->Flush();
     eventCounter++;
 
     if (Globals::get()->HasRejectionRegion()) {
