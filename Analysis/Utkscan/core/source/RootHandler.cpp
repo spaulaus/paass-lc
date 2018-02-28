@@ -44,7 +44,7 @@ RootHandler::~RootHandler() {
     }
 
     if(file_) {
-        file_->Write(0, TObject::kOverwrite);
+        file_->Write(0, TObject::kWriteDelete);
         file_->Close();
         delete file_;
     }
@@ -108,5 +108,5 @@ void RootHandler::Flush() {
     }
 
     for(const auto &hist: histogramList_)
-        hist.second->Write(0, TObject::kOverwrite);
+        hist.second->Write(0, TObject::kWriteDelete);
 }
