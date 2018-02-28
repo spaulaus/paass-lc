@@ -42,9 +42,9 @@ void McpProcessor::DeclarePlots(void) {
     const int posBins = SE;
     const int posBins2D = S9;
 
-    DeclareHistogram1D(D_POSX, posBins, "Horiz. - MCP Left");
-    DeclareHistogram1D(D_POSY, posBins, "Vert. - MCP Left");
-    DeclareHistogram2D(DD_POSXY, posBins2D, posBins2D, "MCP Left 2D");
+    histo.DeclareHistogram1D(D_POSX, posBins, "Horiz. - MCP Left");
+    histo.DeclareHistogram1D(D_POSY, posBins, "Vert. - MCP Left");
+    histo.DeclareHistogram2D(DD_POSXY, posBins2D, posBins2D, "MCP Left 2D");
 }
 
 
@@ -99,9 +99,9 @@ bool McpProcessor::PreProcess(RawEvent &event) {
     if (data.mult == 4) {
         using namespace dammIds::mcp;
 
-        plot(D_POSX, data.xpos);
-        plot(D_POSY, data.ypos);
-        plot(DD_POSXY, data.xpos, data.ypos);
+        histo.Plot(D_POSX, data.xpos);
+        histo.Plot(D_POSY, data.ypos);
+        histo.Plot(DD_POSXY, data.xpos, data.ypos);
     }
 
     EndProcess();

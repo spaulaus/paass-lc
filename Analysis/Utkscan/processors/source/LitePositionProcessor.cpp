@@ -148,59 +148,59 @@ void LitePositionProcessor::DeclarePlots(void) {
         stringstream str;
         for (int j = 1; j < 8; j++) {
             str << "QDC " << j << ", T/B LOC " << i;
-            DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + i, qdcBins,
+            histo.DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + i, qdcBins,
                                qdcBins, str.str().c_str());
             str.str("");
             str << "QDC " << j << " NORM T/B LOC" << i;
-            DeclareHistogram1D(D_QDCNORMN_LOCX + QDC_JUMP * j + i, normBins,
+            histo.DeclareHistogram1D(D_QDCNORMN_LOCX + QDC_JUMP * j + i, normBins,
                                str.str().c_str());
             str.str("");
 
             if (i == 0) {
                 // declare only once
                 str << "ALL QDC T/B" << j;
-                DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + LOC_SUM,
+                histo.DeclareHistogram2D(DD_QDCN__QDCN_LOCX + QDC_JUMP * j + LOC_SUM,
                                    qdcBins, qdcBins, str.str().c_str());
                 str.str("");
                 str << "ALL QDC " << j << " NORM T/B";
-                DeclareHistogram1D(D_QDCNORMN_LOCX + QDC_JUMP * j + LOC_SUM,
+                histo.DeclareHistogram1D(D_QDCNORMN_LOCX + QDC_JUMP * j + LOC_SUM,
                                    normBins, str.str().c_str());
             }
         }
         str << "QDCTOT T/B LOC " << i;
-        DeclareHistogram2D(DD_QDCTOT__QDCTOT_LOCX + i, qdcBins, qdcBins,
+        histo.DeclareHistogram2D(DD_QDCTOT__QDCTOT_LOCX + i, qdcBins, qdcBins,
                            str.str().c_str());
         str.str("");
 
         str << "QDCTOT NORM T/B LOC " << i;
-        DeclareHistogram1D(D_QDCTOTNORM_LOCX + i, normBins, str.str().c_str());
+        histo.DeclareHistogram1D(D_QDCTOTNORM_LOCX + i, normBins, str.str().c_str());
         str.str("");
 
         str << "INFO LOC " << i;
-        DeclareHistogram1D(D_INFO_LOCX + i, infoBins, str.str().c_str());
+        histo.DeclareHistogram1D(D_INFO_LOCX + i, infoBins, str.str().c_str());
         str.str("");
 
         str << "Energy vs. position, loc " << i;
-        DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + i, positionBins,
+        histo.DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + i, positionBins,
                            energyBins, str.str().c_str());
         str.str("");
 
         /*
         str << "ALL QDCSUM vs. energy, loc " << i;
-        DeclareHistogram2D(DD_QDCSUM__ENERGY_LOCX + i, SC, SC, str.str().c_str());
+        histo.DeclareHistogram2D(DD_QDCSUM__ENERGY_LOCX + i, SC, SC, str.str().c_str());
         str.str("");
         */
     }
-    DeclareHistogram2D(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM, qdcBins, qdcBins,
+    histo.DeclareHistogram2D(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM, qdcBins, qdcBins,
                        "ALL QDCTOT T/B");
-    DeclareHistogram1D(D_QDCTOTNORM_LOCX + LOC_SUM, normBins,
+    histo.DeclareHistogram1D(D_QDCTOTNORM_LOCX + LOC_SUM, normBins,
                        "ALL QDCTOT NORM T/B");
-    DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + LOC_SUM, positionBins,
+    histo.DeclareHistogram2D(DD_POSITION__ENERGY_LOCX + LOC_SUM, positionBins,
                        energyBins, "All energy vs. position");
-    // DeclareHistogram2D(DD_QDCSUM__ENERGY_LOCX + LOC_SUM, SC, SC, "ALL QDCSUM vs energy/10");
+    // histo.DeclareHistogram2D(DD_QDCSUM__ENERGY_LOCX + LOC_SUM, SC, SC, "ALL QDCSUM vs energy/10");
 
-    DeclareHistogram1D(D_INFO_LOCX + LOC_SUM, infoBins, "ALL INFO");
-    DeclareHistogram2D(DD_POSITION, locationBins, positionBins, "Qdc Position");
+    histo.DeclareHistogram1D(D_INFO_LOCX + LOC_SUM, infoBins, "ALL INFO");
+    histo.DeclareHistogram2D(DD_POSITION, locationBins, positionBins, "Qdc Position");
 }
 
 /**
@@ -236,8 +236,8 @@ bool LitePositionProcessor::Process(RawEvent &event) {
         if ((*it)->GetEnergy() < 10. || (*it)->GetEnergy() > 16374) {
             using namespace dammIds::position;
 
-            plot(D_INFO_LOCX + location, 5);
-            plot(D_INFO_LOCX + LOC_SUM, 5);
+            histo.Plot(D_INFO_LOCX + location, 5);
+            histo.Plot(D_INFO_LOCX + LOC_SUM, 5);
             continue;
         }
 
@@ -252,13 +252,13 @@ bool LitePositionProcessor::Process(RawEvent &event) {
             using namespace dammIds::position;
 
             if (top == NULL) {
-                plot(D_INFO_LOCX + location, 3);
-                plot(D_INFO_LOCX + LOC_SUM, 3);
+                histo.Plot(D_INFO_LOCX + location, 3);
+                histo.Plot(D_INFO_LOCX + LOC_SUM, 3);
             }
 
             if (bottom == NULL) {
-                plot(D_INFO_LOCX + location, 4);
-                plot(D_INFO_LOCX + LOC_SUM, 4);
+                histo.Plot(D_INFO_LOCX + location, 4);
+                histo.Plot(D_INFO_LOCX + LOC_SUM, 4);
             }
             continue;
         }
@@ -290,8 +290,8 @@ bool LitePositionProcessor::Process(RawEvent &event) {
             cout << "SSD strip edges are missing QDC information for location " << location << endl;
 #endif
             if (topQdc[0] == numeric_limits<unsigned int>::max()) {
-                plot(D_INFO_LOCX + location, 1);
-                plot(D_INFO_LOCX + LOC_SUM, 1);
+                histo.Plot(D_INFO_LOCX + location, 1);
+                histo.Plot(D_INFO_LOCX + LOC_SUM, 1);
                 if (!top->GetTrace().empty()) {
                     topQdc[0] = accumulate(top->GetTrace().begin(),
                                            top->GetTrace().begin() + qdcLen[0],
@@ -301,8 +301,8 @@ bool LitePositionProcessor::Process(RawEvent &event) {
                 }
             }
             if (bottomQdc[0] == numeric_limits<unsigned int>::max()) {
-                plot(D_INFO_LOCX + location, 2);
-                plot(D_INFO_LOCX + LOC_SUM, 2);
+                histo.Plot(D_INFO_LOCX + location, 2);
+                histo.Plot(D_INFO_LOCX + LOC_SUM, 2);
                 if (!bottom->GetTrace().empty()) {
                     bottomQdc[0] = accumulate(bottom->GetTrace().begin(),
                                               bottom->GetTrace().begin() +
@@ -315,8 +315,8 @@ bool LitePositionProcessor::Process(RawEvent &event) {
                 continue;
             }
         }
-        plot(D_INFO_LOCX + location, 0); // good stuff
-        plot(D_INFO_LOCX + LOC_SUM, 0); // good stuff
+        histo.Plot(D_INFO_LOCX + location, 0); // good stuff
+        histo.Plot(D_INFO_LOCX + LOC_SUM, 0); // good stuff
 
         for (int i = 1; i < numQdcs; i++) {
             if (top->GetQdc().at(i) == numeric_limits<unsigned int>::max()) {
@@ -342,21 +342,21 @@ bool LitePositionProcessor::Process(RawEvent &event) {
             bottomQdcTot += bottomQdc[i];
             bottomQdc[i] /= qdcLen[i];
 
-            plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + location, topQdc[i] + 100,
+            histo.Plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + location, topQdc[i] + 100,
                  bottomQdc[i] + 100);
-            plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + LOC_SUM, topQdc[i],
+            histo.Plot(DD_QDCN__QDCN_LOCX + QDC_JUMP * i + LOC_SUM, topQdc[i],
                  bottomQdc[i]);
 
             double frac = topQdc[i] / (topQdc[i] + bottomQdc[i]) * 1000.; // per mil
-            plot(D_QDCNORMN_LOCX + QDC_JUMP * i + location, frac);
-            plot(D_QDCNORMN_LOCX + QDC_JUMP * i + LOC_SUM, frac);
+            histo.Plot(D_QDCNORMN_LOCX + QDC_JUMP * i + location, frac);
+            histo.Plot(D_QDCNORMN_LOCX + QDC_JUMP * i + LOC_SUM, frac);
             if (i == whichQdc) {
                 position = posScale * (frac - minNormQdc[location]) / (maxNormQdc[location] - minNormQdc[location]);
                 //sumchan->GetTrace().InsertValue("position", position);
-                // plot(DD_POSITION, location, position);
-                plot(DD_POSITION__ENERGY_LOCX + location, position,
+                // histo.Plot(DD_POSITION, location, position);
+                histo.Plot(DD_POSITION__ENERGY_LOCX + location, position,
                      sumchan->GetCalibratedEnergy());
-                plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position,
+                histo.Plot(DD_POSITION__ENERGY_LOCX + LOC_SUM, position,
                      sumchan->GetCalibratedEnergy());
             }
             if (i == 6 && !sumchan->IsSaturated()) {
@@ -367,19 +367,19 @@ bool LitePositionProcessor::Process(RawEvent &event) {
                 if (qdcSum < 1000 && sumchan->GetCalibratedEnergy() > 15000) {
                     //sumchan->GetTrace().InsertValue("badqdc", 1);
                 } else {
-                    //plot(DD_POSITION, location, sumchan->GetTrace().GetValue("position"));
+                    //histo.Plot(DD_POSITION, location, sumchan->GetTrace().GetValue("position"));
                 }
-                plot(DD_QDCSUM__ENERGY_LOCX + location, qdcSum,
+                histo.Plot(DD_QDCSUM__ENERGY_LOCX + location, qdcSum,
                      sumchan->GetCalibratedEnergy() / 10);
-                plot(DD_QDCSUM__ENERGY_LOCX + LOC_SUM, qdcSum,
+                histo.Plot(DD_QDCSUM__ENERGY_LOCX + LOC_SUM, qdcSum,
                      sumchan->GetCalibratedEnergy() / 10);
             }
         } // end loop over qdcs
         topQdcTot /= totLen;
         bottomQdcTot /= totLen;
 
-        plot(DD_QDCTOT__QDCTOT_LOCX + location, topQdcTot, bottomQdcTot);
-        plot(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM, topQdcTot, bottomQdcTot);
+        histo.Plot(DD_QDCTOT__QDCTOT_LOCX + location, topQdcTot, bottomQdcTot);
+        histo.Plot(DD_QDCTOT__QDCTOT_LOCX + LOC_SUM, topQdcTot, bottomQdcTot);
     } // end iteration over sum events
 
     EndProcess();

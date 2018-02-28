@@ -11,12 +11,8 @@
 #include "RawEvent.hpp"
 #include "IonChamberProcessor.hpp"
 
-#ifdef useroot
-
 #include <TBranch.h>
 #include <TTree.h>
-
-#endif
 
 using namespace std;
 using namespace dammIds::ionChamber;
@@ -44,20 +40,20 @@ IonChamberProcessor::IonChamberProcessor() :
 }
 
 void IonChamberProcessor::DeclarePlots(void) {
-    DeclareHistogram1D(D_ENERGYSUM, SE, "ion chamber energy");
+    histo.DeclareHistogram1D(D_ENERGYSUM, SE, "ion chamber energy");
 
     for (size_t i = 0; i < noDets - 2; i++) {
-        DeclareHistogram1D(D_ENERGYTHREE_GROUPX + i, SE, "ion chamber 3sum");
+        histo.DeclareHistogram1D(D_ENERGYTHREE_GROUPX + i, SE, "ion chamber 3sum");
     }
     for (size_t i = 0; i < noDets - 1; i++) {
-        DeclareHistogram1D(D_ENERGYTWO_GROUPX + i, SE, "ion chamber 2sum");
+        histo.DeclareHistogram1D(D_ENERGYTWO_GROUPX + i, SE, "ion chamber 2sum");
     }
     for (size_t i = 0; i < noDets; i++) {
-        DeclareHistogram1D(D_DTIME_DETX + i, SE, "dtime for det i, 100 ns");
-        DeclareHistogram1D(D_RATE_DETX + i, SE, "calc rate for det i, Hz");
-        DeclareHistogram2D(DD_ESUM__ENERGY_DETX + i,
+        histo.DeclareHistogram1D(D_DTIME_DETX + i, SE, "dtime for det i, 100 ns");
+        histo.DeclareHistogram1D(D_RATE_DETX + i, SE, "calc rate for det i, Hz");
+        histo.DeclareHistogram2D(DD_ESUM__ENERGY_DETX + i,
                            SA, SA, "ion seg i v sum");
-        DeclareHistogram2D(DD_EBACK__ENERGY_DETX + i,
+        histo.DeclareHistogram2D(DD_EBACK__ENERGY_DETX + i,
                            SA, SA, "ion seg i v ion 234");
     }
 }
@@ -99,12 +95,12 @@ bool IonChamberProcessor::Process(RawEvent &event) {
             ethree[loc - 2] += ecal;
         }
     }
-    plot(D_ENERGYSUM, esum / 6);
+    histo.Plot(D_ENERGYSUM, esum / 6);
     for (size_t i = 0; i < noDets - 1; i++) {
-        plot(D_ENERGYTWO_GROUPX + i, etwo[i] / 2);
+        histo.Plot(D_ENERGYTWO_GROUPX + i, etwo[i] / 2);
     }
     for (size_t i = 0; i < noDets - 2; i++) {
-        plot(D_ENERGYTHREE_GROUPX + i, ethree[i] / 3);
+        histo.Plot(D_ENERGYTHREE_GROUPX + i, ethree[i] / 3);
     }
 
     // once more to do the plots
@@ -119,17 +115,17 @@ bool IonChamberProcessor::Process(RawEvent &event) {
 
         // messy for right now
         if (icEvents.size() == noDets) {
-            plot(DD_ESUM__ENERGY_DETX + loc, esum / 6, ecal);
+            histo.Plot(DD_ESUM__ENERGY_DETX + loc, esum / 6, ecal);
             switch (loc) {
                 case 0:
                 case 1:
                 case 5:
-                    plot(DD_EBACK__ENERGY_DETX + loc, ethree[2] / 3, ecal);
+                    histo.Plot(DD_EBACK__ENERGY_DETX + loc, ethree[2] / 3, ecal);
                     break;
                 case 2:
                 case 3:
                 case 4:
-                    plot(DD_EBACK__ENERGY_DETX + loc, (ethree[2] - ecal) / 2,
+                    histo.Plot(DD_EBACK__ENERGY_DETX + loc, (ethree[2] - ecal) / 2,
                          ecal);
                     break;
             }
@@ -137,7 +133,7 @@ bool IonChamberProcessor::Process(RawEvent &event) {
         }
         if (lastTime[loc] != -1) {
             double dtime = (*it)->GetTime() - lastTime[loc];
-            plot(D_DTIME_DETX + loc, dtime / 10);
+            histo.Plot(D_DTIME_DETX + loc, dtime / 10);
 
             if (dtime > minTime)
                 timeDiffs[loc].push_back(dtime);
@@ -158,7 +154,7 @@ bool IonChamberProcessor::Process(RawEvent &event) {
                     count++;
                 }
                 double mean = double(sum / count);
-                plot(D_RATE_DETX + loc,
+                histo.Plot(D_RATE_DETX + loc,
                      (double) (1 / mean / Globals::get()->GetClockInSeconds()));
             }
 
@@ -175,8 +171,6 @@ void IonChamberProcessor::Data::Clear(void) {
     mult = 0;
 }
 
-#ifdef useroot
-
 bool IonChamberProcessor::AddBranch(TTree *tree) {
     if (tree) {
         TBranch *branch = tree->Branch(name.c_str(), &data,
@@ -190,5 +184,3 @@ void IonChamberProcessor::FillBranch(void) {
     if (!HasEvent())
         data.Clear();
 }
-
-#endif // USEROOT

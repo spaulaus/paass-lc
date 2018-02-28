@@ -91,19 +91,19 @@ using namespace std;
 using namespace dammIds::experiment;
 
 void Anl1471Processor::DeclarePlots(void) {
-    DeclareHistogram2D(DD_DEBUGGING0, SB, SD, "left-MaxValvsTDIFF");
-    DeclareHistogram2D(DD_DEBUGGING1, SB, SD, "right-MaxValvsTDIFF");
-    DeclareHistogram2D(DD_DEBUGGING2, SB, S6, "TDIFF-vandle");
-    DeclareHistogram1D(DD_DEBUGGING3, S7, "Vandle Multiplicity");
-    DeclareHistogram1D(DD_DEBUGGING4, S7, "Beta Multiplicity");
-    DeclareHistogram2D(DD_MedCTOFvQDC, SC, SD, "ANL-medium-<E>-vs-CorTof");
-    DeclareHistogram2D(DD_MedVetoed, SC, SD, "ANL-medium-vetoed");
-    DeclareHistogram2D(DD_SmCTOFvQDC, SC, SD, "ANL-small-<E>-vs-CorTof");
-    DeclareHistogram2D(DD_SmVetoed, SC, SD, "ANL-small-vetoed");
-    DeclareHistogram2D(DD_DEBUGGING9, SD, S6, "BSNRLvsBQDCL");
-    DeclareHistogram1D(D_tape, S1, "tape move");
-    DeclareHistogram1D(D_beam, S1, "beam on/off");
-    DeclareHistogram2D(DD_grow_decay, SC, SA, "Grow/Decay");
+    histo.DeclareHistogram2D(DD_DEBUGGING0, SB, SD, "left-MaxValvsTDIFF");
+    histo.DeclareHistogram2D(DD_DEBUGGING1, SB, SD, "right-MaxValvsTDIFF");
+    histo.DeclareHistogram2D(DD_DEBUGGING2, SB, S6, "TDIFF-vandle");
+    histo.DeclareHistogram1D(DD_DEBUGGING3, S7, "Vandle Multiplicity");
+    histo.DeclareHistogram1D(DD_DEBUGGING4, S7, "Beta Multiplicity");
+    histo.DeclareHistogram2D(DD_MedCTOFvQDC, SC, SD, "ANL-medium-<E>-vs-CorTof");
+    histo.DeclareHistogram2D(DD_MedVetoed, SC, SD, "ANL-medium-vetoed");
+    histo.DeclareHistogram2D(DD_SmCTOFvQDC, SC, SD, "ANL-small-<E>-vs-CorTof");
+    histo.DeclareHistogram2D(DD_SmVetoed, SC, SD, "ANL-small-vetoed");
+    histo.DeclareHistogram2D(DD_DEBUGGING9, SD, S6, "BSNRLvsBQDCL");
+    histo.DeclareHistogram1D(D_tape, S1, "tape move");
+    histo.DeclareHistogram1D(D_beam, S1, "beam on/off");
+    histo.DeclareHistogram2D(DD_grow_decay, SC, SA, "Grow/Decay");
 }//end declare plots
 
 Anl1471Processor::Anl1471Processor() : EventProcessor(OFFSET, RANGE,
@@ -187,10 +187,10 @@ bool Anl1471Processor::Process(RawEvent &event) {
     } else {
         tapeinfo.beam = 0;
     }
-    plot(D_tape, tapeinfo.move);
-    plot(D_beam, tapeinfo.beam);
-    plot(DD_DEBUGGING3, vbars.size());
-    plot(DD_DEBUGGING4, betaStarts_.size());
+    histo.Plot(D_tape, tapeinfo.move);
+    histo.Plot(D_beam, tapeinfo.beam);
+    histo.Plot(DD_DEBUGGING3, vbars.size());
+    histo.Plot(DD_DEBUGGING4, betaStarts_.size());
 
     //Begin processing for VANDLE bars
     for (BarMap::iterator it = vbars.begin(); it != vbars.end(); it++) {
@@ -228,21 +228,21 @@ bool Anl1471Processor::Process(RawEvent &event) {
             bool tapeMove = TreeCorrelator::get()->place("TapeMove")->status();
             if (tapeMove == 0) { //plot only if tape is NOT moving
                 if (bar.GetType() == "medium")
-                    plot(DD_MedCTOFvQDC, corTof * 2 + 1000, bar.GetQdc());
+                    histo.Plot(DD_MedCTOFvQDC, corTof * 2 + 1000, bar.GetQdc());
 
                 if (bar.GetType() == "small")
-                    plot(DD_SmCTOFvQDC, corTof * 2 + 1000, bar.GetQdc());
+                    histo.Plot(DD_SmCTOFvQDC, corTof * 2 + 1000, bar.GetQdc());
             }
 
             if (tapeMove == 1) { //plot only if tape is moving
                 if (bar.GetType() == "medium")
-                    plot(DD_MedVetoed, corTof * 2 + 1000, bar.GetQdc());
+                    histo.Plot(DD_MedVetoed, corTof * 2 + 1000, bar.GetQdc());
 
                 if (bar.GetType() == "small")
-                    plot(DD_SmVetoed, corTof * 2 + 1000, bar.GetQdc());
+                    histo.Plot(DD_SmVetoed, corTof * 2 + 1000, bar.GetQdc());
             }
 
-            plot(DD_DEBUGGING9, beta_start.GetLeftSide().GetTraceQdc(),
+            histo.Plot(DD_DEBUGGING9, beta_start.GetLeftSide().GetTraceQdc(),
                  beta_start.GetLeftSide().GetTrace().GetSignalToNoiseRatio());
 
             //adding HPGE energy info to vandle tree
@@ -289,7 +289,7 @@ bool Anl1471Processor::Process(RawEvent &event) {
             //VID = BID = SNRVL = SNRVR = -9999;
             //GamEn = SNRBL = SNRBR = vandle_ = beta_ = ge_ = -9999;
 
-            plot(DD_DEBUGGING1, tof * plotMult_ + plotOffset_, bar.GetQdc());
+            histo.Plot(DD_DEBUGGING1, tof * plotMult_ + plotOffset_, bar.GetQdc());
 
         } // for(TimingMap::iterator itStart
     } //(BarMap::iterator itBar
@@ -316,7 +316,7 @@ bool Anl1471Processor::Process(RawEvent &event) {
                 grow_decay_time =
                         (ge_time - gcyc_time) * 1e-9 * 1e2;//in seconds, then ms
                 //cout << ge_energy << endl << grow_decay_time << endl << endl;
-                plot(DD_grow_decay, ge_energy, grow_decay_time);
+                histo.Plot(DD_grow_decay, ge_energy, grow_decay_time);
             }
 
             if (doubleBetaStarts.size() != 0) {

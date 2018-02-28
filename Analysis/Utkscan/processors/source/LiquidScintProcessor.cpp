@@ -44,18 +44,18 @@ void LiquidScintProcessor::DeclarePlots(void) {
      * copied as is. */
 
     //To handle Liquid Scintillators
-    // DeclareHistogram2D(DD_TQDCLIQUID, SC, S3, "Liquid vs. Trace QDC");
-    // DeclareHistogram2D(DD_MAXLIQUID, SC, S3, "Liquid vs. Maximum");
-    // DeclareHistogram2D(DD_DISCRIM, SA, S3, "N-Gamma Discrimination");
-    // DeclareHistogram2D(DD_TOFLIQUID, SE, S3,"Liquid vs. TOF");
-    // DeclareHistogram2D(DD_TRCLIQUID, S7, S7, "LIQUID TRACES");
+    // histo.DeclareHistogram2D(DD_TQDCLIQUID, SC, S3, "Liquid vs. Trace QDC");
+    // histo.DeclareHistogram2D(DD_MAXLIQUID, SC, S3, "Liquid vs. Maximum");
+    // histo.DeclareHistogram2D(DD_DISCRIM, SA, S3, "N-Gamma Discrimination");
+    // histo.DeclareHistogram2D(DD_TOFLIQUID, SE, S3,"Liquid vs. TOF");
+    // histo.DeclareHistogram2D(DD_TRCLIQUID, S7, S7, "LIQUID TRACES");
 
     // for(unsigned int i=0; i < 2; i++) {
-    // 	DeclareHistogram2D(DD_TQDCVSDISCRIM+i, SA, SE,"Trace QDC vs. NG Discrim");
-    // 	DeclareHistogram2D(DD_TOFVSDISCRIM+i, SA, SA, "TOF vs. Discrim");
-    // 	DeclareHistogram2D(DD_NEVSDISCRIM+i, SA, SE, "Energy vs. Discrim");
-    // 	DeclareHistogram2D(DD_TQDCVSLIQTOF+i, SC, SE, "Trace QDC vs. Liquid TOF");
-    // 	DeclareHistogram2D(DD_TQDCVSENERGY+i, SD, SE, "Trace QDC vs. Energy");
+    // 	histo.DeclareHistogram2D(DD_TQDCVSDISCRIM+i, SA, SE,"Trace QDC vs. NG Discrim");
+    // 	histo.DeclareHistogram2D(DD_TOFVSDISCRIM+i, SA, SA, "TOF vs. Discrim");
+    // 	histo.DeclareHistogram2D(DD_NEVSDISCRIM+i, SA, SE, "Energy vs. Discrim");
+    // 	histo.DeclareHistogram2D(DD_TQDCVSLIQTOF+i, SC, SE, "Trace QDC vs. Liquid TOF");
+    // 	histo.DeclareHistogram2D(DD_TQDCVSENERGY+i, SD, SE, "Trace QDC vs. Energy");
     // }
 }
 
@@ -96,14 +96,14 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
         if (liquid.GetDiscrimination() == 0) {
             for (Trace::const_iterator i = liquid.GetTrace().begin();
                  i != liquid.GetTrace().end(); i++)
-                plot(DD_TRCLIQUID, int(i - liquid.GetTrace().begin()),
+                histo.Plot(DD_TRCLIQUID, int(i - liquid.GetTrace().begin()),
                      counter, int(*i) - liquid.GetAveBaseline());
             counter++;
         }
 
         if (liquid.GetIsValid()) {
-            plot(DD_TQDCLIQUID, liquid.GetTraceQdc(), loc);
-            plot(DD_MAXLIQUID, liquid.GetMaximumValue(), loc);
+            histo.Plot(DD_TQDCLIQUID, liquid.GetTraceQdc(), loc);
+            histo.Plot(DD_MAXLIQUID, liquid.GetMaximumValue(), loc);
 
             double discrimNorm =
                     liquid.GetDiscrimination() / liquid.GetTraceQdc();
@@ -116,8 +116,8 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
                             make_pair(loc, "liquid"));
 
             if (discrimNorm > 0)
-                plot(DD_DISCRIM, discrimNorm * discRes + discOffset, loc);
-            plot(DD_TQDCVSDISCRIM, discrimNorm * discRes + discOffset,
+                histo.Plot(DD_DISCRIM, discrimNorm * discRes + discOffset, loc);
+            histo.Plot(DD_TQDCVSDISCRIM, discrimNorm * discRes + discOffset,
                  liquid.GetTraceQdc());
 
             if ((*itLiquid)->GetChanID().HasTag("start"))
@@ -136,11 +136,11 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
                     double TOF = liquid.GetHighResTimeInNs() -
                                  start.GetHighResTimeInNs() - tofOffset;
 
-                    plot(DD_TOFLIQUID, TOF * resMult + resOffset, histLoc);
-                    plot(DD_TOFVSDISCRIM + histLoc,
+                    histo.Plot(DD_TOFLIQUID, TOF * resMult + resOffset, histLoc);
+                    histo.Plot(DD_TOFVSDISCRIM + histLoc,
                          discrimNorm * discRes + discOffset,
                          TOF * resMult + resOffset);
-                    plot(DD_TQDCVSLIQTOF + histLoc, TOF * resMult + resOffset,
+                    histo.Plot(DD_TQDCVSLIQTOF + histLoc, TOF * resMult + resOffset,
                          liquid.GetTraceQdc());
                 }
             }

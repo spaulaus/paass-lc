@@ -71,7 +71,6 @@ public:
         return GetTrace().GetQdc();
     }
 
-#ifdef useroot
     struct HrtRoot {
         double qdc;
         double time;
@@ -104,8 +103,6 @@ public:
         s.qdc = -9999.;
         s.id = 9999;
     }
-
-#endif
 };
 
 /** Defines a map to hold timing data for a channel. */

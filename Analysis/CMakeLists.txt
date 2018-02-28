@@ -1,5 +1,4 @@
 #@authors K. Smith, S. V. Paulauskas, C. R. Thornsberry
-option(PAASS_BUILD_UTKSCAN "Build utkscan" OFF)
 option(PAASS_USE_HRIBF "Use HRIBF library for scan base." OFF)
 
 #Check if GSL is installed
@@ -32,6 +31,12 @@ add_subdirectory(Resources)
 #Build utilities.
 add_subdirectory(Utilities)
 
-if (PAASS_BUILD_UTKSCAN)
-    add_subdirectory(Utkscan)
-endif (PAASS_BUILD_UTKSCAN)
+if(ROOT_FOUND)
+    option(PAASS_BUILD_UTKSCAN "Build utkscan" OFF)
+
+    if (PAASS_BUILD_UTKSCAN)
+        add_subdirectory(Utkscan)
+    endif (PAASS_BUILD_UTKSCAN)
+else()
+    message(WARNING "utkscan is unavilable unless you install ROOT!!")
+endif(ROOT_FOUND)

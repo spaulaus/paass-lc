@@ -16,10 +16,8 @@
 #include "IS600Processor.hpp"
 #include "VandleProcessor.hpp"
 
-#ifdef useroot
 static double tof_;
 static double qdc_;
-#endif
 
 namespace dammIds {
     namespace experiment {
@@ -41,22 +39,22 @@ using namespace std;
 using namespace dammIds::experiment;
 
 void IS600Processor::DeclarePlots(void) {
-    DeclareHistogram2D(DD_DEBUGGING0, SC, SD, "QDC CTof- No Tape Move");
-    DeclareHistogram2D(DD_DEBUGGING1, SC, SD, "QDC ToF Ungated");
-    DeclareHistogram2D(DD_DEBUGGING2, SC, SC, "Cor ToF vs. Gamma E");
-    DeclareHistogram1D(DD_DEBUGGING3, S7, "Vandle Multiplicity");
-    DeclareHistogram2D(DD_DEBUGGING4, SC, SC, "QDC vs Cor Tof Mult1");
-    DeclareHistogram2D(DD_DEBUGGING5, SC, SC, "Mult2 Sym Plot Tof ");
-    DeclareHistogram1D(DD_DEBUGGING6, SE, "LaBr3 RAW");
-    DeclareHistogram2D(DD_PROTONBETA2TDIFF_VS_BETA2EN, SD, SA,
+    histo.DeclareHistogram2D(DD_DEBUGGING0, SC, SD, "QDC CTof- No Tape Move");
+    histo.DeclareHistogram2D(DD_DEBUGGING1, SC, SD, "QDC ToF Ungated");
+    histo.DeclareHistogram2D(DD_DEBUGGING2, SC, SC, "Cor ToF vs. Gamma E");
+    histo.DeclareHistogram1D(DD_DEBUGGING3, S7, "Vandle Multiplicity");
+    histo.DeclareHistogram2D(DD_DEBUGGING4, SC, SC, "QDC vs Cor Tof Mult1");
+    histo.DeclareHistogram2D(DD_DEBUGGING5, SC, SC, "Mult2 Sym Plot Tof ");
+    histo.DeclareHistogram1D(DD_DEBUGGING6, SE, "LaBr3 RAW");
+    histo.DeclareHistogram2D(DD_PROTONBETA2TDIFF_VS_BETA2EN, SD, SA,
                        "BetaProton Tdiff vs. Beta Energy");
 
     const int energyBins1 = SD;
-    DeclareHistogram1D(D_ENERGY, energyBins1,
+    histo.DeclareHistogram1D(D_ENERGY, energyBins1,
                        "Gamma singles ungated");
-    DeclareHistogram1D(D_ENERGYBETA, energyBins1,
+    histo.DeclareHistogram1D(D_ENERGYBETA, energyBins1,
                        "Gamma singles beta gated");
-    DeclareHistogram2D(DD_PROTONGAMMATDIFF_VS_GAMMAEN,
+    histo.DeclareHistogram2D(DD_PROTONGAMMATDIFF_VS_GAMMAEN,
                        SD, SB, "GammaProton TDIFF vs. Gamma Energy");
 }
 
@@ -71,10 +69,10 @@ IS600Processor::IS600Processor() : EventProcessor(OFFSET, RANGE,
     name << Globals::get()->GetOutputPath()
          << Globals::get()->GetOutputFileName() << ".dat";
     outstream = new ofstream(name.str().c_str());
-#ifdef useroot
+
     stringstream rootname;
     rootname << Globals::get()->GetOutputPath()
-             << Globals::get()->GetOutputFileName() << ".root";
+             << Globals::get()->GetOutputFileName() << "-IS600.root";
     cout << rootname.str() << endl;
     rootfile_ = new TFile(rootname.str().c_str(), "RECREATE");
     roottree_ = new TTree("vandle", "");
@@ -82,17 +80,14 @@ IS600Processor::IS600Processor() : EventProcessor(OFFSET, RANGE,
     roottree_->Branch("qdc", &qdc_, "qdc/D");
     qdctof_ = new TH2D("qdctof", "", 1000, -100, 900, 16000, 0, 16000);
     vsize_ = new TH1D("vsize", "", 40, 0, 40);
-#endif
 }
 
 IS600Processor::~IS600Processor() {
     outstream->close();
     delete (outstream);
-#ifdef useroot
     rootfile_->Write();
     rootfile_->Close();
     delete (rootfile_);
-#endif
 }
 
 ///We do nothing here since we're completely dependent on the resutls of others
@@ -131,9 +126,7 @@ bool IS600Processor::Process(RawEvent &event) {
     static const vector<ChanEvent *> &labr3Evts =
             event.GetSummary("labr3:mrbig")->GetList();
 
-#ifdef useroot
     vsize_->Fill(vbars.size());
-#endif
 
     //Obtain some useful logic statuses
     double lastProtonTime =
@@ -145,7 +138,7 @@ bool IS600Processor::Process(RawEvent &event) {
     bool hasMultTwo = vbars.size() == 2;
     //bool isFirst = true;
 
-    plot(DD_DEBUGGING3, vbars.size());
+    histo.Plot(DD_DEBUGGING3, vbars.size());
 
     //Begin processing for VANDLE bars
     for (BarMap::iterator it = vbars.begin(); it != vbars.end(); it++) {
@@ -180,20 +173,19 @@ bool IS600Processor::Process(RawEvent &event) {
             bool isLowStart = start.GetQdc() < 300;
 
             *outstream << tof << " " << bar.GetQdc() << endl;
-#ifdef useroot
+
             qdctof_->Fill(tof, bar.GetQdc());
             qdc_ = bar.GetQdc();
             tof_ = tof;
             roottree_->Fill();
             qdc_ = tof_ = -9999;
-#endif
 
-            plot(DD_DEBUGGING1, tof * plotMult_ + plotOffset_, bar.GetQdc());
+            histo.Plot(DD_DEBUGGING1, tof * plotMult_ + plotOffset_, bar.GetQdc());
             if (!isTapeMoving && !isLowStart)
-                plot(DD_DEBUGGING0, corTof * plotMult_ + plotOffset_,
+                histo.Plot(DD_DEBUGGING0, corTof * plotMult_ + plotOffset_,
                      bar.GetQdc());
             if (hasMultOne)
-                plot(DD_DEBUGGING4, corTof * plotMult_ + plotOffset_,
+                histo.Plot(DD_DEBUGGING4, corTof * plotMult_ + plotOffset_,
                      bar.GetQdc());
 
             ///Starting to look for 2n coincidences in VANDLE
@@ -229,9 +221,9 @@ bool IS600Processor::Process(RawEvent &event) {
                                                 bar2.GetQdc());
 
                 if (hasMultTwo && inPeel && inPeel2 && !isAdjacent) {
-                    plot(DD_DEBUGGING5, corTof * plotMult_ + plotOffset_,
+                    histo.Plot(DD_DEBUGGING5, corTof * plotMult_ + plotOffset_,
                          corTof2 * plotMult_ + plotOffset_);
-                    plot(DD_DEBUGGING5, corTof2 * plotMult_ + plotOffset_,
+                    histo.Plot(DD_DEBUGGING5, corTof2 * plotMult_ + plotOffset_,
                          corTof * plotMult_ + plotOffset_);
                 }
             }
@@ -243,11 +235,11 @@ bool IS600Processor::Process(RawEvent &event) {
             //         for (vector<ChanEvent *>::const_iterator itGe = geList.begin();
             //             itGe != geList.end(); itGe++) {
             //             double calEnergy = (*itGe)->GetCalEnergy();
-            // 		plot(DD_DEBUGGING2, calEnergy, corTof*plotMult_+plotOffset_);
+            // 		histo.Plot(DD_DEBUGGING2, calEnergy, corTof*plotMult_+plotOffset_);
             //         }
             //     } else {
-            // 	  //plot(DD_TQDCAVEVSTOF_VETO+histTypeOffset, tof, bar.GetQdc());
-            // 	  //plot(DD_TOFBARS_VETO+histTypeOffset, tof, barPlusStartLoc);
+            // 	  //histo.Plot(DD_TQDCAVEVSTOF_VETO+histTypeOffset, tof, bar.GetQdc());
+            // 	  //histo.Plot(DD_TOFBARS_VETO+histTypeOffset, tof, barPlusStartLoc);
             //     }
             //}
         } // for(TimingMap::iterator itStart
@@ -257,7 +249,7 @@ bool IS600Processor::Process(RawEvent &event) {
     //-------------- LaBr3 Processing ---------------
     for (vector<ChanEvent *>::const_iterator it = labr3Evts.begin();
          it != labr3Evts.end(); it++)
-        plot(DD_DEBUGGING6, (*it)->GetEnergy());
+        histo.Plot(DD_DEBUGGING6, (*it)->GetEnergy());
 
 
     //------------------ Double Beta Processing --------------
@@ -265,7 +257,7 @@ bool IS600Processor::Process(RawEvent &event) {
          ::iterator it = lrtBetas.begin();
          it != lrtBetas.end();
          it++)
-        plot(DD_PROTONBETA2TDIFF_VS_BETA2EN, it->second.second,
+        histo.Plot(DD_PROTONBETA2TDIFF_VS_BETA2EN, it->second.second,
              (it->second.first - lastProtonTime) /
              (10e-3 / Globals::get()->GetClockInSeconds()));
 
@@ -285,10 +277,10 @@ bool IS600Processor::Process(RawEvent &event) {
         if (gEnergy < 10.) //hard coded fix later.
             continue;
 
-        plot(D_ENERGY, gEnergy);
+        histo.Plot(D_ENERGY, gEnergy);
         if (hasBeta)
-            plot(D_ENERGYBETA, gEnergy);
-        plot(DD_PROTONGAMMATDIFF_VS_GAMMAEN, gEnergy,
+            histo.Plot(D_ENERGYBETA, gEnergy);
+        histo.Plot(DD_PROTONGAMMATDIFF_VS_GAMMAEN, gEnergy,
              (gTime - lastProtonTime) / plotResolution);
     }
 

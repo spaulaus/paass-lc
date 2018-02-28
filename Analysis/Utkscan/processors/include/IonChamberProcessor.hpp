@@ -42,8 +42,6 @@ public:
     /** Declare plots for processor */
     virtual void DeclarePlots(void);
 
-#ifdef useroot
-
     /** Add the branch to the tree
     * \param [in] tree : the tree to add the branch to
     * \return true if you could do it */
@@ -51,8 +49,6 @@ public:
 
     /** Fill the branch */
     void FillBranch(void);
-
-#endif
 };
 
 #endif // __IONCHAMBERPROCSSEOR_HPP_

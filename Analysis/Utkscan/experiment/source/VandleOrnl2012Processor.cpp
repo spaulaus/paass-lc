@@ -36,26 +36,26 @@ using namespace std;
 using namespace dammIds::experiment;
 
 void VandleOrnl2012Processor::DeclarePlots(void) {
-    DeclareHistogram2D(DD_DEBUGGING0, SC, S7, "General Purpose");
-    DeclareHistogram2D(DD_DEBUGGING1, SA, SD, "TOF - banana gated");
-    DeclareHistogram2D(DD_DEBUGGING2, SA, SD, "TOF - Lower Bars Banana Gated");
-    DeclareHistogram2D(DD_DEBUGGING3, SA, SD, "TOF - Upper Bars Banana Gated");
-    DeclareHistogram2D(DD_DEBUGGING4, SA, SD, "TOF - Gated 600 keV");
-    DeclareHistogram2D(DD_DEBUGGING5, SA, SD, "TOF - Gated 700 keV");
-    DeclareHistogram2D(DD_DEBUGGING6, SA, SC, "TOF - Bar 12 Banana Gated");
-    DeclareHistogram2D(DD_DEBUGGING7, SA, SA, "Currently Unused");
-    DeclareHistogram2D(DD_DEBUGGING8, SA, SA, "Currently Unused");
-    DeclareHistogram2D(DD_DEBUGGING9, SC, S7, "Bar Loc vs. TOF - gated");
-    DeclareHistogram2D(DD_DEBUGGING10, SB, SA, "Decay Time vs. ToF");
-    DeclareHistogram2D(DD_DEBUGGING11, SC, SA, "Decay Time vs. GEnergy");
-    DeclareHistogram2D(DD_DEBUGGING12, SA, SA, "Decay Time vs. ToF - banana");
+    histo.DeclareHistogram2D(DD_DEBUGGING0, SC, S7, "General Purpose");
+    histo.DeclareHistogram2D(DD_DEBUGGING1, SA, SD, "TOF - banana gated");
+    histo.DeclareHistogram2D(DD_DEBUGGING2, SA, SD, "TOF - Lower Bars Banana Gated");
+    histo.DeclareHistogram2D(DD_DEBUGGING3, SA, SD, "TOF - Upper Bars Banana Gated");
+    histo.DeclareHistogram2D(DD_DEBUGGING4, SA, SD, "TOF - Gated 600 keV");
+    histo.DeclareHistogram2D(DD_DEBUGGING5, SA, SD, "TOF - Gated 700 keV");
+    histo.DeclareHistogram2D(DD_DEBUGGING6, SA, SC, "TOF - Bar 12 Banana Gated");
+    histo.DeclareHistogram2D(DD_DEBUGGING7, SA, SA, "Currently Unused");
+    histo.DeclareHistogram2D(DD_DEBUGGING8, SA, SA, "Currently Unused");
+    histo.DeclareHistogram2D(DD_DEBUGGING9, SC, S7, "Bar Loc vs. TOF - gated");
+    histo.DeclareHistogram2D(DD_DEBUGGING10, SB, SA, "Decay Time vs. ToF");
+    histo.DeclareHistogram2D(DD_DEBUGGING11, SC, SA, "Decay Time vs. GEnergy");
+    histo.DeclareHistogram2D(DD_DEBUGGING12, SA, SA, "Decay Time vs. ToF - banana");
 
-    DeclareHistogram2D(DEBUGGING_OFFSET + 20, SA, SA, "QDC TOF - Lower 0");
-    DeclareHistogram2D(DEBUGGING_OFFSET + 21, SA, SA, "QDC TOF - Lower 1");
-    DeclareHistogram2D(DEBUGGING_OFFSET + 22, SA, SA, "QDC TOF - Upper 0");
-    DeclareHistogram2D(DEBUGGING_OFFSET + 23, SA, SA, "QDC TOF - Upper 1");
-    DeclareHistogram2D(DEBUGGING_OFFSET + 24, SA, SD, "QDC TOF - Upper ");
-    DeclareHistogram2D(DEBUGGING_OFFSET + 25, SA, SD, "QDC TOF - Lower");
+    histo.DeclareHistogram2D(DEBUGGING_OFFSET + 20, SA, SA, "QDC TOF - Lower 0");
+    histo.DeclareHistogram2D(DEBUGGING_OFFSET + 21, SA, SA, "QDC TOF - Lower 1");
+    histo.DeclareHistogram2D(DEBUGGING_OFFSET + 22, SA, SA, "QDC TOF - Upper 0");
+    histo.DeclareHistogram2D(DEBUGGING_OFFSET + 23, SA, SA, "QDC TOF - Upper 1");
+    histo.DeclareHistogram2D(DEBUGGING_OFFSET + 24, SA, SD, "QDC TOF - Upper ");
+    histo.DeclareHistogram2D(DEBUGGING_OFFSET + 25, SA, SD, "QDC TOF - Lower");
 }
 
 VandleOrnl2012Processor::VandleOrnl2012Processor() :
@@ -132,26 +132,26 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
                                            bar.GetQdc());
             if (isLower) {
                 if (startLoc == 0)
-                    plot(DEBUGGING_OFFSET + 20,
+                    histo.Plot(DEBUGGING_OFFSET + 20,
                          tof * plotMult_ + plotOffset_, bar.GetQdc());
                 else
-                    plot(DEBUGGING_OFFSET + 21,
+                    histo.Plot(DEBUGGING_OFFSET + 21,
                          tof * plotMult_ + plotOffset_, bar.GetQdc());
             }
 
             if (isUpper) {
                 if (startLoc == 0)
-                    plot(DEBUGGING_OFFSET + 22,
+                    histo.Plot(DEBUGGING_OFFSET + 22,
                          tof * plotMult_ + plotOffset_, bar.GetQdc());
                 else
-                    plot(DEBUGGING_OFFSET + 23,
+                    histo.Plot(DEBUGGING_OFFSET + 23,
                          tof * plotMult_ + plotOffset_, bar.GetQdc());
             }
 
             //All of them are gated using a banana gate
             if (inPeel) {
                 if (isCleared)
-                    plot(DD_DEBUGGING1, corTof * plotMult_ + plotOffset_,
+                    histo.Plot(DD_DEBUGGING1, corTof * plotMult_ + plotOffset_,
                          bar.GetQdc());
 
                 if (isLower) {
@@ -160,23 +160,23 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
                     data << corTof << endl;
                     data.close();
 
-                    plot(DD_DEBUGGING2, corTof * plotMult_ + plotOffset_,
+                    histo.Plot(DD_DEBUGGING2, corTof * plotMult_ + plotOffset_,
                          bar.GetQdc());
                 }
                 if (isUpper)
-                    plot(DD_DEBUGGING3, corTof * plotMult_ + plotOffset_,
+                    histo.Plot(DD_DEBUGGING3, corTof * plotMult_ + plotOffset_,
                          bar.GetQdc());
 
                 if (barLoc == 12)
-                    plot(DD_DEBUGGING6, corTof * plotMult_ + plotOffset_,
+                    histo.Plot(DD_DEBUGGING6, corTof * plotMult_ + plotOffset_,
                          bar.GetQdc());
             }
 
             if (isLower)
-                plot(DEBUGGING_OFFSET + 24,
+                histo.Plot(DEBUGGING_OFFSET + 24,
                      corTof * plotMult_ + plotOffset_, bar.GetQdc());
             if (isUpper)
-                plot(DEBUGGING_OFFSET + 25,
+                histo.Plot(DEBUGGING_OFFSET + 25,
                      corTof * plotMult_ + plotOffset_, bar.GetQdc());
 
             double cycleTime = TreeCorrelator::get()->place(
@@ -185,10 +185,10 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
 
             double decayTime = (bar.GetTimeAverage() - cycleTime) / 0.01;
 
-            plot(DD_DEBUGGING10, corTof * plotMult_ + plotOffset_,
+            histo.Plot(DD_DEBUGGING10, corTof * plotMult_ + plotOffset_,
                  decayTime * 1.e-9);
             if (inPeel && isCleared)
-                plot(DD_DEBUGGING12, corTof * plotMult_ + plotOffset_,
+                histo.Plot(DD_DEBUGGING12, corTof * plotMult_ + plotOffset_,
                      decayTime * 1.e-9);
 
             ofstream gammaGated;
@@ -196,13 +196,13 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
                 for (vector<ChanEvent *>::const_iterator itGe = geEvts.begin();
                      itGe != geEvts.end(); itGe++) {
                     double calEnergy = (*itGe)->GetCalibratedEnergy();
-                    plot(DD_DEBUGGING11, calEnergy, decayTime * 1e-9);
+                    histo.Plot(DD_DEBUGGING11, calEnergy, decayTime * 1e-9);
                     if (calEnergy >= 595 && calEnergy <= 603) {
                         if (isLower) {
                             gammaGated.open(fileNames_[1].c_str(), ios::app);
                             gammaGated << corTof << endl;
                         }
-                        plot(DD_DEBUGGING4, corTof * plotMult_ + plotOffset_,
+                        histo.Plot(DD_DEBUGGING4, corTof * plotMult_ + plotOffset_,
                              bar.GetQdc());
                     }
                     if (calEnergy >= 692 && calEnergy <= 704) {
@@ -210,7 +210,7 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
                             gammaGated.open(fileNames_[2].c_str(), ios::app);
                             gammaGated << corTof << endl;
                         }
-                        plot(DD_DEBUGGING5, corTof * plotMult_ + plotOffset_,
+                        histo.Plot(DD_DEBUGGING5, corTof * plotMult_ + plotOffset_,
                              bar.GetQdc());
                     } // if(calEnergy >= 692
                 }// for(vector<ChanEvent *>::const_iterator
