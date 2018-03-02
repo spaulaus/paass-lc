@@ -44,16 +44,12 @@
 #include "VandleProcessor.hpp"
 
 //These headers are for handling experiment specific processing.
-#include "E11027Processor.hpp"
-#include "TemplateExpProcessor.hpp"
-#include "VandleOrnl2012Processor.hpp"
-
-#ifdef useroot //Some processors REQUIRE ROOT to function
 #include "Anl1471Processor.hpp"
+#include "E11027Processor.hpp"
 #include "IS600Processor.hpp"
-#include "RootProcessor.hpp"
+#include "TemplateExpProcessor.hpp"
 #include "TwoChanTimingProcessor.hpp"
-#endif
+#include "VandleOrnl2012Processor.hpp"
 
 using namespace std;
 
@@ -147,9 +143,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new E11027Processor());
         } else if (name == "TemplateExpProcessor") {
             vecProcess.push_back(new TemplateExpProcessor());
-        }
-#ifdef useroot //Certain processors REQUIRE ROOT to actually work
-        else if (name == "Anl1471Processor") {
+        } else if (name == "Anl1471Processor") {
             vecProcess.push_back(new Anl1471Processor());
         } else if (name == "IS600Processor") {
             vecProcess.push_back(new IS600Processor());
@@ -157,16 +151,11 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new TwoChanTimingProcessor());
         } else if (name == "VandleOrnl2012Processor") {
             vecProcess.push_back(new VandleOrnl2012Processor());
-        } else if (name == "RootProcessor") { //Must be the last for silly reasons.
-            vecProcess.push_back(new RootProcessor("tree.root", "tree"));
-        }
-#endif
-        else {
+        } else {
             stringstream ss;
             ss << "DetectorDriverXmlParser: Unknown processor : " << name;
             throw PaassException(ss.str());
         }
-
         PrintAttributeMessage(processor);
     }
     return vecProcess;

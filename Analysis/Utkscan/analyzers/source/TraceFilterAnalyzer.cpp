@@ -33,10 +33,10 @@ TraceFilterAnalyzer::TraceFilterAnalyzer(const bool &analyzePileup) :
 
 void TraceFilterAnalyzer::DeclarePlots(void) {
     const int traceBins = dammIds::analyzers::traceBins;
-    DeclareHistogram1D(D_RETVALS, S3, "Retvals for Filtering");
-    DeclareHistogram2D(DD_TRIGGER_FILTER, traceBins, S7, "Trigger Filter");
-    DeclareHistogram2D(DD_REJECTED_TRACE, traceBins, S7, "Rejected Traces");
-    DeclareHistogram2D(DD_PILEUP, traceBins, S7, "Rejected Traces");
+    histo.DeclareHistogram1D(D_RETVALS, S3, "Retvals for Filtering");
+    histo.DeclareHistogram2D(DD_TRIGGER_FILTER, traceBins, S7, "Trigger Filter");
+    histo.DeclareHistogram2D(DD_REJECTED_TRACE, traceBins, S7, "Rejected Traces");
+    histo.DeclareHistogram2D(DD_PILEUP, traceBins, S7, "Rejected Traces");
 }
 
 void TraceFilterAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
@@ -54,9 +54,9 @@ void TraceFilterAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg)
 
     //if retval != 0 there was a problem and we should look at the trace
     if (retval != 0) {
-        plot(D_RETVALS, retval);
+        histo.Plot(D_RETVALS, retval);
         if (numRejected < numTraces)
-            plot(DD_REJECTED_TRACE, numRejected++);
+            histo.Plot(DD_REJECTED_TRACE, numRejected++);
     }
 
     trace.SetTriggerFilter(filter.GetTriggerFilter());
@@ -67,12 +67,12 @@ void TraceFilterAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg)
 
     //plot traces that were flagged as pileups
     if (filter.GetHasPileup() && numPileup < numTraces)
-        plot(DD_PILEUP, numPileup++);
+        histo.Plot(DD_PILEUP, numPileup++);
 
     //500 is an arbitrary offset since DAMM cannot display negative numbers.
     vector<double> tfilt = filter.GetTriggerFilter();
     for (vector<double>::iterator it = tfilt.begin(); it != tfilt.end(); it++)
-        plot(DD_TRIGGER_FILTER, (int) (it - tfilt.begin()), numTrigFilters, (*it) + 500);
+        histo.Plot(DD_TRIGGER_FILTER, (int) (it - tfilt.begin()), numTrigFilters, (*it) + 500);
     numTrigFilters++;
 
     EndAnalyze(trace);

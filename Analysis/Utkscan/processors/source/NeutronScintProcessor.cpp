@@ -35,23 +35,23 @@ NeutronScintProcessor::NeutronScintProcessor() :
 }
 
 void NeutronScintProcessor::DeclarePlots(void) {
-    DeclareHistogram1D(betaGated::D_ENERGY_DETX + 0, SE,
+    histo.DeclareHistogram1D(betaGated::D_ENERGY_DETX + 0, SE,
                        "beta gated scint1 sig1");
-    DeclareHistogram1D(betaGated::D_ENERGY_DETX + 1, SE,
+    histo.DeclareHistogram1D(betaGated::D_ENERGY_DETX + 1, SE,
                        "beta gated scint1 sig2");
-    DeclareHistogram1D(betaGated::D_ENERGY_DETX + 2, SE, "beta gated 3Hen");
+    histo.DeclareHistogram1D(betaGated::D_ENERGY_DETX + 2, SE, "beta gated 3Hen");
 
-    DeclareHistogram1D(gammaGated::D_ENERGY_DETX + 0, SE,
+    histo.DeclareHistogram1D(gammaGated::D_ENERGY_DETX + 0, SE,
                        "gamma gated scint1 sig1");
-    DeclareHistogram1D(gammaGated::D_ENERGY_DETX + 1, SE,
+    histo.DeclareHistogram1D(gammaGated::D_ENERGY_DETX + 1, SE,
                        "gamma gated scint1 sig2");
-    DeclareHistogram1D(gammaGated::D_ENERGY_DETX + 2, SE, "gamma gated 3Hen");
+    histo.DeclareHistogram1D(gammaGated::D_ENERGY_DETX + 2, SE, "gamma gated 3Hen");
 
-    DeclareHistogram1D(betaGammaGated::D_ENERGY_DETX + 0, SE,
+    histo.DeclareHistogram1D(betaGammaGated::D_ENERGY_DETX + 0, SE,
                        "beta-gamma gated scint1 sig1");
-    DeclareHistogram1D(betaGammaGated::D_ENERGY_DETX + 1, SE,
+    histo.DeclareHistogram1D(betaGammaGated::D_ENERGY_DETX + 1, SE,
                        "beta-gamma gated scint1 sig2");
-    DeclareHistogram1D(betaGammaGated::D_ENERGY_DETX + 2, SE,
+    histo.DeclareHistogram1D(betaGammaGated::D_ENERGY_DETX + 2, SE,
                        "beta-gamma gated 3Hen");
 }
 
@@ -76,13 +76,13 @@ bool NeutronScintProcessor::Process(RawEvent &event) {
         double neutronEnergy = chan->GetCalibratedEnergy();
 
         if (TreeCorrelator::get()->place("Beta")->status()) {
-            plot(betaGated::D_ENERGY_DETX + loc, neutronEnergy);
+            histo.Plot(betaGated::D_ENERGY_DETX + loc, neutronEnergy);
         }
         if (TreeCorrelator::get()->place("Gamma")->status()) {
-            plot(gammaGated::D_ENERGY_DETX + loc, neutronEnergy);
+            histo.Plot(gammaGated::D_ENERGY_DETX + loc, neutronEnergy);
         }
         if (TreeCorrelator::get()->place("GammaBeta")->status()) {
-            plot(betaGammaGated::D_ENERGY_DETX + loc, neutronEnergy);
+            histo.Plot(betaGammaGated::D_ENERGY_DETX + loc, neutronEnergy);
         }
     }
     EndProcess();

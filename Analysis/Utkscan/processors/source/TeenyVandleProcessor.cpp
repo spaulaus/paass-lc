@@ -35,20 +35,20 @@ TeenyVandleProcessor::TeenyVandleProcessor() :
 }
 
 void TeenyVandleProcessor::DeclarePlots(void) {
-    DeclareHistogram1D(D_TIMEDIFF, SE, "Time Difference");
-    DeclareHistogram2D(DD_TQDC, SD, S1, "QDC");
-    DeclareHistogram2D(DD_MAX, SC, S1, "Max");
-    DeclareHistogram2D(DD_PVSP, SE, SE, "Phase vs. Phase");
-    DeclareHistogram2D(DD_MAXRIGHTVSTDIFF, SA, SD, "Max Right vs. Time Diff");
-    DeclareHistogram2D(DD_MAXLEFTVSTDIFF, SA, SD, "Max Left vs. Time Diff");
-    DeclareHistogram2D(DD_MAXLVSTDIFFGATE, SA, SD,
+    histo.DeclareHistogram1D(D_TIMEDIFF, SE, "Time Difference");
+    histo.DeclareHistogram2D(DD_TQDC, SD, S1, "QDC");
+    histo.DeclareHistogram2D(DD_MAX, SC, S1, "Max");
+    histo.DeclareHistogram2D(DD_PVSP, SE, SE, "Phase vs. Phase");
+    histo.DeclareHistogram2D(DD_MAXRIGHTVSTDIFF, SA, SD, "Max Right vs. Time Diff");
+    histo.DeclareHistogram2D(DD_MAXLEFTVSTDIFF, SA, SD, "Max Left vs. Time Diff");
+    histo.DeclareHistogram2D(DD_MAXLVSTDIFFGATE, SA, SD,
                        "Max Left vs. Time Diff - gated on max right");
-    DeclareHistogram2D(DD_MAXLVSTDIFFAMP, SA, SD,
+    histo.DeclareHistogram2D(DD_MAXLVSTDIFFAMP, SA, SD,
                        "Max Left vs. Time Diff - amp diff");
-    DeclareHistogram2D(DD_MAXLCORGATE, SA, SD,
+    histo.DeclareHistogram2D(DD_MAXLCORGATE, SA, SD,
                        "Max Left vs. Cor Time Diff");
-    DeclareHistogram2D(DD_QDCVSMAX, SC, SD, "QDC vs Max - Right");
-    DeclareHistogram2D(DD_SNRANDSDEV, S8, S2, "SNR and SDEV R01/L23");
+    histo.DeclareHistogram2D(DD_QDCVSMAX, SC, SD, "QDC vs Max - Right");
+    histo.DeclareHistogram2D(DD_SNRANDSDEV, S8, S2, "SNR and SDEV R01/L23");
 }
 
 bool TeenyVandleProcessor::PreProcess(RawEvent &event) {
@@ -77,39 +77,39 @@ bool TeenyVandleProcessor::PreProcess(RawEvent &event) {
     double corTimeDiff =
             left.GetWalkCorrectedTime() - right.GetWalkCorrectedTime();
 
-    plot(DD_QDCVSMAX, right.GetMaximumValue(), right.GetTraceQdc());
+    histo.Plot(DD_QDCVSMAX, right.GetMaximumValue(), right.GetTraceQdc());
 
     if (right.GetIsValid() && left.GetIsValid()) {
         double timeRes = 50; //20 ps/bin
         double timeOff = 500;
 
-        plot(D_TIMEDIFF, timeDiff * timeRes + timeOff);
-        plot(DD_PVSP, right.GetPhaseInNs() * timeRes,
+        histo.Plot(D_TIMEDIFF, timeDiff * timeRes + timeOff);
+        histo.Plot(DD_PVSP, right.GetPhaseInNs() * timeRes,
              left.GetPhaseInNs() * timeRes);
-        plot(DD_MAXRIGHTVSTDIFF, timeDiff * timeRes + timeOff,
+        histo.Plot(DD_MAXRIGHTVSTDIFF, timeDiff * timeRes + timeOff,
              right.GetMaximumValue());
-        plot(DD_MAXLEFTVSTDIFF, timeDiff * timeRes + timeOff,
+        histo.Plot(DD_MAXLEFTVSTDIFF, timeDiff * timeRes + timeOff,
              left.GetMaximumValue());
 
-        plot(DD_MAX, right.GetMaximumValue(), 0);
-        plot(DD_MAX, left.GetMaximumValue(), 1);
-        plot(DD_TQDC, right.GetTraceQdc(), 0);
-        plot(DD_TQDC, left.GetTraceQdc(), 1);
-        plot(DD_SNRANDSDEV, right.GetTrace().GetSignalToNoiseRatio() + 50, 0);
-        plot(DD_SNRANDSDEV, right.GetStdDevBaseline() * timeRes + timeOff, 1);
-        plot(DD_SNRANDSDEV, left.GetTrace().GetSignalToNoiseRatio() + 50, 2);
-        plot(DD_SNRANDSDEV, left.GetStdDevBaseline() * timeRes + timeOff, 3);
+        histo.Plot(DD_MAX, right.GetMaximumValue(), 0);
+        histo.Plot(DD_MAX, left.GetMaximumValue(), 1);
+        histo.Plot(DD_TQDC, right.GetTraceQdc(), 0);
+        histo.Plot(DD_TQDC, left.GetTraceQdc(), 1);
+        histo.Plot(DD_SNRANDSDEV, right.GetTrace().GetSignalToNoiseRatio() + 50, 0);
+        histo.Plot(DD_SNRANDSDEV, right.GetStdDevBaseline() * timeRes + timeOff, 1);
+        histo.Plot(DD_SNRANDSDEV, left.GetTrace().GetSignalToNoiseRatio() + 50, 2);
+        histo.Plot(DD_SNRANDSDEV, left.GetStdDevBaseline() * timeRes + timeOff, 3);
 
         double ampDiff = fabs(right.GetMaximumValue() - left.GetMaximumValue());
         if (ampDiff <= 50)
-            plot(DD_MAXLVSTDIFFAMP, timeDiff * timeRes + timeOff,
+            histo.Plot(DD_MAXLVSTDIFFAMP, timeDiff * timeRes + timeOff,
                  left.GetMaximumValue());
 
-        plot(DD_MAXLCORGATE, corTimeDiff * timeRes + timeOff,
+        histo.Plot(DD_MAXLCORGATE, corTimeDiff * timeRes + timeOff,
              left.GetMaximumValue());
 
         if (right.GetMaximumValue() > 2500) {
-            plot(DD_MAXLVSTDIFFGATE, timeDiff * timeRes + timeOff,
+            histo.Plot(DD_MAXLVSTDIFFGATE, timeDiff * timeRes + timeOff,
                  left.GetMaximumValue());
         }
     }
