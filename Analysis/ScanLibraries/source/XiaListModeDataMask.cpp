@@ -34,9 +34,9 @@ FIRMWARE XiaListModeDataMask::ConvertStringToFirmware(const std::string &type) {
         firmware = R30474;
     else if (firmwareNumber >= 30980 && firmwareNumber < 30981)
         firmware = R30980;
-    else if (firmwareNumber >= 30981 && firmwareNumber < 34688)
+    else if (firmwareNumber >= 30981 && firmwareNumber < 34455)
         firmware = R30981;
-    else if (firmwareNumber >= 34688) {
+    else if (firmwareNumber >= 34455) {
         firmware = R34688;
         if(firmwareNumber > 34688)
             cout << "XiaListModeDataMask::ConvertStringToFirmware :  You requested a firmware number that's higher "
