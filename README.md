@@ -1,5 +1,5 @@
-<!-- Author: S. Paulauskas -->
 # Laughing Conqueror - Pixie Acquisition and Analysis Software Suite (PAASS)
+<!-- Author: S. Paulauskas -->
 ## Build Status
 Branch | Build status
 ---------|-------------:
@@ -7,14 +7,17 @@ Master | [![Build Status](https://travis-ci.org/spaulaus/paass-laughing-conquero
 Test | [![Build Status](https://travis-ci.org/spaulaus/paass-laughing-conqueror.svg?branch=test)](https://travis-ci.org/spaulaus/paass-laughing-conqueror)
 Dev | [![Build Status](https://travis-ci.org/spaulaus/paass-laughing-conqueror.svg?branch=dev)](https://travis-ci.org/spaulaus/paass-laughing-conqueror)
 
-## Brief history
-I forked this project from the [Experimental Nuclear Structure Group](http://www.phys.utk.edu/expnuclear/) at the
-[University of Tennessee at Knoxville](https://utk.edu). I have worked on this software since 2009. I became the lead
-software developer in 2015. Since my departure from UT in 2017, I have continued to work on the software as a hobby. 
-To be explicit, I no longer have any affiliation with UTK or the Experimental Nuclear Structure group. 
+## Disclaimer
+<b>Neither I nor the software are affiliated with the UTK in any way.</b>
 
-My development goals are to
+I forked this software from the [Experimental Nuclear Structure Group](http://www.phys.utk.edu/expnuclear)
+at the [University of Tennessee](https://utk.edu). I was an employee there for 7 years, and have since moved on to a new
+job. While with the UTK group, I was project lead. I renamed the software to PAASS - Laughing Conqueror to 
+differentiate it from the original UTK software. The name comes from the meanings of the two lead programmers.
 
+## Introduction
+Our development goals are
+ 
 1. Create a scientific software package that adheres to modern programming practices. 
 2. Create tests for the acquisition and analysis software to ensure accurate results. 
 3. Provide an extensible framework that others can use to run experiments.
@@ -29,6 +32,39 @@ Software updates focus on
 I made the decision not to focus on analysis for a single data set. I want to provide an easy to use software package
 that can be extended beyond just a single group or digitizer. 
 
+The software provides a framework to acquire and analyze data from the 
+[XIA, LLC  DGF Pixie-16 modules](http://www.xia.com/DGF_Pixie-16.html). These data are written to disk in PLD or LDF 
+formats. We provide an interface to use PACMAN as our run control software. This provides a stable and well debugged 
+DAQ system. For more information visit the [wiki](https://github.com/spaulaus/paass-laughing-conqueror/wiki).
+
+## A little history! 
+Many post-docs, students, and PIs worked on this software over the years. I want to give credit where it's due. They 
+documented their names in the software they wrote, and in the documentation files. If your name is missing or you have a
+contribution, please contact the code maintainers.
+### Data Acquisition Development
+  * R. Grzywacz
+  * D. T. Miller
+  * C. Thornsberry
+  * K. Smith
+  * S. V. Paulauskas
+
+### Data Analysis Development
+  * R. Grzywacz
+  * S. N. Liddick
+  * D. T. Miller
+  * S. V. Paulauskas
+  * K. A. Miernik
+
+The data acquisition software is heavily based on the work by D. Miller in 
+[Pixie Suite](https://github.com/pixie16/PixieSuite/). K. Smith and C. R. Thornsberry forked Pixie Suite into 
+[Pixie Suite 2](https://github.com/pixie16/PixieSuite2/). They introduced numerous bug fixes and the ncurses GUI. The 
+main DAQ program, poll2, allows users to fully configure Pixie-16 modules and acquire data. 
+
+The analysis software comes from [pixie_scan](https://github.com/pixie16/pixie_scan/). Pixie scan is the workhorse 
+analysis package used by groups world wide. PAASS-LC blends the repositories to create a complete experimental 
+package. DAQ and analysis rolled into a single suite. The man analysis program, utkscan, is modular and extensible
+to accommodate any experiment. Users pick and choose detector types to build a custom experiment processor.
+
 For more information about the original project you can view the read me at the 
 [original project](https://github.com/pixie16/paass).   
 
@@ -37,6 +73,7 @@ For more information about the original project you can view the read me at the
 * ncurses
 * gcc v4.4.6+
 * cmake v2.8.8+
+* [ROOT](https://root.cern.ch)
 
 ### Acquisition
 * [PLX](http://support.xia.com/default.asp?W372)
@@ -46,7 +83,6 @@ For more information about the original project you can view the read me at the
 * gsl v2.x
 
 ### Optional (but recommended at this time)
-* [ROOT](https://root.cern.ch)
 * [UPAK](https://www.phy.ornl.gov/computing/daqsupport.html)
 
 ### Tested Systems
