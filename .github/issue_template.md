@@ -17,9 +17,9 @@
 
 ## Acceptance Criteria
 <!-- This will help determine if a PR is accepted or not. -->
-1. 
-2. 
-3. 
+- [ ] 
+- [ ] 
+- [ ] 
 
 ## Bug Report
 ### Your Environment
@@ -41,6 +41,7 @@
 3. 
 
 ### Screenshots
+<!--- Provide any screenshots of your error here -->
 
 ### Error Logs
 <!--- Please attach any error logs here. --> 
