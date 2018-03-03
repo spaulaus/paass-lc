@@ -40,6 +40,7 @@
 2.
 3. 
 
-### Error Logs
-Please attach any error logs here. 
+### Screenshots
 
+### Error Logs
+<!--- Please attach any error logs here. --> 
