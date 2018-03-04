@@ -2,14 +2,13 @@
 ///@brief Unpacker class for scope program
 ///@author C. R. Thornsberry, S. V. Paulauskas
 ///@date May 19, 2017
-#include <deque>
-#include <fstream>
-#include <vector>
+#include "ScopeUnpacker.hpp"
 
-#include <cmath>
-#include <ctime>
+#include "HelperFunctions.hpp"
+#include "RootInterface.hpp"
+#include "TrapFilterParameters.hpp"
+#include "TraceFilter.hpp"
 
-// Root files
 #include <TCanvas.h>
 #include <TSystem.h>
 #include <TStyle.h>
@@ -21,9 +20,12 @@
 #include <TProfile.h>
 #include <TPaveStats.h>
 
-#include "HelperFunctions.hpp"
-#include "RootInterface.hpp"
-#include "ScopeUnpacker.hpp"
+#include <deque>
+#include <fstream>
+#include <vector>
+
+#include <cmath>
+#include <ctime>
 
 using namespace std;
 using namespace TraceFunctions;
@@ -41,6 +43,7 @@ ScopeUnpacker::ScopeUnpacker(const unsigned int &mod/*=0*/, const unsigned int &
 
     performFit_ = false;
     performCfd_ = false;
+    performFiltering_ = false;
     numEvents_ = 20;
     numAvgWaveforms_ = 1;
     cfdF_ = 0.5;
@@ -50,6 +53,12 @@ ScopeUnpacker::ScopeUnpacker(const unsigned int &mod/*=0*/, const unsigned int &
     fitHigh_ = 15;
     delayInSeconds_ = 2;
     numTracesDisplayed_ = 0;
+
+    filterer_ = new TraceFilter(int((1. / mask_.GetFrequency())*1000));
+    filterGraph_ = new TGraph();
+    filterGraph_->SetLineColor(kRed);
+    filtererText_ = new TPaveText(0.15, 0.75, 0.45, 0.85, "NDC");
+    filtererText_->SetFillColorAlpha(kWhite, 1.0);
 
     graph = new TGraph();
     hist = new TH2F("hist", "", 256, 0, 1, 256, 0, 1);
@@ -84,6 +93,22 @@ ScopeUnpacker::~ScopeUnpacker() {
     delete emCalTimingFunction_;
     delete siPmtFastTimingFunction_;
     delete vandleTimingFunction_;
+    delete triggerFilterParameters_;
+    delete energyFilterParameters_;
+    delete filterer_;
+    delete filtererText_;
+    delete filterGraph_;
+}
+
+void ScopeUnpacker::SetFilterParameters(const std::string &type, const double &l, const double &g, const double &t) {
+    if(type == "trigger" || type == "fast") {
+        triggerFilterParameters_ = new TrapFilterParameters(l, g, t);
+        filterer_->SetTriggerParams(*triggerFilterParameters_);
+    }
+    if(type == "energy" || type == "slow") {
+        energyFilterParameters_ = new TrapFilterParameters(l, g, t);
+        filterer_->SetEnergyParams(*energyFilterParameters_);
+    }
 }
 
 void ScopeUnpacker::ResetGraph(const unsigned int &size) {
@@ -232,6 +257,20 @@ void ScopeUnpacker::Plot() {
             fittingFunction_->SetParameters(trc.GetMaxInfo().first, 0.5 * trc.GetQdc(), 0.4, 0.1, 4);
             fittingFunction_->FixParameter(fittingFunction_->GetParNumber("baseline"), trc.GetBaselineInfo().first);
             graph->Fit(fittingFunction_, "WRQ", "", lowVal, highVal);
+        }
+
+        if(performFiltering_) {
+            filtererText_->Clear();
+            if(!filterer_->CalcFilters(&chanEvents_.front()->GetTrace())) {
+                auto triggerFilter = filterer_->GetTriggerFilter();
+                for (size_t i = 0; i < triggerFilter.size(); ++i)
+                    filterGraph_->SetPoint(i, x_vals[i], triggerFilter.at(i) + trc.GetBaselineInfo().first);
+                filterGraph_->Draw("SAME");
+                filtererText_->AddText(("Filtered Energy = " + to_string(filterer_->GetEnergy())).c_str());
+                filtererText_->AddText(("Trigger Pos = " + to_string(filterer_->GetTrigger())).c_str());
+                ((TText*)filtererText_->GetListOfLines()->Last())->SetTextColor(kRed);
+                filtererText_->Draw("NDC");
+            }
         }
     } else {
         //For multiple events with make a 2D histogram and plot the profile on top.
