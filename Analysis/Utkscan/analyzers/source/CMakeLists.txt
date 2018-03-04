@@ -4,7 +4,6 @@ set(UTKSCAN_ANALYZER_SOURCES
         FittingAnalyzer.cpp
         TauAnalyzer.cpp
         TraceExtractor.cpp
-        TraceFilter.cpp
         TraceFilterAnalyzer.cpp
         TraceAnalyzer.cpp
         WaaAnalyzer.cpp
