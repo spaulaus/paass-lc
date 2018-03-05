@@ -33,6 +33,7 @@ void TraceExtractor::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     static unsigned int numPlottedTraces = 0;
     static unsigned int numTraces = S8;
 
+    ///@TODO : Fix this once we enable filling plots with weights in ROOT
     histo.Plot(DD_TRACE, 1, 100);
 
     if (type_ == cfg.GetType() && subtype_ == cfg.GetSubtype() && cfg.HasTag(tag_) && numPlottedTraces < numTraces) {
