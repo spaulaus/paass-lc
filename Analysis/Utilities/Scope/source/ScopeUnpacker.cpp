@@ -9,7 +9,6 @@
 #include "TrapFilterParameters.hpp"
 #include "TraceFilter.hpp"
 
-#include <TCanvas.h>
 #include <TSystem.h>
 #include <TStyle.h>
 #include <TGraph.h>
@@ -20,12 +19,7 @@
 #include <TProfile.h>
 #include <TPaveStats.h>
 
-#include <deque>
 #include <fstream>
-#include <vector>
-
-#include <cmath>
-#include <ctime>
 
 using namespace std;
 using namespace TraceFunctions;
@@ -58,7 +52,10 @@ ScopeUnpacker::ScopeUnpacker(const unsigned int &mod/*=0*/, const unsigned int &
     filterGraph_ = new TGraph();
     filterGraph_->SetLineColor(kRed);
     filtererText_ = new TPaveText(0.15, 0.75, 0.45, 0.85, "NDC");
-    filtererText_->SetFillColorAlpha(kWhite, 1.0);
+    ///@TODO Eventually replace these two lines with filtererText_->SetFillColorAlpha(kWhite, 1.0);
+    /// The CI server is balking at that right now. I have a feeling its due to a ROOT5 vs ROOT6 issue. 
+    filtererText_->SetFillColor(kWhite);
+    filtererText_->SetFillStyle(4000);
 
     graph = new TGraph();
     hist = new TH2F("hist", "", 256, 0, 1, 256, 0, 1);
