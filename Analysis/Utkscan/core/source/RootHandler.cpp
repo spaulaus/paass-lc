@@ -35,12 +35,9 @@ RootHandler::RootHandler(const std::string &fileName) {
 
 RootHandler::~RootHandler() {
     if(file_) {
-//        while(!flushMutex_.try_lock()) {
-//            cout << "RootHandler::~RootHandler() - Waiting for Async Flush to finish!" << endl;
-//            usleep(1000000);
-//        }
+        while(!flushMutex_.try_lock())
+            usleep(1000000);
 
-        cout << "RootHandler::~RootHandler() - We're doing the final write and close of the file now! " << endl;
         file_->Write(0, TObject::kWriteDelete);
         file_->Close();
         delete file_;
@@ -94,7 +91,6 @@ TH1 *RootHandler::RegisterHistogram(const unsigned int &id, const std::string &t
 }
 
 void RootHandler::AsyncFlush() {
-    cout << "RootHandler::AsyncFlush - Starting our asynchronous flushing" << endl;
     for (const auto &tree : treeList_) {
         tree->Fill();
         if (tree->GetEntries() % 10000 == 0)
@@ -103,15 +99,12 @@ void RootHandler::AsyncFlush() {
 
     for(const auto &hist: histogramList_)
         hist.second->Write(0, TObject::kWriteDelete);
-    cout << "RootHandler::AsyncFlush - Finishing our asynchronous flushing" << endl;
     flushMutex_.unlock();
 }
 
 void RootHandler::Flush() {
-    cout << "RootHandler::Flush() - We are calling AsyncFlush now" << endl;
     if(flushMutex_.try_lock()) {
         thread worker0(AsyncFlush);
         worker0.detach();
     }
-    cout << "RootHandler::Flush() - We are done calling AsyncFlush" << endl;
 }
