@@ -39,9 +39,6 @@ public:
     ///@param[in] definition : The definition for the branch
     void AddBranch(TTree *tree, const std::string &name, const std::string &definition);
 
-    ///@return A pointer to the root file so that the users can manipulate it if they need.
-    TFile *GetRootFile();
-
     ///Plots into histogram defined by an integer ID
     /// @param [in] dammId : The histogram number to define
     /// @param [in] val1 : the x value

@@ -34,13 +34,13 @@ RootHandler::RootHandler(const std::string &fileName) {
 }
 
 RootHandler::~RootHandler() {
-    for (const auto &tree : treeList_) {
-        cout << "RootHandler::~RootHandler - Saving " << tree->GetEntries() << " tree entries to "
-             << tree->GetTitle() << endl;
-        tree->AutoSave();
-    }
-
     if(file_) {
+//        while(!flushMutex_.try_lock()) {
+//            cout << "RootHandler::~RootHandler() - Waiting for Async Flush to finish!" << endl;
+//            usleep(1000000);
+//        }
+
+        cout << "RootHandler::~RootHandler() - We're doing the final write and close of the file now! " << endl;
         file_->Write(0, TObject::kWriteDelete);
         file_->Close();
         delete file_;
@@ -52,10 +52,6 @@ RootHandler::~RootHandler() {
 void RootHandler::AddBranch(TTree *tree, const std::string &name, const std::string &definition) {
     if (!file_)
         throw invalid_argument("The File wasn't opened!");
-}
-
-TFile *RootHandler::GetRootFile() {
-    return file_;
 }
 
 bool RootHandler::Plot(const unsigned int &id, const double &xval, const double &yval/*=-1*/, const double &zval/*=-1*/) {
@@ -98,7 +94,6 @@ TH1 *RootHandler::RegisterHistogram(const unsigned int &id, const std::string &t
 }
 
 void RootHandler::AsyncFlush() {
-    flushMutex_.lock();
     cout << "RootHandler::AsyncFlush - Starting our asynchronous flushing" << endl;
     for (const auto &tree : treeList_) {
         tree->Fill();
@@ -114,7 +109,9 @@ void RootHandler::AsyncFlush() {
 
 void RootHandler::Flush() {
     cout << "RootHandler::Flush() - We are calling AsyncFlush now" << endl;
-    thread worker0(AsyncFlush);
-    worker0.detach();
+    if(flushMutex_.try_lock()) {
+        thread worker0(AsyncFlush);
+        worker0.detach();
+    }
     cout << "RootHandler::Flush() - We are done calling AsyncFlush" << endl;
 }
