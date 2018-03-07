@@ -5,12 +5,8 @@
  */
 #include "RootHandler.hpp"
 
-#include "DetectorDriver.hpp"
-
-#include <TTree.h>
-
-#include <algorithm>
 #include <iostream>
+#include <thread>
 
 using namespace std;
 
@@ -18,6 +14,7 @@ RootHandler *RootHandler::instance_ = nullptr;
 TFile *RootHandler::file_ = nullptr; //!< The ROOT file that all the information will be stored in.
 set<TTree *> RootHandler::treeList_; //!< The list of trees known to the system
 map<unsigned int, TH1 *> RootHandler::histogramList_; //!< The list of 1D histograms known to the system
+mutex RootHandler::flushMutex_;
 
 /** Instance is created upon first call */
 RootHandler *RootHandler::get() {
@@ -100,7 +97,9 @@ TH1 *RootHandler::RegisterHistogram(const unsigned int &id, const std::string &t
     return histogramList_.emplace(make_pair(id, new TH3I(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, yBins, 0, yBins, zBins, 0, zBins))).first->second;
 }
 
-void RootHandler::Flush() {
+void RootHandler::AsyncFlush() {
+    flushMutex_.lock();
+    cout << "RootHandler::AsyncFlush - Starting our asynchronous flushing" << endl;
     for (const auto &tree : treeList_) {
         tree->Fill();
         if (tree->GetEntries() % 10000 == 0)
@@ -109,4 +108,13 @@ void RootHandler::Flush() {
 
     for(const auto &hist: histogramList_)
         hist.second->Write(0, TObject::kWriteDelete);
+    cout << "RootHandler::AsyncFlush - Finishing our asynchronous flushing" << endl;
+    flushMutex_.unlock();
+}
+
+void RootHandler::Flush() {
+    cout << "RootHandler::Flush() - We are calling AsyncFlush now" << endl;
+    thread worker0(AsyncFlush);
+    worker0.detach();
+    cout << "RootHandler::Flush() - We are done calling AsyncFlush" << endl;
 }

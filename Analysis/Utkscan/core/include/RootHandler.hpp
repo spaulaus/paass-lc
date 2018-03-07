@@ -13,6 +13,7 @@
 
 #include <set>
 #include <map>
+#include <mutex>
 
 //! A Class to handle outputting things into ROOT, registering histograms, filling trees, all that jazzy stuff.
 class RootHandler {
@@ -65,7 +66,6 @@ public:
 
     ///Method that will update all the trees and histograms in the system.
     void Flush();
-
 private:
     ///The static instance of the RootHandler that everybody can access.
     static RootHandler *instance_;
@@ -78,9 +78,13 @@ private:
     ///@param [in] fileName : The name of the ROOT File
     RootHandler(const std::string &fileName);
 
+    ///Method that will asynchronously flush trees and histograms.
+    static void AsyncFlush();
+
     static TFile *file_; //!< The ROOT file that all the information will be stored in.
     static std::set<TTree *> treeList_; //!< The list of trees known to the system
     static std::map<unsigned int, TH1 *> histogramList_; //!< The list of 1D histograms known to the system
+    static std::mutex flushMutex_;
 };
 
 #endif // __ROOTHANDLER_HPP_
