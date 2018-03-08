@@ -14,7 +14,6 @@
 TEST(TestRootHandler) {
     RootHandler *handler = RootHandler::get("/tmp/unittest-RootHandler.root");
     CHECK(handler);
-    CHECK(handler->GetRootFile());
 
     unsigned int id0 = 0;
     unsigned int id1 = 1;
