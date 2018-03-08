@@ -5,12 +5,8 @@
  */
 #include "RootHandler.hpp"
 
-#include "DetectorDriver.hpp"
-
-#include <TTree.h>
-
-#include <algorithm>
 #include <iostream>
+#include <thread>
 
 using namespace std;
 
@@ -18,6 +14,7 @@ RootHandler *RootHandler::instance_ = nullptr;
 TFile *RootHandler::file_ = nullptr; //!< The ROOT file that all the information will be stored in.
 set<TTree *> RootHandler::treeList_; //!< The list of trees known to the system
 map<unsigned int, TH1 *> RootHandler::histogramList_; //!< The list of 1D histograms known to the system
+mutex RootHandler::flushMutex_;
 
 /** Instance is created upon first call */
 RootHandler *RootHandler::get() {
@@ -37,13 +34,10 @@ RootHandler::RootHandler(const std::string &fileName) {
 }
 
 RootHandler::~RootHandler() {
-    for (const auto &tree : treeList_) {
-        cout << "RootHandler::~RootHandler - Saving " << tree->GetEntries() << " tree entries to "
-             << tree->GetTitle() << endl;
-        tree->AutoSave();
-    }
-
     if(file_) {
+        while(!flushMutex_.try_lock())
+            usleep(1000000);
+
         file_->Write(0, TObject::kWriteDelete);
         file_->Close();
         delete file_;
@@ -55,10 +49,6 @@ RootHandler::~RootHandler() {
 void RootHandler::AddBranch(TTree *tree, const std::string &name, const std::string &definition) {
     if (!file_)
         throw invalid_argument("The File wasn't opened!");
-}
-
-TFile *RootHandler::GetRootFile() {
-    return file_;
 }
 
 bool RootHandler::Plot(const unsigned int &id, const double &xval, const double &yval/*=-1*/, const double &zval/*=-1*/) {
@@ -100,7 +90,7 @@ TH1 *RootHandler::RegisterHistogram(const unsigned int &id, const std::string &t
     return histogramList_.emplace(make_pair(id, new TH3I(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, yBins, 0, yBins, zBins, 0, zBins))).first->second;
 }
 
-void RootHandler::Flush() {
+void RootHandler::AsyncFlush() {
     for (const auto &tree : treeList_) {
         tree->Fill();
         if (tree->GetEntries() % 10000 == 0)
@@ -109,4 +99,12 @@ void RootHandler::Flush() {
 
     for(const auto &hist: histogramList_)
         hist.second->Write(0, TObject::kWriteDelete);
+    flushMutex_.unlock();
+}
+
+void RootHandler::Flush() {
+    if(flushMutex_.try_lock()) {
+        thread worker0(AsyncFlush);
+        worker0.detach();
+    }
 }
