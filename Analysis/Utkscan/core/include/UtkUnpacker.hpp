@@ -6,12 +6,13 @@
 #ifndef __UTKUNPACKER_HPP__
 #define __UTKUNPACKER_HPP__
 
-#include <ctime>
-
 #include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
 #include "RawEvent.hpp"
 #include "Unpacker.hpp"
+
+#include <chrono>
+
 
 ///A class that is derived from Unpacker that defines what we are going to do
 /// with all of the events that are built by the Unpacker class. We only
@@ -38,15 +39,15 @@ private:
     ///@param[in] driver A pointer to the DetectorDriver that we're using.
     ///@param[in] detlib A pointer to the DetectorLibrary that we're using.
     ///@param[in] start The time that we called this method.
-    void InitializeDriver(DetectorDriver *driver, DetectorLibrary *detlib, RawEvent &rawev, clock_t &start);
+    void InitializeDriver(DetectorDriver *driver, DetectorLibrary *detlib, RawEvent &rawev,
+                          const std::chrono::steady_clock::time_point &startTime);
 
     ///@brief Prints information about time spent processing to the screen
-    ///@param[in] start The time that we started processing data (buffer 0)
-    ///@param[in] now What time it is now
-    ///@param[in] eventTime The time of the current event
-    ///@param[in] eventCounter What event we are currently processing.
-    void PrintProcessingTimeInformation(const clock_t &start, const clock_t &now, const double &eventTime,
-                                        const unsigned int &eventCounter);
+    ///@param[in] eventTime : The start time of the current event
+    ///@param[in] eventCounter : The event number we are processing
+    ///@param[in] processingTime : The time that we have spent processing data.
+    void PrintProcessingTimeInformation(const double &eventTime, const unsigned int &eventCounter,
+                                        std::chrono::duration<double> &processingTime);
 
     ///@brief Add an event to generic statistics output.
     ///@param[in] event_ Pointer to the current XIA event.
