@@ -3,17 +3,12 @@
 /// functionality of the PixieStd.cpp from pixie_scan
 ///@author S. V. Paulauskas
 ///@date June 17, 2016
-#include <iostream>
-#include <set>
-
-#include <unistd.h>
-#include <sys/times.h>
+#include "UtkUnpacker.hpp"
 
 #include "DammPlotIds.hpp"
 #include "Places.hpp"
 #include "TreeCorrelator.hpp"
 #include "UtkScanInterface.hpp"
-#include "UtkUnpacker.hpp"
 
 using namespace std;
 using namespace dammIds::raw;
@@ -42,8 +37,9 @@ UtkUnpacker::~UtkUnpacker() {
 /// screen.
 void UtkUnpacker::ProcessRawEvent() {
     static unsigned int eventCounter = 0;
-    static clock_t systemStartTime;
-    static struct tms systemTimes;
+    static auto systemStartTime = chrono::steady_clock::now();
+    static chrono::duration<double> processingTime;
+    static chrono::steady_clock::time_point lastFlushTime;
 
     static RawEvent rawev;
     static Messenger m;
@@ -58,13 +54,21 @@ void UtkUnpacker::ProcessRawEvent() {
         driver_ = DetectorDriver::get();
         detectorLibrary_ = DetectorLibrary::get();
         InitializeDriver(driver_, detectorLibrary_, rawev, systemStartTime);
+        RootHandler::get()->Flush();
+        lastFlushTime = chrono::steady_clock::now();
     }
 
+    processingTime = chrono::duration_cast<chrono::duration<double>>(chrono::steady_clock::now() - systemStartTime);
     ///@TODO Add a verbosity flag here to hide this information if the user wishes it.
     if (eventCounter % 100000 == 0 || eventCounter == 1) {
-        PrintProcessingTimeInformation(systemStartTime, times(&systemTimes), GetEventStartTime(), eventCounter);
-        RootHandler::get()->Flush();
+        PrintProcessingTimeInformation(GetEventStartTime(), eventCounter, processingTime);
     }
+
+    if(chrono::duration_cast<chrono::duration<int>>(chrono::steady_clock::now() - lastFlushTime).count() == 2) {
+        RootHandler::get()->Flush();
+        lastFlushTime = chrono::steady_clock::now();
+    }
+
     eventCounter++;
 
     if (Globals::get()->HasRejectionRegion()) {
@@ -167,14 +171,15 @@ void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver) {
 /// a General Exception here. This can be extremely useless sometimes...
 /// @TODO Expand the types of exceptions handled so that we can make the
 /// diagnostic information more useful for the user.
-void UtkUnpacker::InitializeDriver(DetectorDriver *driver, DetectorLibrary *detlib, RawEvent &rawev, clock_t &start) {
-    struct tms systemTimes;
+void UtkUnpacker::InitializeDriver(DetectorDriver *driver, DetectorLibrary *detlib, RawEvent &rawev,
+                                   const std::chrono::steady_clock::time_point &startTime) {
     Messenger m;
     stringstream ss;
 
     m.start("Initializing scan");
-    start = times(&systemTimes);
-    ss << "First buffer at " << start << " system time";
+    ss << "First buffer at "
+       << chrono::duration_cast<chrono::duration<double>>(chrono::steady_clock::now() - startTime).count()
+       << " system time";
     m.detail(ss.str());
     ss.str("");
 
@@ -199,7 +204,9 @@ void UtkUnpacker::InitializeDriver(DetectorDriver *driver, DetectorLibrary *detl
         exit(EXIT_FAILURE);
     }
 
-    ss << "Init at " << times(&systemTimes) << " system time.";
+    ss << "Init done at "
+       << chrono::duration_cast<chrono::duration<double>>(chrono::steady_clock::now() - startTime).count()
+       << " system time.";
     m.detail(ss.str());
     m.done();
 }
@@ -209,14 +216,13 @@ void UtkUnpacker::InitializeDriver(DetectorDriver *driver, DetectorLibrary *detl
 /// to this point. One should note that this does not contain all of the
 /// information that was present in PixieStd.cpp::hissub_. Some of that
 /// information is not available or just not that relevant to us.
-void UtkUnpacker::PrintProcessingTimeInformation(const clock_t &start, const clock_t &now, const double &eventTime,
-                                                 const unsigned int &eventCounter) {
+void UtkUnpacker::PrintProcessingTimeInformation(const double &eventTime, const unsigned int &eventCounter,
+                                                 std::chrono::duration<double> &processingTime) {
     Messenger m;
     stringstream ss;
-    static float hz = sysconf(_SC_CLK_TCK);
 
     ss << "Data read up to built event number " << eventCounter << " in "
-       << (now - start) / hz << " seconds. Current timestamp is "
+       << processingTime.count() << " seconds. Current timestamp is "
        << eventTime;
     m.run_message(ss.str());
 }
