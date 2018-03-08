@@ -97,8 +97,7 @@ void RootHandler::AsyncFlush() {
             tree->AutoSave();
     }
 
-    for(const auto &hist: histogramList_)
-        hist.second->Write(0, TObject::kWriteDelete);
+    file_->Write(0, TObject::kWriteDelete);
     flushMutex_.unlock();
 }
 
