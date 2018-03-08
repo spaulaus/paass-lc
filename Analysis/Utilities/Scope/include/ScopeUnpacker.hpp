@@ -13,17 +13,17 @@
 #include "Unpacker.hpp"
 #include "VandleTimingFunction.hpp"
 
+
+class TrapFilterParameters;
+class TraceFilter;
+
 class TGraph;
-
 class TH2F;
-
 class TF1;
-
 class TLine;
-
 class TProfile;
-
 class TCanvas;
+class TPaveText;
 
 ///Class that handles unpacking data and process for use with scope.
 class ScopeUnpacker : public Unpacker {
@@ -45,6 +45,8 @@ public:
     bool PerformCfd() { return performCfd_; }
 
     bool PerformFit() { return performFit_; }
+
+    bool PerformFiltering() { return performFiltering_ ; }
 
     void SetCfdFraction(const double &a) { cfdF_ = a; }
 
@@ -70,6 +72,8 @@ public:
 
     void SetPerformFit(const bool &a) { performFit_ = a; }
 
+    void SetPerformFiltering(const bool &a) { performFiltering_ = a; }
+
     void SetResetGraph(const bool &a) { resetGraph_ = a; }
 
     void SetSaveFile(const std::string &a) { saveFile_ = a; }
@@ -77,6 +81,8 @@ public:
     void SetThreshLow(const int &a) { threshLow_ = a; }
 
     void SetThreshHigh(const int &a) { threshHigh_ = a; }
+
+    void SetFilterParameters(const std::string &type, const double &l, const double &g, const double &t);
 
     bool SelectFittingFunction(const std::string &func);
 
@@ -102,6 +108,7 @@ private:
 
     //Parameters for the Fitting
     bool performFit_;
+    bool performFiltering_;
     int fitLow_;
     int fitHigh_;
 
@@ -114,11 +121,13 @@ private:
     time_t last_trace; ///< The time of the last trace.
 
     TGraph *graph; ///< The TGraph for plotting traces.
+    TGraph *filterGraph_; //!< TGraph for plotting the filter results
     TLine *cfdLine;
     TF1 *cfdPol3;
     TF1 *cfdPol2;
     TH2F *hist; ///<The histogram containing the waveform frequencies.
     TProfile *prof; ///<The profile of the average histogram.
+    TPaveText *filtererText_; //!< The energy calculated if we're using trapezoidal filtering
 
     TF1 *fittingFunction_;
     CrystalBallFunction *crystalBallFunction_;
@@ -126,6 +135,10 @@ private:
     EmCalTimingFunction *emCalTimingFunction_;
     SiPmtFastTimingFunction *siPmtFastTimingFunction_;
     VandleTimingFunction *vandleTimingFunction_;
+
+    TraceFilter *filterer_;
+    TrapFilterParameters *triggerFilterParameters_;
+    TrapFilterParameters *energyFilterParameters_;
 
     std::vector<int> x_vals;
     std::deque<ProcessedXiaData *> chanEvents_; ///<The buffer of waveforms to be plotted.

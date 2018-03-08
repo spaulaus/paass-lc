@@ -17,7 +17,9 @@ add_subdirectory(set2root)
 #Build poll
 add_subdirectory(Poll)
 
-add_subdirectory(Utilities/DataGenerator)
+if(PAASS_BUILD_ANALYSIS)
+    add_subdirectory(Utilities/DataGenerator)
+endif(PAASS_BUILD_ANALYSIS)
 
 #Build the setup tools
 if (PAASS_BUILD_SETUP)

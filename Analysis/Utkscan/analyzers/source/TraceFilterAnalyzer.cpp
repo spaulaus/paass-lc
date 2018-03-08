@@ -31,18 +31,18 @@ TraceFilterAnalyzer::TraceFilterAnalyzer(const bool &analyzePileup) :
     name = "TraceFilterAnalyzer";
 }
 
-void TraceFilterAnalyzer::DeclarePlots(void) {
+void TraceFilterAnalyzer::DeclarePlots() {
     const int traceBins = dammIds::analyzers::traceBins;
     histo.DeclareHistogram1D(D_RETVALS, S3, "Retvals for Filtering");
-    histo.DeclareHistogram2D(DD_TRIGGER_FILTER, traceBins, S7, "Trigger Filter");
+    ///@TODO : Enable this one we have completed the note in TraceFilterAnalyzer::Analyze
+    //histo.DeclareHistogram2D(DD_TRIGGER_FILTER, traceBins, S7, "Trigger Filter");
     histo.DeclareHistogram2D(DD_REJECTED_TRACE, traceBins, S7, "Rejected Traces");
-    histo.DeclareHistogram2D(DD_PILEUP, traceBins, S7, "Rejected Traces");
+    histo.DeclareHistogram2D(DD_PILEUP, 2000, S7, "Piled-up Traces");
 }
 
 void TraceFilterAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     TraceAnalyzer::Analyze(trace, cfg);
-    Globals *globs = Globals::get();
-    static int numTrigFilters = 0;
+    static Globals *globs = Globals::get();
     static int numRejected = 0;
     static int numPileup = 0;
     static unsigned short numTraces = S7;
@@ -51,12 +51,13 @@ void TraceFilterAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg)
     TraceFilter filter(globs->GetFilterClockInSeconds() * 1e9, cfg.GetTriggerFilterParameters(),
                        cfg.GetEnergyFilterParameters(), analyzePileup_);
     unsigned int retval = filter.CalcFilters(&trace);
+    histo.Plot(D_RETVALS, retval);
 
-    //if retval != 0 there was a problem and we should look at the trace
     if (retval != 0) {
-        histo.Plot(D_RETVALS, retval);
         if (numRejected < numTraces)
             histo.Plot(DD_REJECTED_TRACE, numRejected++);
+        EndAnalyze();
+        return;
     }
 
     trace.SetTriggerFilter(filter.GetTriggerFilter());
@@ -65,15 +66,18 @@ void TraceFilterAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg)
     trace.SetEnergySums(filter.GetEnergySums());
     trace.SetFilteredBaseline(filter.GetBaseline());
 
-    //plot traces that were flagged as pileups
     if (filter.GetHasPileup() && numPileup < numTraces)
         histo.Plot(DD_PILEUP, numPileup++);
 
-    //500 is an arbitrary offset since DAMM cannot display negative numbers.
-    vector<double> tfilt = filter.GetTriggerFilter();
-    for (vector<double>::iterator it = tfilt.begin(); it != tfilt.end(); it++)
-        histo.Plot(DD_TRIGGER_FILTER, (int) (it - tfilt.begin()), numTrigFilters, (*it) + 500);
-    numTrigFilters++;
+    ///@TODO : We have not enabled users to set histograms with a weight in ROOT. In this routine, we're trying to
+    /// plot the actual trace value as the "z-value" or number of counts in a 2D-bin.
+//    static int numTrigFilters = 0;
+//    unsigned int xval = 0;
+//    if(numTrigFilters == 0) {
+//        for (const auto &val : filter.GetTriggerFilter())
+//            histo.Plot(DD_TRIGGER_FILTER, xval++, numTrigFilters, val);
+//    }
+//    numTrigFilters++;
 
     EndAnalyze(trace);
 }

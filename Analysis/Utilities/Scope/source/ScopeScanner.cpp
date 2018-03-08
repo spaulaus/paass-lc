@@ -18,21 +18,18 @@ ScopeScanner::ScopeScanner(ScopeUnpacker *unpacker) {
     running = true;
 
     //We setup the commands that ScopeScanner knows about.
-    auxillaryKnownArgumentMap_.insert(make_pair("set", "Usage : set <module> <channel> | "
-            "Set the module and channel of signal of interest (default = 0, 0)."));
+    auxillaryKnownArgumentMap_.insert(make_pair("set", "Usage : set <module> <channel> | Set the module and channel of signal of interest (default = 0, 0)."));
     auxillaryKnownArgumentMap_.insert(make_pair("single", "Perform a single capture."));
     auxillaryKnownArgumentMap_.insert(make_pair("thresh", "Usage: <low> [high] | Set the plotting window for trace maximum. "));
-    auxillaryKnownArgumentMap_.insert(make_pair("fit", "Usage : fit <low> <high> | "
-            "Turn on fitting of waveform. Set <low> to \"off\" to disable."));
-    auxillaryKnownArgumentMap_.insert(make_pair("cfd", "Usage : cfd <F> <D> [L] "
-            "Turn on cfd analysis of waveform. Set [F] to \"off\" to disable."));
+    auxillaryKnownArgumentMap_.insert(make_pair("fit", "Usage : fit <low> <high> | Turn on fitting of waveform. Set <low> to \"off\" to disable."));
+    auxillaryKnownArgumentMap_.insert(make_pair("cfd", "Usage : cfd <F> <D> [L] Turn on cfd analysis of waveform. Set [F] to \"off\" to disable."));
     auxillaryKnownArgumentMap_.insert(make_pair("avg", "Usage : avg <number> | Set the number of waveforms to average."));
-    auxillaryKnownArgumentMap_.insert(make_pair("save", "Usage : save <fileName> | "
-            "Save the next trace to the specified file name. Do not provide the extension!"));
-    auxillaryKnownArgumentMap_.insert(make_pair("delay", "Usage: delay <val> | "
-            "Set the delay between drawing traces in seconds. Default = 1 s)."));
+    auxillaryKnownArgumentMap_.insert(make_pair("save", "Usage : save <fileName> | Save the next trace to the specified file name. Do not provide the extension!"));
+    auxillaryKnownArgumentMap_.insert(make_pair("delay", "Usage: delay <val> | Set the delay between drawing traces in seconds. Default = 1 s)."));
     auxillaryKnownArgumentMap_.insert(make_pair("log", "Toggle log/linear mode on the y-axis."));
     auxillaryKnownArgumentMap_.insert(make_pair("clear", "Clear all stored traces and start over."));
+    auxillaryKnownArgumentMap_.insert(make_pair("filter", "Usage : filter <TL> <TG> <Thresh> <EL> <EG> <Tau> | Turn "
+            "on Trapezoidal filtering of the trace."));
 }
 
 /** Initialize the map file, the config file, the processor handler,
@@ -215,6 +212,29 @@ bool ScopeScanner::ExtraCommands(const string &cmd_, vector<string> &args_) {
                 cout << msgHeader << "Unknown fitting function requested." << endl;
         } else
             cout << msgHeader << "Invalid number of parameters. Usage : func <functionName>" << endl;
+    } else if (cmd_ == "filter") {
+        if (args_.size() == 1 && args_.at(0) == "off") {
+            // Turn root fitting off.
+            if (unpacker_->PerformFiltering()) {
+                cout << msgHeader << "Disabling trapezoidal filtering.\n";
+                unpacker_->SetPerformFiltering(false);
+            } else
+                cout << msgHeader << "Trapezoidal filtering is not enabled.\n";
+        } else if (args_.size() == 6) { // Turn trapezoidal filtering on.
+            ///@TODO : Add a flag here for filter verbosity and pileup analysis
+            unpacker_->SetFilterParameters("trigger", stod(args_.at(0)), stod(args_.at(1)), stod(args_.at(2)));
+            unpacker_->SetFilterParameters("energy", stod(args_.at(3)), stod(args_.at(4)), stod(args_.at(5)));
+            cout << msgHeader << "Setting Trapezoidal Filter Parameters to: " << endl
+                 << "Trigger Filter: Rise = " << args_.at(0) << " Flattop = " << args_.at(1) << " Threshold = "
+                 << args_.at(2) << endl << "Energy Filter: " << "Rise = " << args_.at(3) << " Flattop = "
+                 << args_.at(4) << " Tau = " << args_.at(5) << endl;
+            unpacker_->SetPerformFiltering(true);
+        } else {
+            cout << msgHeader << "Invalid number of parameters to 'filter'\n";
+            cout << msgHeader << " -SYNTAX- filter <TL> <TG> <Thresh> <EL> <EG> <Tau>\n";
+            cout << msgHeader << " -SYNTAX- filter off\n";
+            cout << msgHeader << " -INFO - TL, TG, EL, and EG are all in units of ns\n";
+        }
     } else
         return false;
 
