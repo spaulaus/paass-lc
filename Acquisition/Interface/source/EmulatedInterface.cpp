@@ -1,8 +1,6 @@
 #include "EmulatedInterface.hpp"
 
-EmulatedInterface::EmulatedInterface(const char* cfgFile) :
-	AcquisitionInterface(cfgFile)
-{
+EmulatedInterface::EmulatedInterface(const char *cfgFile) : AcquisitionInterface(cfgFile) {
 
 }
 

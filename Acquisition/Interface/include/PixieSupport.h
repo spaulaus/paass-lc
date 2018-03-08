@@ -24,8 +24,7 @@ struct PixieFunctionParms {
 };
 
 template<typename T=int>
-class PixieFunction
-        : public std::unary_function<bool, struct PixieFunctionParms<T> > {
+class PixieFunction : public std::unary_function<bool, struct PixieFunctionParms<T> > {
 public:
     virtual bool operator()(struct PixieFunctionParms<T> &par) = 0;
 

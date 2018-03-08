@@ -5,24 +5,22 @@
 #include <set>
 
 class AcquisitionConfig {
-    public:
-        AcquisitionConfig();
+public:
+    AcquisitionConfig();
 
-        bool ReadConfigFile(const char *cfgFile);
+    bool ReadConfigFile(const char *cfgFile);
 
-        std::string Get(std::string moduleType, std::string tag);
+    std::string Get(std::string moduleType, std::string tag);
 
-    private:
-        /// @brief Parses the input from configuration file for the ModuleType tag.
-        std::string ParseModuleTypeTag(std::string value);
+private:
+    /// @brief Parses the input from configuration file for the ModuleType tag.
+    std::string ParseModuleTypeTag(std::string value);
 
-        /// @brief Convert a configuration string to be relative to PixieBaseDir unless it begins with a .
-        std::string ConfigFileName(const std::string &type, const std::string &str);
+    /// @brief Convert a configuration string to be relative to PixieBaseDir unless it begins with a .
+    std::string ConfigFileName(const std::string &type, const std::string &str);
 
-        std::set<std::string> validConfigKeys;
-        std::map<std::string, std::map<std::string, std::string>> configStrings;
+    std::set<std::string> validConfigKeys;
+    std::map<std::string, std::map<std::string, std::string>> configStrings;
 };
 
 #endif //ACQUISTIONCONFIG_HPP
-
-// vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 autoindent

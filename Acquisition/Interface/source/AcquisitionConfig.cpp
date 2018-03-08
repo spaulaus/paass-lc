@@ -124,8 +124,7 @@ bool AcquisitionConfig::ReadConfigFile(const char *fn) {
                 // check if this matches the environment PXI_ROOT if it is set
                 if (getenv("PXI_ROOT") != NULL) {
                     if (value != string(getenv("PXI_ROOT"))) {
-                        cout << Display::WarningStr(
-                                "This does not match the value of PXI_ROOT set in the environment")
+                        cout << Display::WarningStr("This does not match the value of PXI_ROOT set in the environment")
                              << endl;
                     }
                 }
@@ -154,14 +153,12 @@ std::string AcquisitionConfig::ParseModuleTypeTag(std::string value) {
     }
 
     if (adcResStr.empty()) {
-        std::cout << Display::ErrorStr()
-                  << " Invalid ModuleType, ADC resolution not specified: '"
+        std::cout << Display::ErrorStr() << " Invalid ModuleType, ADC resolution not specified: '"
                   << Display::InfoStr(value) << "'.\n";
     } else {
         try { adcRes = std::stoi(adcResStr); }
         catch (const std::invalid_argument &ia) {
-            std::cout << Display::ErrorStr() << " Invalid ADC resolution: '" << value
-                      << "' (" << adcResStr << ")\n";
+            std::cout << Display::ErrorStr() << " Invalid ADC resolution: '" << value << "' (" << adcResStr << ")\n";
         }
     }
 
@@ -176,14 +173,12 @@ std::string AcquisitionConfig::ParseModuleTypeTag(std::string value) {
     }
 
     if (mspsStr.empty()) {
-        std::cout << Display::ErrorStr()
-                  << " Invalid ModuleType, sample rate not specified: '"
+        std::cout << Display::ErrorStr() << " Invalid ModuleType, sample rate not specified: '"
                   << Display::InfoStr(value) << "'.\n";
     } else {
         try { msps = std::stoi(mspsStr); }
         catch (const std::invalid_argument &ia) {
-            std::cout << Display::ErrorStr() << " Invalid sample rate: '" << value
-                      << "' (" << mspsStr << ")\n";
+            std::cout << Display::ErrorStr() << " Invalid sample rate: '" << value << "' (" << mspsStr << ")\n";
         }
     }
 
@@ -193,8 +188,7 @@ std::string AcquisitionConfig::ParseModuleTypeTag(std::string value) {
     if (revStr.length() == 1) {
         revision = revStr;
     } else {
-        std::cout << Display::ErrorStr() << " Invalid Revision: '" << value << "' ("
-                  << revStr << ")\n";
+        std::cout << Display::ErrorStr() << " Invalid Revision: '" << value << "' (" << revStr << ")\n";
     }
 
     if (adcRes > 0 && msps > 0 && revision != "") {
@@ -227,9 +221,6 @@ string AcquisitionConfig::ConfigFileName(const string &type, const string &str) 
     return baseDir + '/' + str;
 }
 
-std::string AcquisitionConfig::Get(std::string moduleType, std::string tag){
+std::string AcquisitionConfig::Get(std::string moduleType, std::string tag) {
     return configStrings[moduleType][tag];
 }
-
-
-// vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 autoindent

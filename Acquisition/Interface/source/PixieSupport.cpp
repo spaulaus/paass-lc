@@ -20,7 +20,7 @@ std::string PadStr(const std::string &input_, int width_) {
     return output;
 }
 
-bool BitFlipper::operator()(PixieFunctionParms <std::string> &par) {
+bool BitFlipper::operator()(PixieFunctionParms<std::string> &par) {
     if (bit >= num_toggle_bits) { return false; }
 
     bool *active_bits = new bool[num_toggle_bits];
@@ -351,7 +351,7 @@ bool GetTraces::operator()(PixieFunctionParms<int> &par) {
 }
 
 bool ParameterChannelWriter::operator()(
-        PixieFunctionParms <std::pair<std::string, double>> &par) {
+        PixieFunctionParms<std::pair<std::string, double>> &par) {
     double previousValue;
     if (par.pif->WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod,
                                  par.ch, &previousValue)) {
@@ -363,7 +363,7 @@ bool ParameterChannelWriter::operator()(
 }
 
 bool ParameterModuleWriter::operator()(
-        PixieFunctionParms <std::pair<std::string, unsigned int>> &par) {
+        PixieFunctionParms<std::pair<std::string, unsigned int>> &par) {
     unsigned int previousValue;
     if (par.pif->WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod,
                                 &previousValue)) {
@@ -373,17 +373,17 @@ bool ParameterModuleWriter::operator()(
     return false;
 }
 
-bool ParameterChannelReader::operator()(PixieFunctionParms <std::string> &par) {
+bool ParameterChannelReader::operator()(PixieFunctionParms<std::string> &par) {
     par.pif->PrintSglChanPar(par.par.c_str(), par.mod, par.ch);
     return true;
 }
 
-bool ParameterModuleReader::operator()(PixieFunctionParms <std::string> &par) {
+bool ParameterModuleReader::operator()(PixieFunctionParms<std::string> &par) {
     par.pif->PrintSglModPar(par.par.c_str(), par.mod);
     return true;
 }
 
-bool ParameterChannelDumper::operator()(PixieFunctionParms <std::string> &par) {
+bool ParameterChannelDumper::operator()(PixieFunctionParms<std::string> &par) {
     double value;
     par.pif->ReadSglChanPar(par.par.c_str(), value, (int) par.mod,
                             (int) par.ch);
@@ -392,7 +392,7 @@ bool ParameterChannelDumper::operator()(PixieFunctionParms <std::string> &par) {
     return true;
 }
 
-bool ParameterModuleDumper::operator()(PixieFunctionParms <std::string> &par) {
+bool ParameterModuleDumper::operator()(PixieFunctionParms<std::string> &par) {
     AcquisitionInterface::word_t value;
     par.pif->ReadSglModPar(par.par.c_str(), value, (int) par.mod);
     *file << par.mod << "\t" << par.par << "\t" << value << std::endl;
@@ -422,7 +422,7 @@ bool TauFinder::operator()(PixieFunctionParms<> &par) {
 
    return (errorNum >= 0);
 */
-	return false;
+    return false;
 }
 
 // vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 autoindent

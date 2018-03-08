@@ -109,22 +109,20 @@ public:
 
     bool ReadSglModPar(const char *name, word_t &val, int mod);
 
-    void PrintSglModPar(const char *name, int mod, word_t *prev=nullptr);
+    void PrintSglModPar(const char *name, int mod, word_t *prev = nullptr);
 
-    bool WriteSglChanPar(const char *name, double val, int mod, int chan,
-                         double *pval=nullptr);
+    bool WriteSglChanPar(const char *name, double val, int mod, int chan, double *pval = nullptr);
 
     bool ReadSglChanPar(const char *name, double &val, int mod, int chan);
 
-    void PrintSglChanPar(const char *name, int mod, int chan, double *prev=nullptr);
+    void PrintSglChanPar(const char *name, int mod, int chan, double *prev = nullptr);
 
     bool SaveDSPParameters(const char *fn = NULL);
 
     bool AcquireTraces(int mod);
 
     // # AcquireTraces must be called before calling this #
-    bool ReadSglChanTrace(unsigned short *buf, unsigned long sz,
-                          unsigned short mod, unsigned short chan);
+    bool ReadSglChanTrace(unsigned short *buf, unsigned long sz, unsigned short mod, unsigned short chan);
 
     // # #
     bool GetStatistics(unsigned short mod);
@@ -142,24 +140,21 @@ public:
 
     double GetProcessedEvents(int mod);
 
-    bool GetModuleInfo(const unsigned short &mod, unsigned short *rev,
-                       unsigned int *serNum, unsigned short *adcBits,
+    bool GetModuleInfo(const unsigned short &mod, unsigned short *rev, unsigned int *serNum, unsigned short *adcBits,
                        unsigned short *adcMsps);
 
     // # #
-    bool StartHistogramRun(short mod=-1, unsigned short mode = NEW_RUN);
+    bool StartHistogramRun(short mod = -1, unsigned short mode = NEW_RUN);
 
-    bool StartListModeRun(short mod=-1, unsigned short listMode = LIST_MODE_RUN,
-                          unsigned short runMode = NEW_RUN);
+    bool StartListModeRun(short mod = -1, unsigned short listMode = LIST_MODE_RUN, unsigned short runMode = NEW_RUN);
 
-    bool CheckRunStatus(short mod=-1);
+    bool CheckRunStatus(short mod = -1);
 
 #ifdef PIF_FIFO
 
     unsigned long CheckFIFOWords(unsigned short mod);
 
-    bool ReadFIFOWords(word_t *buf, unsigned long nWords,
-                       unsigned short mod, bool verbose = false);
+    bool ReadFIFOWords(word_t *buf, unsigned long nWords, unsigned short mod, bool verbose = false);
 
 #endif
 
@@ -167,8 +162,7 @@ public:
 
     bool RemovePresetRunLength(int mod);
 
-    bool ReadHistogram(word_t *hist, unsigned long sz,
-                       unsigned short mod, unsigned short ch);
+    bool ReadHistogram(word_t *hist, unsigned long sz, unsigned short mod, unsigned short ch);
 
     bool AdjustOffsets(unsigned short mod);
 
@@ -226,5 +220,3 @@ private:
 };
 
 #endif // __PIXIEINTERFACE_H_
-
-// vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 autoindent

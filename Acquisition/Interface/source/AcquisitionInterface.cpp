@@ -10,21 +10,15 @@
 
 using namespace std;
 
-AcquisitionInterface::AcquisitionInterface(const char *cfgFile) : 
-    lock("PixieInterface") 
-{
+AcquisitionInterface::AcquisitionInterface(const char *cfgFile) : lock("PixieInterface") {
     Display::SetColorTerm();
     if (!config.ReadConfigFile(cfgFile)) {
-        cout << Display::ErrorStr()
-             << " Unable to read configuration file: '" << cfgFile << "'\n";
-        cout << Display::InfoStr()
-             << " Are the configuration files in the running directory?\n";
-        cout << "Autoconfigured files are avaialable in "
-             << INSTALL_PREFIX << "\n";
+        cout << Display::ErrorStr() << " Unable to read configuration file: '" << cfgFile << "'\n"
+             << Display::InfoStr() << " Are the configuration files in the running directory?\n"
+             << "Autoconfigured files are avaialable in " << INSTALL_PREFIX << "\n";
         exit(EXIT_FAILURE);
     }
 }
-
 
 bool AcquisitionInterface::ReadSlotConfig(const char *slotF) {
     char restOfLine[CONFIG_LINE_LENGTH];
@@ -45,8 +39,7 @@ bool AcquisitionInterface::ReadSlotConfig(const char *slotF) {
     in.getline(restOfLine, CONFIG_LINE_LENGTH, '\n');
 
     if (numberCards > MAX_MODULES) {
-        cout << Display::ErrorStr("Too many cards") << " : " << numberCards << " > "
-             << MAX_MODULES << endl;
+        cout << Display::ErrorStr("Too many cards") << " : " << numberCards << " > " << MAX_MODULES << endl;
         exit(EXIT_FAILURE);
     }
 
@@ -63,20 +56,14 @@ bool AcquisitionInterface::ReadSlotConfig(const char *slotF) {
     cout << "  System with " << numberCards << " cards" << endl;
     cout << "  ";
 
-    for (int i = 0; i < numberCards; i++) {
+    for (int i = 0; i < numberCards; i++)
         cout << "||  M  S ";
-    }
     cout << "|" << endl << "  ";
 
-    for (int i = 0; i < numberCards; i++) {
+    for (int i = 0; i < numberCards; i++)
         cout << "|| " << setw(2) << i << " " << setw(2) << slotMap[i] << " ";
-    }
     cout << "|" << endl;
     in.close();
 
     return true;
 }
-
-
-
-// vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 autoindent
