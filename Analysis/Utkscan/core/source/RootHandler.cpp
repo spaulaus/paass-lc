@@ -129,7 +129,7 @@ void RootHandler::Flush() {
 TH1 *RootHandler::GetHistogramFromList(const unsigned int &id, const std::string &callingFunctionName) {
     auto histogramPair = histogramList_.find(id);
     if(histogramPair == histogramList_.end())
-        throw("RootHandler::" + callingFunctionName + " - Somebody requested histogram " + to_string(id)
-              + ", which I know nothing about!!");
+        throw invalid_argument("RootHandler::" + callingFunctionName + " - Somebody requested histogram "
+                               + to_string(id) + ", which I know nothing about!!");
     return histogramPair->second;
 }

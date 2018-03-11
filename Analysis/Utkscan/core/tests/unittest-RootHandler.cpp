@@ -26,6 +26,10 @@ TEST(TestRootHandler) {
     handler->RegisterHistogram(id3, "test3d", 10, 10, 10);
 
     CHECK(!handler->Plot(123,123));
+    CHECK_THROW(handler->RegisterBranch("notatree", "branchname", &id0, "leaf list"), std::invalid_argument);
+    CHECK_THROW(handler->Get1DHistogram(123), std::invalid_argument);
+    CHECK_THROW(handler->Get2DHistogram(123), std::invalid_argument);
+    CHECK_THROW(handler->Get3DHistogram(123), std::invalid_argument);
 
     auto seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator (seed);
