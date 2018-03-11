@@ -12,7 +12,7 @@ using namespace std;
 
 RootHandler *RootHandler::instance_ = nullptr;
 TFile *RootHandler::file_ = nullptr; //!< The ROOT file that all the information will be stored in.
-set<TTree *> RootHandler::treeList_; //!< The list of trees known to the system
+map<std::string, TTree *> RootHandler::treeList_; //!< The list of trees known to the system
 map<unsigned int, TH1 *> RootHandler::histogramList_; //!< The list of 1D histograms known to the system
 mutex RootHandler::flushMutex_;
 
@@ -42,34 +42,58 @@ RootHandler::~RootHandler() {
         file_->Close();
         delete file_;
     }
-
     instance_ = nullptr;
 }
 
-void RootHandler::AddBranch(TTree *tree, const std::string &name, const std::string &definition) {
-    if (!file_)
-        throw invalid_argument("The File wasn't opened!");
+TH1D *RootHandler::Get1DHistogram(const unsigned int &id) {
+    return dynamic_cast<TH1D*>(GetHistogramFromList(id, "Get1DHistogram"));
+}
+
+TH2D *RootHandler::Get2DHistogram(const unsigned int &id) {
+    return dynamic_cast<TH2D*>(GetHistogramFromList(id, "Get2DHistogram"));
+}
+
+TH3D *RootHandler::Get3DHistogram(const unsigned int &id) {
+    return dynamic_cast<TH3D*>(GetHistogramFromList(id, "Get2DHistogram"));
+}
+
+void RootHandler::RegisterBranch(const std::string &treeName, const std::string &name, void *address,
+                                 const std::string &leaflist) {
+    auto tree = treeList_.find(treeName);
+    if (tree == treeList_.end())
+        throw invalid_argument("Roothandler::RegisterBranch - Attempt to graft branch named " + name
+                               + " onto tree named " + treeName + ", which is unknown to us!!");
+    tree->second->Branch(name.c_str(), address, leaflist.c_str());
+}
+
+TTree *RootHandler::RegisterTree(const std::string &name, const std::string &description/*=""*/) {
+    auto tree = treeList_.find(name);
+    if (tree != treeList_.end())
+        return tree->second;
+    return treeList_.emplace(make_pair(name, new TTree(name.c_str(), description.c_str()))).first->second;
 }
 
 bool RootHandler::Plot(const unsigned int &id, const double &xval, const double &yval/*=-1*/, const double &zval/*=-1*/) {
-    auto histogramPair = histogramList_.find(id);
-    if(histogramPair == histogramList_.end())
+    TH1 *histogram = nullptr;
+    try {
+        histogram = GetHistogramFromList(id, "Plot");
+    } catch(invalid_argument &invalidArgument) {
+        ///@TODO Really we want to rethrow here, but for now we're just going to emulate what happened with DAMM. We
+        /// just silently ignored any Plot request to an unknown histogram id.
         return false;
-    ///@TODO : We need to enable this again at some point. It was causing unspecified errors since it wasn't caught
-    /// properly.
-//        throw invalid_argument("RootHandler::Plot - Received a request for histogram ID " + to_string(id)
-//                               + ", which is unknown to us. Please check that you have defined this histogram.");
+    }
+
     bool hasYval = yval != -1;
     bool hasZval = zval != -1;
 
     if(!hasYval && !hasZval)
-        histogramPair->second->Fill(xval);
+        histogram->Fill(xval);
     if(hasYval && !hasZval)
-        dynamic_cast<TH2I*>(histogramPair->second)->Fill(xval, yval);
+        dynamic_cast<TH2D*>(histogram)->Fill(xval, yval);
     if(!hasYval && hasZval)
-        dynamic_cast<TH2I*>(histogramPair->second)->Fill(xval, zval);
+        dynamic_cast<TH2D*>(histogram)->Fill(xval, zval);
     if(hasYval && hasZval)
-        dynamic_cast<TH3I*>(histogramPair->second)->Fill(xval, yval, zval);
+        dynamic_cast<TH3D*>(histogram)->Fill(xval, yval, zval);
     return true;
 }
 
@@ -82,21 +106,15 @@ TH1 *RootHandler::RegisterHistogram(const unsigned int &id, const std::string &t
         return histogram->second;
 
     if (!yBins && !zBins)
-        return histogramList_.emplace(make_pair(id, new TH1I(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins))).first->second;
+        return histogramList_.emplace(make_pair(id, new TH1D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins))).first->second;
     if(yBins && !zBins)
-        return histogramList_.emplace(make_pair(id, new TH2I(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, yBins, 0, yBins))).first->second;
+        return histogramList_.emplace(make_pair(id, new TH2D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, yBins, 0, yBins))).first->second;
     if(!yBins)
-        return histogramList_.emplace(make_pair(id, new TH2I(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, zBins, 0, zBins))).first->second;
-    return histogramList_.emplace(make_pair(id, new TH3I(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, yBins, 0, yBins, zBins, 0, zBins))).first->second;
+        return histogramList_.emplace(make_pair(id, new TH2D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, zBins, 0, zBins))).first->second;
+    return histogramList_.emplace(make_pair(id, new TH3D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, yBins, 0, yBins, zBins, 0, zBins))).first->second;
 }
 
 void RootHandler::AsyncFlush() {
-    for (const auto &tree : treeList_) {
-        tree->Fill();
-        if (tree->GetEntries() % 10000 == 0)
-            tree->AutoSave();
-    }
-
     file_->Write(0, TObject::kWriteDelete);
     flushMutex_.unlock();
 }
@@ -106,4 +124,12 @@ void RootHandler::Flush() {
         thread worker0(AsyncFlush);
         worker0.detach();
     }
+}
+
+TH1 *RootHandler::GetHistogramFromList(const unsigned int &id, const std::string &callingFunctionName) {
+    auto histogramPair = histogramList_.find(id);
+    if(histogramPair == histogramList_.end())
+        throw("RootHandler::" + callingFunctionName + " - Somebody requested histogram " + to_string(id)
+              + ", which I know nothing about!!");
+    return histogramPair->second;
 }
