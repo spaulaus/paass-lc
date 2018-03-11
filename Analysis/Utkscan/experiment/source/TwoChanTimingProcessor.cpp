@@ -2,24 +2,17 @@
 ///@brief Calculates high resolution timing between two channels in a setup.
 ///@author S. V. Paulauskas
 ///@date July 10, 2009
-#include <fstream>
-
-#include "DammPlotIds.hpp"
-#include "Globals.hpp"
-#include "HighResTimingData.hpp"
-#include "RawEvent.hpp"
 #include "TwoChanTimingProcessor.hpp"
 
-#include <TFile.h>
-#include <TTree.h>
-#include <TH1I.h>
-#include <TH2I.h>
+#include "DammPlotIds.hpp"
+#include "HighResTimingData.hpp"
+#include "RawEvent.hpp"
 
+/// Static instances of the HrtRoot structure so that we can fill the TTree
 static HighResTimingData::HrtRoot rstart;
 static HighResTimingData::HrtRoot rstop;
 
-TTree *tree;
-
+///Enum defining codes that we'll use to plot information about the analysis
 enum CODES {
     PROCESS_CALLED,
     MAP_EMPTY,
@@ -42,9 +35,9 @@ using namespace dammIds::experiment;
 TwoChanTimingProcessor::TwoChanTimingProcessor() : EventProcessor(OFFSET, RANGE, "TwoChanTimingProcessor") {
     associatedTypes.insert("pulser");
 
-    tree = new TTree("timing", "");
-    tree->Branch("start", &rstart, "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
-    tree->Branch("stop", &rstop, "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
+    tree_ = RootHandler::get()->RegisterTree("timing", "High Resolution Timing Data");
+    RootHandler::get()->RegisterBranch("timing", "start", &rstart, "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
+    RootHandler::get()->RegisterBranch("timing", "stop", &rstop, "qdc/D:time:snr:wtime:phase:abase:sbase:id/b");
 }
 
 TwoChanTimingProcessor::~TwoChanTimingProcessor() {}
@@ -57,18 +50,15 @@ void TwoChanTimingProcessor::DeclarePlots() {
     histo.DeclareHistogram2D(DD_TRACES_STOP, S8, SB, "Random Sample of Stop Traces");
 }
 
-bool TwoChanTimingProcessor::PreProcess(RawEvent &event) {
-    if (!EventProcessor::PreProcess(event))
+bool TwoChanTimingProcessor::Process(RawEvent &event) {
+    if (!EventProcessor::Process(event))
         return false;
 
-    //Define a map to hold the information
-    TimingMap pulserMap;
-
-    //plot the number of times we called the function
     histo.Plot(D_CODES, PROCESS_CALLED);
 
     static const auto &pulserEvents = event.GetSummary("pulser")->GetList();
 
+    TimingMap pulserMap;
     for (const auto &it : pulserEvents) {
         int location = it->GetChanID().GetLocation();
         string subType = it->GetChanID().GetSubtype();
@@ -93,22 +83,21 @@ bool TwoChanTimingProcessor::PreProcess(RawEvent &event) {
     int bin = 0;
     for (auto it = start.GetTrace().begin(); it != start.GetTrace().end(); it++) {
         bin = (int) (it - start.GetTrace().begin());
-        //startTraces->Fill(bin, trcCounter, *it);
+        RootHandler::get()->Get2DHistogram(DD_TRACES_START+OFFSET)->Fill(bin, trcCounter, *it);
         histo.Plot(DD_AMPLITUDE_DISTRIBUTION_START, bin, *it);
     }
 
     for (auto it = stop.GetTrace().begin(); it != stop.GetTrace().end(); it++) {
         bin = (int) (it - stop.GetTrace().begin());
-        //stopTraces->Fill(bin, trcCounter, *it);
+        RootHandler::get()->Get2DHistogram(DD_TRACES_STOP+OFFSET)->Fill(bin, trcCounter, *it);
         histo.Plot(DD_AMPLITUDE_DISTRIBUTION_STOP, bin, *it);
     }
     trcCounter++;
 
-    //We only plot and analyze the data if the data is validated
     if (start.GetIsValid() && stop.GetIsValid()) {
         start.FillRootStructure(rstart);
         stop.FillRootStructure(rstop);
-        tree->Fill();
+        tree_->Fill();
         start.ZeroRootStructure(rstart);
         stop.ZeroRootStructure(rstop);
     }

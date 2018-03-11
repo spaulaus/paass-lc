@@ -33,7 +33,9 @@ public:
     ///Processes the data, plots histograms, and fills trees.
     /// @param [in] event : the event to process
     /// @return true if processing was successful */
-    bool PreProcess(RawEvent &event);
+    bool Process(RawEvent &event);
+private:
+    TTree *tree_; //!< Pointer to the tree that we register in the constructor
 };
 
 #endif // __TWOCHANTIMINGPROCESSOR_HPP_
