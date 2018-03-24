@@ -53,8 +53,8 @@ void MCA::Run(float duration, bool *stop) {
         }
 
         //Store the MCA data via the inherited method StoreData()
-        for (int mod = 0; mod < _pif->GetNumberCards(); mod++) {
-            for (unsigned int ch = 0; ch < _pif->GetNumberChannels(); ch++) {
+        for (int mod = 0; mod < _pif->GetNumberOfModules(); mod++) {
+            for (unsigned int ch = 0; ch < _pif->GetNumberOfChannels(); ch++) {
                 StoreData(mod, ch);
             }
         }
@@ -86,8 +86,8 @@ bool MCA::Step() {
     if (!_pif || !_pif->CheckRunStatus()) { return false; }
 
     //Store the MCA data via the inherited method StoreData()
-    for (int mod = 0; mod < _pif->GetNumberCards(); mod++) {
-        for (unsigned int ch = 0; ch < _pif->GetNumberChannels(); ch++) {
+    for (int mod = 0; mod < _pif->GetNumberOfModules(); mod++) {
+        for (unsigned int ch = 0; ch < _pif->GetNumberOfChannels(); ch++) {
             StoreData(mod, ch);
         }
     }

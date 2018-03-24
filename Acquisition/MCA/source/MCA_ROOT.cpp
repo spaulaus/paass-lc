@@ -38,8 +38,8 @@ bool MCA_ROOT::OpenFile(const char *basename) {
     delete redirect;
 
     //Loop over the number of cards and channels to build the histograms.
-    for (int card = 0; card < _pif->GetNumberCards(); card++) {
-        for (unsigned int ch = 0; ch < _pif->GetNumberChannels(); ch++) {
+    for (int card = 0; card < _pif->GetNumberOfModules(); card++) {
+        for (unsigned int ch = 0; ch < _pif->GetNumberOfChannels(); ch++) {
             int id = (card + 1) * 100 + ch;
             _histograms[id] = new TH1F(Form("h%d%02d", card, ch),
                                        Form("Mod %d Ch %d", card, ch), ADC_SIZE,
@@ -63,7 +63,7 @@ TH1F *MCA_ROOT::GetHistogram(int mod, int ch) {
 }
 
 bool MCA_ROOT::StoreData(int mod, int ch) {
-    AcquisitionInterface::word_t histo[ADC_SIZE];
+    Pixie16::word_t histo[ADC_SIZE];
 
     _pif->ReadHistogram(histo, ADC_SIZE, mod, ch);
 

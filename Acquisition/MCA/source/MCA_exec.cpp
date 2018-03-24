@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 
     //cxx, end any ongoing runs
     pif->EndRun();
-    pif->Boot(AcquisitionInterface::BootType::MCA, true);
+    pif->Boot(Interface::BootType::MCA, true);
 
     pif->RemovePresetRunLength(0);
 
