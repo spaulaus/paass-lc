@@ -254,7 +254,7 @@ GetTraces::GetTraces(unsigned short *total_data_, size_t total_size_,
     status = false;
 
     // Set initial values.
-    for (unsigned int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+    for (unsigned int i = 0; i < Pixie16::maximumNumberOfChannels; i++) {
         baseline[i] = -1;
         maximum[i] = -9999;
     }
@@ -267,7 +267,7 @@ bool GetTraces::operator()(PixieFunctionParms<int> &par) {
     float temp_val;
 
     // Reset parameters.
-    for (unsigned int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+    for (unsigned int i = 0; i < par.pif->GetNumberOfChannels(); i++) {
         baseline[i] = -1;
         maximum[i] = -9999;
     }
@@ -319,7 +319,7 @@ bool GetTraces::operator()(PixieFunctionParms<int> &par) {
 
     // Threshold was not reached. Copy the most recent pulse into
     // the module traces array.
-    for (unsigned int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+    for (unsigned int i = 0; i < par.pif->GetNumberOfChannels(); i++) {
         if (i == par.ch) { continue; } // Already did this channel.
 
         if (par.pif->ReadSglChanTrace(trace_data, trace_len, par.mod, i)) {
@@ -393,7 +393,7 @@ bool ParameterChannelDumper::operator()(PixieFunctionParms<std::string> &par) {
 }
 
 bool ParameterModuleDumper::operator()(PixieFunctionParms<std::string> &par) {
-    AcquisitionInterface::word_t value;
+    Pixie16::word_t value;
     par.pif->ReadSglModPar(par.par.c_str(), value, (int) par.mod);
     *file << par.mod << "\t" << par.par << "\t" << value << std::endl;
     return true;
@@ -401,7 +401,7 @@ bool ParameterModuleDumper::operator()(PixieFunctionParms<std::string> &par) {
 
 bool OffsetAdjuster::operator()(PixieFunctionParms<int> &par) {
     bool hadError = par.pif->AdjustOffsets(par.mod);
-    for (size_t ch = 0; ch < par.pif->GetNumberChannels(); ch++) {
+    for (size_t ch = 0; ch < par.pif->GetNumberOfChannels(); ch++) {
         par.pif->PrintSglChanPar("VOFFSET", par.mod, ch);
     }
 
@@ -424,5 +424,3 @@ bool TauFinder::operator()(PixieFunctionParms<> &par) {
 */
     return false;
 }
-
-// vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 autoindent
