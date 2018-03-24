@@ -72,7 +72,9 @@ find_package(PLX)
 
 #Find the Pixie Firmware
 find_package(XIA)
-include_directories(${XIA_INCLUDE_DIR})
+if(XIA_FOUND)
+    include_directories(${XIA_INCLUDE_DIR})
+endif(XIA_FOUND)
 
 #Find curses library used for pretty much everything at this point.
 find_package(Curses REQUIRED)
