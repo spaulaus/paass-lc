@@ -1,10 +1,17 @@
 ///@brief C++ wrapper to pixie functions including error handling and configuration parameters
 ///@author David Miller, Jan 2010
-
 #ifndef __PIXIEINTERFACE_H_
 #define __PIXIEINTERFACE_H_
+#include "AcquisitionInterface.hpp"
+#include "HelperEnumerations.hpp"
 
 #include "pixie16app_defs.h"
+
+#include <fstream>
+#include <queue>
+#include <string>
+
+#include <stdint.h>
 
 #define MIN_FIFO_READ 9
 
@@ -32,12 +39,6 @@
 #endif
 #endif
 
-#include <fstream>
-#include <queue>
-#include <string>
-
-#include <stdint.h>
-
 //A variable defined by the pxi library containing the path to the crate configuration.
 extern const char *PCISysIniFile;
 
@@ -49,7 +50,7 @@ const int CCSRA_CATCHER = 16;
 /// Only for SHE custom firmware w/ virtual digital-summed channels
 const int CCSRA_SUMMED_SINGLE_EVENT = 18;
 
-class PixieInterface : public AcqusitionInterface {
+class PixieInterface : public AcquisitionInterface {
 public:
     static const size_t STAT_SIZE = N_DSP_PAR - DSP_IO_BORDER;
     static const size_t HISTO_SIZE = MAX_HISTOGRAM_LENGTH;
@@ -57,9 +58,7 @@ public:
     enum CatcherModes {PC_STANDARD, PC_REJECT, PC_HYBRID, PC_ACCEPT};
 #endif
 
-    typedef uint16_t halfword_t;
-
-    typedef word_t stats_t[STAT_SIZE];
+    typedef Pixie16::word_t stats_t[STAT_SIZE];
 
     class Histogram {
     public:
@@ -90,7 +89,7 @@ public:
         bool Write(std::ofstream &file);
 
     private:
-        word_t data[HISTO_SIZE];
+        Pixie16::word_t data[HISTO_SIZE];
         ErrorTypes error;
     };
 
@@ -103,13 +102,13 @@ public:
 
     bool Boot(int mode = 0x7f, bool useWorkingSetFile = false);
 
-    bool Boot(AcqusitionInterface::BootType mode, bool useWorkingSetFile = false);
+    bool Boot(Interface::BootType mode, bool useWorkingSetFile = false);
 
-    bool WriteSglModPar(const char *name, word_t val, int mod, word_t *pval = nullptr);
+    bool WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval = nullptr);
 
-    bool ReadSglModPar(const char *name, word_t &val, int mod);
+    bool ReadSglModPar(const char *name, Pixie16::word_t &val, int mod);
 
-    void PrintSglModPar(const char *name, int mod, word_t *prev = nullptr);
+    void PrintSglModPar(const char *name, int mod, Pixie16::word_t *prev = nullptr);
 
     bool WriteSglChanPar(const char *name, double val, int mod, int chan, double *pval = nullptr);
 
@@ -154,7 +153,7 @@ public:
 
     unsigned long CheckFIFOWords(unsigned short mod);
 
-    bool ReadFIFOWords(word_t *buf, unsigned long nWords, unsigned short mod, bool verbose = false);
+    bool ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords, unsigned short mod, bool verbose = false);
 
 #endif
 
@@ -162,14 +161,14 @@ public:
 
     bool RemovePresetRunLength(int mod);
 
-    bool ReadHistogram(word_t *hist, unsigned long sz, unsigned short mod, unsigned short ch);
+    bool ReadHistogram(Pixie16::word_t *hist, unsigned long sz, unsigned short mod, unsigned short ch);
 
     bool AdjustOffsets(unsigned short mod);
 
     // accessors
     static size_t GetTraceLength(void) { return TRACE_LENGTH; };
 
-    short GetSlotNumber(int mod) const { return slotMap[mod]; }
+    short GetSlotNumber(int mod) const { return slotMap_[mod]; }
 
     enum BootFlags {
         BootComm = 0x01, BootTrigger = 0x02, BootSignal = 0x04,
@@ -211,7 +210,7 @@ private:
 
     int retval; // return value from pixie functions
 
-    std::queue<word_t> extraWords[MAX_MODULES];
+    std::queue<Pixie16::word_t> extraWords[Pixie16::maximumNumberOfModulesPerCrate];
 
     // temporary variables which hold the parameter which is being modified
     //   to deal with the const-incorrectness of the Pixie-16 API

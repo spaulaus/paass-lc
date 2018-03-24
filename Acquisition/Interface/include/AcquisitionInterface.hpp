@@ -1,20 +1,16 @@
 ///@brief Abstracted interface to acquistion API.
 ///@author Karl Smith
-
 #ifndef __ACQUISTIONINTERFACE_HPP_
 #define __ACQUISTIONINTERFACE_HPP_
-
-#define NUMBER_OF_CHANNELS 16
-
 #include "AcquisitionConfig.hpp"
+#include "Constants.hpp"
+#include "HelperEnumerations.hpp"
 #include "Lock.h"
 
 #include <cstdint>
 
 class AcquisitionInterface {
 public:
-    typedef uint32_t word_t;
-
     AcquisitionInterface(const char *cfgFile);
 
     virtual ~AcquisitionInterface() {};
@@ -26,17 +22,13 @@ public:
     /// Initializes the API.
     virtual bool Init(bool offlineMode = false) = 0;
 
-    enum class BootType {
-        MCA
-    };
+    virtual bool Boot(Interface::BootType mode, bool useWorkingSetFile) = 0;
 
-    virtual bool Boot(BootType mode, bool useWorkingSetFile) = 0;
+    virtual bool WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval = nullptr) = 0;
 
-    virtual bool WriteSglModPar(const char *name, word_t val, int mod, word_t *pval = nullptr) = 0;
+    virtual bool ReadSglModPar(const char *name, Pixie16::word_t &val, int mod) = 0;
 
-    virtual bool ReadSglModPar(const char *name, word_t &val, int mod) = 0;
-
-    virtual void PrintSglModPar(const char *name, int mod, word_t *prev = nullptr) = 0;
+    virtual void PrintSglModPar(const char *name, int mod, Pixie16::word_t *prev = nullptr) = 0;
 
     virtual bool WriteSglChanPar(const char *name, double val, int mod, int chan, double *pval = nullptr) = 0;
 
@@ -62,7 +54,7 @@ public:
 
     virtual bool EndRun(short mod = -1) = 0;
 
-    virtual bool ReadHistogram(word_t *hist, unsigned long sz, unsigned short mod, unsigned short ch) = 0;
+    virtual bool ReadHistogram(Pixie16::word_t *hist, unsigned long sz, unsigned short mod, unsigned short ch) = 0;
 
     virtual bool RemovePresetRunLength(int mod) = 0;
 
@@ -72,19 +64,18 @@ public:
     virtual bool ReadFIFOWords(word_t *buf, unsigned long nWords, unsigned short mod, bool verbose = false) = 0;
 */
 
-    unsigned short GetNumberCards(void) const { return numberCards; };
+    unsigned short GetNumberOfModules(void) const { return numberOfModules_; };
 
-    static unsigned short GetNumberChannels(void) { return numberChannels; };
+    unsigned short GetNumberOfChannels(void) const { return numberOfChannels_; }
 protected:
-    static const short numberChannels = NUMBER_OF_CHANNELS;
-    unsigned short numberCards;
-    unsigned short slotMap[MAX_MODULES];
+    unsigned short numberOfModules_;
+    unsigned short numberOfChannels_;
+    unsigned short slotMap_[Pixie16::maximumNumberOfModulesPerCrate];
 
-    AcquisitionConfig config;
+    AcquisitionConfig config_;
 private:
-    Lock lock;  // class to prevent simultaneous access to pixies
+    Lock lock_;  // class to prevent simultaneous access to pixies
 
-    static const size_t MAX_MODULES = 14;
     static const size_t CONFIG_LINE_LENGTH = 80;
 };
 

@@ -1,6 +1,5 @@
 ///@brief Emulated XIA Interface.
 ///@author Karl Smith
-
 #ifndef __EMULATEDINTERFACE_HPP_
 #define __EMULATEDINTERFACE_HPP_
 
@@ -14,20 +13,20 @@ public:
 
     virtual bool Init(bool offlineMode = false) { return true; };
 
-    virtual bool Boot(BootType mode, bool useWorkingSetFile) { return true; };
+    virtual bool Boot(Interface::BootType mode, bool useWorkingSetFile) { return true; };
 
     virtual unsigned long CheckFIFOWords(unsigned short mod) { return 0; };
 
-    virtual bool ReadFIFOWords(word_t *buf, unsigned long nWords,
+    virtual bool ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords,
                                unsigned short mod, bool verbose = false) { return false; };
 
     virtual bool StartHistogramRun(short mod, unsigned short mode) { return false; };
 
-    virtual bool WriteSglModPar(const char *name, word_t val, int mod, word_t *pval = nullptr) { return false; };
+    virtual bool WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval = nullptr) { return false; };
 
-    virtual bool ReadSglModPar(const char *name, word_t &val, int mod) { return false; };
+    virtual bool ReadSglModPar(const char *name, Pixie16::word_t &val, int mod) { return false; };
 
-    virtual void PrintSglModPar(const char *name, int mod, word_t *prev = nullptr) {};
+    virtual void PrintSglModPar(const char *name, int mod, Pixie16::word_t *prev = nullptr) {};
 
     virtual bool
     WriteSglChanPar(const char *name, double val, int mod, int chan, double *pval = nullptr) { return false; };
@@ -53,7 +52,7 @@ public:
 
     virtual bool EndRun(short mod = -1) { return false; };
 
-    virtual bool ReadHistogram(word_t *hist, unsigned long sz,
+    virtual bool ReadHistogram(Pixie16::word_t *hist, unsigned long sz,
                                unsigned short mod, unsigned short ch) { return false; };
 
     virtual bool RemovePresetRunLength(int mod) { return false; };

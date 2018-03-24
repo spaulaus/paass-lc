@@ -39,5 +39,11 @@ namespace DataProcessing {
     };
 }
 
+namespace Interface {
+    enum class BootType {
+        MCA
+    };
+}
+
 
 #endif //PIXIESUITE_HELPERENUMERATIONS_HPP

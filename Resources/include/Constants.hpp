@@ -10,7 +10,12 @@
 namespace Pixie16 {
     ///This is the maximum number of channels that a Pixie-16 module can have.
     static const unsigned int maximumNumberOfChannels = 16;
+    ///This is the maximum number of modules that are in a 13 slot crate
     static const unsigned int maximumNumberOfModulesPerCrate = 13;
+    ///Defines the size of a pixie word.
+    typedef uint32_t word_t;
+    ///Defines the size of a pixie halfword.
+    typedef uint16_t halfword_t;
 }
 
 ///Namespace containing physics constants that can be used during the analysis.
