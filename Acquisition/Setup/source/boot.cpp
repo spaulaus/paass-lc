@@ -10,7 +10,7 @@
 int main(int argc, char *argv[]) {
     PixieInterface pif("pixie.cfg");
 
-    pif.GetSlots();
+    pif.ReadSlotConfig();
     pif.Init();
     if (!pif.Boot(PixieInterface::BootAll, true)) {
         sleep(1);

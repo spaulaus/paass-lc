@@ -3,10 +3,11 @@
 /*	pread.cpp                                                       */
 /*		last updated: April 19th, 2015 CRT                          */
 /********************************************************************/
+#include "PixieInterface.h"
+#include "PixieSupport.h"
 
 #include <iostream>
 
-#include "PixieSupport.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 4) {
@@ -21,7 +22,7 @@ int main(int argc, char *argv[]) {
 
     PixieInterface pif("pixie.cfg");
 
-    pif.GetSlots();
+    pif.ReadSlotConfig();
     pif.Init();
     pif.Boot(PixieInterface::DownloadParameters | PixieInterface::ProgramFPGA |
              PixieInterface::SetDAC, true);

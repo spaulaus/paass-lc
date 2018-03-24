@@ -334,16 +334,16 @@ int main(int argc, char *argv[]) {
     }
 
     PixieInterface pif("pixie.cfg");
-    pif.GetSlots();
+    pif.ReadSlotConfig();
 
     // Only one module supported
-    if (!inRange(mod, (int) pif.GetNumberCards())) {
+    if (!inRange(mod, (int) pif.GetNumberOfModules())) {
         cout << "Wrong module number" << endl;
         cout << "See " << argv[0] << " -h  for help" << endl;
         exit(EXIT_FAILURE);
     }
     // Only 1 from 16 channels (or all) available
-    if (!inRange(ch, -1, (int) pif.GetNumberChannels())) {
+    if (!inRange(ch, -1, (int)pif.GetNumberOfChannels())) {
         cout << "Wrong channel number" << endl;
         cout << "See " << argv[0] << " -h  for help" << endl;
         exit(EXIT_FAILURE);
@@ -357,16 +357,16 @@ int main(int argc, char *argv[]) {
              PixieInterface::SetDAC, true);
 
     const unsigned int size =
-            2 * pif.GetNumberChannels() * PixieInterface::GetTraceLength();
+            2 * pif.GetNumberOfChannels() * PixieInterface::GetTraceLength();
     unsigned short *data = new unsigned short[size];
     memset(data, 0, sizeof(unsigned short) * size);
 
     int loopLength;
     if (ch == -1) {
-        loopLength = pif.GetNumberChannels();
+        loopLength = pif.GetNumberOfChannels();
     } else {
         loopLength = 1;
-        for (size_t i = 0; i < pif.GetNumberChannels(); i++) {
+        for (size_t i = 0; i < pif.GetNumberOfChannels(); i++) {
             //This prevents gnuplot from empty range warnings
             data[2 * i * PixieInterface::GetTraceLength()] =
                     PixieInterface::GetTraceLength() - 1;

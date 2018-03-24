@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
              << endl;
         return EXIT_SUCCESS;
     }
-    pif.GetSlots();
+    pif.ReadSlotConfig();
     pif.Init();
     pif.Boot(PixieInterface::DownloadParameters |
              PixieInterface::ProgramFPGA |
@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
     unsigned short sourceMod = atoi(argv[1]);
     unsigned short sourceChan;
     unsigned short destMod;
-    unsigned int totChannels = pif.GetNumberChannels() * pif.GetNumberCards();
+    unsigned int totChannels = pif.GetNumberOfChannels() * pif.GetNumberOfModules();
     unsigned short *destMask = new unsigned short[totChannels];
     bool success = true;
 
@@ -54,19 +54,19 @@ int main(int argc, char **argv) {
     }
     if (argc == 3) {
         // copy channel by channel between two modules
-        for (unsigned int i = 0; i < pif.GetNumberChannels(); i++) {
-            destMask[pif.GetNumberChannels() * destMod + i] = 1;
+        for (unsigned int i = 0; i < pif.GetNumberOfChannels(); i++) {
+            destMask[pif.GetNumberOfChannels() * destMod + i] = 1;
             if (Pixie16CopyDSPParameters(bitMask, sourceMod, i, destMask) < 0)
                 success = false;
             // and reset the destMask bit for the next iteration
-            destMask[pif.GetNumberChannels() * destMod + i] = 0;
+            destMask[pif.GetNumberOfChannels() * destMod + i] = 0;
         }
     } else {
         if (argc == 5) {
-            destMask[pif.GetNumberChannels() * destMod + atoi(argv[4])] = 1;
+            destMask[pif.GetNumberOfChannels() * destMod + atoi(argv[4])] = 1;
         } else if (argc == 4) {
-            for (unsigned int i = 0; i < pif.GetNumberChannels(); i++) {
-                destMask[pif.GetNumberChannels() * destMod + i] = 1;
+            for (unsigned int i = 0; i < pif.GetNumberOfChannels(); i++) {
+                destMask[pif.GetNumberOfChannels() * destMod + i] = 1;
             }
         } else {
             // this shouldn't happen

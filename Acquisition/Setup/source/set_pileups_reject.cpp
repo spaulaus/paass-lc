@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
     PixieInterface pif("pixie.cfg");
 
-    pif.GetSlots();
+    pif.ReadSlotConfig();
     pif.Init();
     pif.Boot(PixieInterface::DownloadParameters |
              PixieInterface::ProgramFPGA |
