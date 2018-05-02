@@ -3,7 +3,7 @@
 # http://www.gnu.org/software/gsl/  and 
 # http://gnuwin32.sourceforge.net/packages/gsl.htm
 #
-# Based on a script of Felix Woelk and Jan Woetzel by S. V. Paulauskas
+# Based on a script of Felix Woelk and Jan Woetzel modified by S. V. Paulauskas
 # (www.mip.informatik.uni-kiel.de)
 #
 # 
@@ -13,8 +13,7 @@
 #  GSL_LIBRARIES - full path to the libraries
 #  GSL_LIBRARY_DIRS, the directory where the PLplot library is found.
 
-#  CMAKE_GSL_CXX_FLAGS  = Unix compiler flags for GSL, essentially "`gsl-config
-#--cxxflags`"
+#  CMAKE_GSL_CXX_FLAGS  = Unix compiler flags for GSL, essentially "`gsl-config --cxxflags`"
 #  GSL_LINK_DIRECTORIES = link directories, useful for rpath on Unix
 #  GSL_EXE_LINKER_FLAGS = rpath on Unix
 
@@ -26,9 +25,7 @@ set(GSL_CBLAS_FOUND OFF)
 
 mark_as_advanced(GSL_INCLUDE_DIR GSL_LIBRARY GSL_CBLAS_LIBRARY)
 
-find_program(GSL_CONFIG_EXECUTABLE gsl-config
-        /usr/bin/
-        /usr/local/bin)
+find_program(GSL_CONFIG_EXECUTABLE gsl-config /usr/bin/ /usr/local/bin)
 
 if (GSL_CONFIG_EXECUTABLE)
     set(GSL_FOUND ON)
@@ -107,7 +104,7 @@ endif (GSL_CONFIG_EXECUTABLE)
 
 if (GSL_FOUND)
     if (NOT GSL_FIND_QUIETLY)
-        message(STATUS "FindGSL: Found both GSL headers and library")
+        message(STATUS "FindGSL: Found GSL version ${GSL_VERSION}")
     endif (NOT GSL_FIND_QUIETLY)
 else (GSL_FOUND)
     if (GSL_FIND_REQUIRED)

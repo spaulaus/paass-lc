@@ -163,7 +163,8 @@ namespace unittest_cfd_variables {
 
 namespace unittest_fit_variables {
     //Set the <beta, gamma> for the fitting from the results of a gnuplot script
-    static const std::pair<double, double> fitting_parameters(0.2659404170, 0.2080547991796);
+    static const std::pair<double, double> pmtParameters(0.2659404170, 0.2080547991796);
+    static const std::pair<double, double> gaussianParameters(1.0, 0.0);
 }
 
 namespace unittest_trace_variables {
@@ -209,6 +210,7 @@ namespace unittest_trace_variables {
                                               trace_sans_baseline.begin() + waveform_range.second);
 
     static const double waveform_qdc = 21329.9;
+    static const double phase = -0.0826487;
 
     //An empty data vector to test error checking.
     static const std::vector<unsigned int> empty_vector_uint;
@@ -230,6 +232,25 @@ namespace unittest_trace_variables {
             {-15641316.0007084, 592747.666694852, -7472.00000037373, 31.3333333349849};
     static const double extrapolated_maximum = 3818.0718412264;
     static const std::pair<unsigned int, double> extrapolated_maximum_pair(max_position, extrapolated_maximum);
+}
+
+namespace unittest_gaussian_trace {
+    static const std::vector<double> waveform = {
+            1, 2, 9, 17, 46, 92, 175, 377, 643, 1190, 2075, 3463, 5700, 8865, 13070, 19054, 25979, 34204, 43464, 52979,
+            62388, 70753, 76153, 79198, 79222, 75935, 70457, 62153, 53156, 43894, 34154, 26270, 19029, 13162, 8852,
+            5716, 3551, 2091, 1182, 616, 324, 186, 85, 36, 20,  8, 4
+    };
+
+    static const unsigned int maxPosition = 24;
+    static const double maxValue = 79222;
+    static const std::pair<unsigned int, double> maxPair(maxPosition, maxValue);
+
+    static const double baseline = 0.0;
+    static const double standardDeviation = 0.0;
+    static const std::pair<double, double> baselinePair(baseline, standardDeviation);
+    static const double qdc = 1e6;
+    static const double phase = 23.5;
+    static const double sigma = 1.0;
 }
 
 namespace unittest_helper_functions {

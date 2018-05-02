@@ -25,7 +25,7 @@ public:
     ///@return A vector containing useful information calculated in addition to the phase.
     virtual std::vector<double> GetResults(void) { return results_; }
 
-    ///This is a virtual function that actually deifnes how we are going to determine the phase. We have several
+    ///This is a virtual function that actually defines how we are going to determine the phase. We have several
     /// different implementations of how we can do this but we'll overload this method in the children to provide
     /// specific implementation.
     ///@param[in] data : The vector of data that we are going to work with. This usually means a trace or waveform.
@@ -41,9 +41,8 @@ public:
         return 0.0;
     }
 
-    ///@Brief Overload of the Calculate phase method to allow for data
-    /// vectors of type double. We do this since we cannot template a virtual
-    /// method.
+    ///@Brief Overload of the Calculate phase method to allow for data vectors of type double. We do this since we
+    // cannot template a virtual method.
     virtual double CalculatePhase(const std::vector<double> &data, const std::pair<double, double> &pars,
                                   const std::pair<unsigned int, double> &max,
                                   const std::pair<double, double> baseline) {
