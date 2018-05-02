@@ -1,12 +1,5 @@
 #@author S. V. Paulauskas
-#Set the utility sources that we will make a lib out of
-set(ResourceSources PolynomialCfd.cpp TraditionalCfd.cpp TraceFilter.cpp)
-
-if (${GSL_VERSION} GREATER 1.9)
-    list(APPEND ResourceSources Gsl2Fitter.cpp)
-else (${GSL_VERSION} LESS 2.0)
-    list(APPEND ResourceSources Gsl1Fitter.cpp)
-endif (${GSL_VERSION} GREATER 1.9)
+set(ResourceSources GslFitter.cpp PolynomialCfd.cpp TraditionalCfd.cpp TraceFilter.cpp)
 
 if (ROOT_FOUND)
     list(APPEND ResourceSources CrystalBallFunction.cpp CsiFunction.cpp EmCalTimingFunction.cpp

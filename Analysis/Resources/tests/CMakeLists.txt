@@ -4,24 +4,13 @@ target_link_libraries(unittest-ChannelConfiguration UnitTest++ ${LIBS})
 install(TARGETS unittest-ChannelConfiguration DESTINATION bin/unittests)
 add_test(ChannelConfiguration unittest-ChannelConfiguration)
 
+set(GSL_FITTER_SOURCES ${GSL_FITTER_SOURCES} unittest-GslFitter.cpp ../source/GslFitter.cpp)
+add_executable(unittest-GslFitter ${GSL_FITTER_SOURCES})
+target_link_libraries(unittest-GslFitter ${GSL_LIBRARIES} UnitTest++)
+install(TARGETS unittest-GslFitter DESTINATION bin/unittests)
+add_test(GslFitter unittest-GslFitter)
 
-if (PAASS_USE_GSL)
-    if (${GSL_VERSION} GREATER 1.9)
-        set(GSL_FITTER_SOURCES ../source/Gsl2Fitter.cpp)
-    else (${GSL_VERSION} LESS 2.0)
-        set(GSL_FITTER_SOURCES ../source/Gsl1Fitter.cpp)
-    endif (${GSL_VERSION} GREATER 1.9)
-
-    #Build the test to see if the GSL fitting algorithm is behaving.
-    set(GSL_FITTER_SOURCES ${GSL_FITTER_SOURCES} unittest-GslFitter.cpp)
-    add_executable(unittest-GslFitter ${GSL_FITTER_SOURCES})
-    target_link_libraries(unittest-GslFitter ${GSL_LIBRARIES} UnitTest++)
-    install(TARGETS unittest-GslFitter DESTINATION bin/unittests)
-    add_test(GslFitter unittest-GslFitter)
-endif (PAASS_USE_GSL)
-
-add_executable(unittest-PolynomialCfd unittest-PolynomialCfd.cpp
-        ../source/PolynomialCfd.cpp)
+add_executable(unittest-PolynomialCfd unittest-PolynomialCfd.cpp ../source/PolynomialCfd.cpp)
 target_link_libraries(unittest-PolynomialCfd UnitTest++)
 install(TARGETS unittest-PolynomialCfd DESTINATION bin/unittests)
 add_test(PolynomialCfd unittest-PolynomialCfd)
@@ -33,8 +22,8 @@ install(TARGETS unittest-TraditionalCfd DESTINATION bin/unittests)
 add_test(TraditionalCfd unittest-PolynomialCfd)
 
 if (ROOT_FOUND)
-    add_executable(unittest-RootFitter unittest-RootFitter.cpp
-            ../source/RootFitter.cpp ../source/VandleTimingFunction.cpp)
+    add_executable(unittest-RootFitter unittest-RootFitter.cpp ../source/RootFitter.cpp
+            ../source/VandleTimingFunction.cpp)
     target_link_libraries(unittest-RootFitter ${ROOT_LIBRARIES} UnitTest++)
     install(TARGETS unittest-RootFitter DESTINATION bin/unittests)
     add_test(RootFitter unittest-RootFitter)
