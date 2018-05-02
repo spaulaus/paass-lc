@@ -5,6 +5,9 @@ option(PAASS_USE_HRIBF "Use HRIBF library for scan base." OFF)
 find_package(GSL REQUIRED)
 include_directories(${GSL_INCLUDE_DIRS})
 link_directories(${GSL_LIBRARY_DIRS})
+if (${GSL_VERSION} LESS 2.0)
+    add_definitions("-D GSL_VERSION_ONE")
+endif (${GSL_VERSION} LESS 2.0)
 
 #Everything below is dependent on these two sets of libaries so we include the
 #headers.
