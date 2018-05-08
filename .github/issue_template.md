@@ -19,7 +19,6 @@
 <!-- This will help determine if a PR is accepted or not. -->
 - [ ] 
 - [ ] 
-- [ ] 
 
 ## Bug Report
 ### Your Environment
@@ -38,7 +37,6 @@
 <!--- reproduce this bug. Include code to reproduce, if relevant -->
 1. 
 2.
-3. 
 
 ### Screenshots
 <!--- Provide any screenshots of your error here -->
