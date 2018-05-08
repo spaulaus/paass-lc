@@ -3,24 +3,21 @@
 ## Build Status
 Branch | Build status
 ---------|-------------:
-Master | [![Build Status](https://travis-ci.org/spaulaus/paass-laughing-conqueror.svg?branch=master)](https://travis-ci.org/spaulaus/paass-laughing-conqueror)
-Test | [![Build Status](https://travis-ci.org/spaulaus/paass-laughing-conqueror.svg?branch=test)](https://travis-ci.org/spaulaus/paass-laughing-conqueror)
-Dev | [![Build Status](https://travis-ci.org/spaulaus/paass-laughing-conqueror.svg?branch=dev)](https://travis-ci.org/spaulaus/paass-laughing-conqueror)
+Master | [![Build Status](https://travis-ci.org/spaulaus/paass-lc.svg?branch=master)](https://travis-ci.org/spaulaus/paass-lc)
+Test | [![Build Status](https://travis-ci.org/spaulaus/paass-lc.svg?branch=test)](https://travis-ci.org/spaulaus/paass-lc)
+Dev | [![Build Status](https://travis-ci.org/spaulaus/paass-lc.svg?branch=dev)](https://travis-ci.org/spaulaus/paass-lc)
 
 ## Disclaimer
-<b>Neither I nor the software are affiliated with the UTK in any way.</b>
-
-I forked this software from the [Experimental Nuclear Structure Group](http://www.phys.utk.edu/expnuclear)
-at the [University of Tennessee](https://utk.edu). I was an employee there for 7 years, and have since moved on to a new
-job. While with the UTK group, I was project lead. I renamed the software to PAASS - Laughing Conqueror to 
-differentiate it from the original UTK software. The name comes from the meanings of the two lead programmers.
+<b>Neither I nor the software are UTK affiliated.</b>
 
 ## Introduction
+I forked this software from [pixie16/paass](https://github.com/pixie16/paass). I was a developer on that project from 2009 - 2016. I gave the fork a new name to differentiate from the original software. PAASS - Laughing Conqueror or PAASS-LC combines my name with another developer's. 
+ 
 Our development goals are
  
-1. Create a scientific software package that adheres to modern programming practices. 
-2. Create tests for the acquisition and analysis software to ensure accurate results. 
-3. Provide an extensible framework that others can use to run experiments.
+1. A modern scientific software package.
+2. Acquisition and analysis test coverage to ensure accurate results. 
+3. Provide an extensible framework to run experiments.
 
 Software updates focus on 
 
@@ -29,44 +26,10 @@ Software updates focus on
 3. Documentation
 4. UX
 
-I made the decision not to focus on analysis for a single data set. I want to provide an easy to use software package
-that can be extended beyond just a single group or digitizer. 
+I made the decision not to focus on analysis of a single data set. I want to provide a software package that users can extend beyond a single experiment.
 
-The software provides a framework to acquire and analyze data from the 
-[XIA, LLC  DGF Pixie-16 modules](http://www.xia.com/DGF_Pixie-16.html). These data are written to disk in PLD or LDF 
-formats. We provide an interface to use PACMAN as our run control software. This provides a stable and well debugged 
-DAQ system. For more information visit the [wiki](https://github.com/spaulaus/paass-laughing-conqueror/wiki).
-
-## A little history! 
-Many post-docs, students, and PIs worked on this software over the years. I want to give credit where it's due. They 
-documented their names in the software they wrote, and in the documentation files. If your name is missing or you have a
-contribution, please contact the code maintainers.
-### Data Acquisition Development
-  * R. Grzywacz
-  * D. T. Miller
-  * C. Thornsberry
-  * K. Smith
-  * S. V. Paulauskas
-
-### Data Analysis Development
-  * R. Grzywacz
-  * S. N. Liddick
-  * D. T. Miller
-  * S. V. Paulauskas
-  * K. A. Miernik
-
-The data acquisition software is heavily based on the work by D. Miller in 
-[Pixie Suite](https://github.com/pixie16/PixieSuite/). K. Smith and C. R. Thornsberry forked Pixie Suite into 
-[Pixie Suite 2](https://github.com/pixie16/PixieSuite2/). They introduced numerous bug fixes and the ncurses GUI. The 
-main DAQ program, poll2, allows users to fully configure Pixie-16 modules and acquire data. 
-
-The analysis software comes from [pixie_scan](https://github.com/pixie16/pixie_scan/). Pixie scan is the workhorse 
-analysis package used by groups world wide. PAASS-LC blends the repositories to create a complete experimental 
-package. DAQ and analysis rolled into a single suite. The man analysis program, utkscan, is modular and extensible
-to accommodate any experiment. Users pick and choose detector types to build a custom experiment processor.
-
-For more information about the original project you can view the read me at the 
-[original project](https://github.com/pixie16/paass).   
+The software provides acquisition and analytis frameworks for the 
+[XIA, LLC  DGF Pixie-16 modules](http://www.xia.com/DGF_Pixie-16.html). We write data in PLD or LDF formats. The software can interface with PACMAN for run control. This provides a stable and well debugged DAQ system. For more information visit the [wiki](https://github.com/spaulaus/paass-laughing-conqueror/wiki). For an overview of the main components you can read [here](https://www.projectscience.tech/_posts/2018/04/01/PAASS-LC)
 
 ## Dependencies
 ### For all components 
@@ -74,25 +37,11 @@ For more information about the original project you can view the read me at the
 * gcc v4.4.6+
 * cmake v2.8.8+
 * [ROOT](https://root.cern.ch)
+ * gsl v2.x 
 
 ### Acquisition
 * [PLX](http://support.xia.com/default.asp?W372)
 * [XIA API](http://support.xia.com/default.asp?W372)
-
-### Analysis
-* gsl v2.x
-
-### Optional (but recommended at this time)
-* [UPAK](https://www.phy.ornl.gov/computing/daqsupport.html)
-
-### Tested Systems
-The software has been compiled and tested on the following setups: 
-
-Platform | Kernel | Cmake | GCC
--------- | ------ |:-----:| ---
-CentOS 6.3 | 2.6.32-279.19.1.el6.x86\_64 | 2.8.12.2 | 4.4.6
-RHEL 6.6   | 2.6.32-504.23.4.el6.x86\_64 | 2.8.12.2 | 4.4.7
-Bash on Ubuntu on Windows | 4.4.0-43-Microsoft | 3.5.1 | 5.4.0 20160609
 
 ## Licensing and Copyright
 ### Software developed by S. V. Paulauskas
