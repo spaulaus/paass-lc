@@ -13,8 +13,6 @@ double TraditionalCfd::CalculatePhase(const std::vector<double> &data, const std
                                       const std::pair<double, double> baseline) {
     if (data.size() == 0)
         throw range_error("PolynomialCfd::CalculatePhase - The data vector was empty!");
-    if (data.size() < max.first)
-        throw range_error("PolynomialCfd::CalculatePhase - The maximum position is larger than the size of the data vector.");
 
     double fraction = pars.first;
     auto delay = (unsigned int) pars.second;
