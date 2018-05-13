@@ -34,8 +34,7 @@ void CfdAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         return;
     }
 
-    if (trace.IsSaturated() || trace.empty() ||
-        trace.GetWaveform().empty()) {
+    if (trace.IsSaturated() || trace.empty() || trace.GetWaveform().empty()) {
         EndAnalyze();
         return;
     }
