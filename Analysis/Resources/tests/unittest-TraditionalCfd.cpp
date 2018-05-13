@@ -1,13 +1,13 @@
 ///@file unittest-TraditionalCfd.cpp
 ///@author S. V. Paulauskas
 ///@date December 12, 2016
-#include <iostream>
-#include <stdexcept>
+#include "TraditionalCfd.hpp"
+#include "UnitTestSampleData.hpp"
 
 #include <UnitTest++.h>
 
-#include "TraditionalCfd.hpp"
-#include "UnitTestSampleData.hpp"
+#include <iostream>
+#include <stdexcept>
 
 using namespace std;
 using namespace unittest_trace_variables;
@@ -24,7 +24,8 @@ TEST_FIXTURE(TraditionalCfd, TestTraditionalCfd) {
     //The expected value in this case is the value that I obtained after debugging the algorithm using other means.
     // This check is here simply to tell us whether or not the algorithm has changed drastically from the
     // "acceptable" value.
-    CHECK_CLOSE(75.1408, CalculatePhase(trace_sans_baseline, cfd_test_pars, extrapolated_maximum_pair, baseline_pair), 5);
+    CHECK_CLOSE(traditionalCfdPhase,
+                CalculatePhase(trace_sans_baseline, cfd_test_pars, max_pair, baseline_pair), 0.001);
 }
 
 int main(int argv, char *argc[]) {

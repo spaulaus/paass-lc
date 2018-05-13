@@ -16,10 +16,12 @@ public:
     /// Default destructor
     ~TraditionalCfd() {};
 
-    double CalculatePhase(const std::vector<double> &data,
-                          const std::pair<double, double> &pars,
-                          const std::pair<unsigned int, double> &max,
-                          const std::pair<double, double> baseline);
+    /// Calculates the phase using a Traditional CFD method.
+    /// @param[in] pars : A pair containing (fraction, delay)
+    double CalculatePhase(const std::vector<double> &data, const std::pair<double, double> &pars,
+                          const std::pair<unsigned int, double> &max, const std::pair<double, double> baseline);
+    std::vector<double> GetCfd();
+private:
+    std::vector<double> cfd_;
 };
-
 #endif //PIXIESUITE_TRADITIONALCFD_HPP

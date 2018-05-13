@@ -1,58 +1,46 @@
 ///@file TraditionalCfd.cpp
-///@brief Traditional CFD implemented digitally, similar behavior to a NIM
-/// Module.
+///@brief Traditional CFD implemented digitally, similar behavior to a NIM Module.
 ///@author S. V. Paulauskas
 ///@date July 22, 2011
+#include "TraditionalCfd.hpp"
 
 #include "HelperFunctions.hpp"
-#include "TraditionalCfd.hpp"
 
 using namespace std;
 
-double TraditionalCfd::CalculatePhase(const std::vector<double> &data,
-                                      const std::pair<double, double> &pars,
+double TraditionalCfd::CalculatePhase(const std::vector<double> &data, const std::pair<double, double> &pars,
                                       const std::pair<unsigned int, double> &max,
                                       const std::pair<double, double> baseline) {
     if (data.size() == 0)
-        throw range_error("PolynomialCfd::CalculatePhase - The data vector "
-                                  "was empty!");
+        throw range_error("PolynomialCfd::CalculatePhase - The data vector was empty!");
     if (data.size() < max.first)
-        throw range_error("PolynomialCfd::CalculatePhase - The maximum "
-                                  "position is larger than the size of the "
-                                  "data vector.");
+        throw range_error("PolynomialCfd::CalculatePhase - The maximum position is larger than the size of the data vector.");
 
-    unsigned int delay = (unsigned int) pars.second;
     double fraction = pars.first;
-    vector<double> cfd;
+    auto delay = (unsigned int) pars.second;
 
-    //We are going to calculate the CFD here.
     for (unsigned int i = 0; i < data.size() - delay; i++)
-        cfd.push_back(fraction * (data[i] - data[i + delay]));
+        cfd_.push_back(fraction * (data[i] - data[i + delay]));
 
-    //Now we find the maximum and minimum position to locate the zero crossing.
-    vector<double>::iterator cfdMin = min_element(cfd.begin(), cfd.end());
-    vector<double>::iterator cfdMax = max_element(cfd.begin(), cfd.end());
+    pair<double, double> xyBelowZero(0, 0);
+    pair<double, double> xyAboveZero(0, 0);
 
-    vector<double> fitY(cfdMin, cfdMax);
-    vector<double> fitX;
+    auto cfdMinPosition = int(min_element(cfd_.begin(), cfd_.end()) - cfd_.begin());
+    auto cfdMaxPosition = int(max_element(cfd_.begin(), cfd_.end()) - cfd_.begin());
 
-    for (int i = int(cfdMin - cfd.begin()); i < int(cfdMax - cfd.begin()); i++)
-        fitX.push_back((double) i);
-
-    double num = fitY.size();
-
-    double sumXSq = 0, sumX = 0, sumXY = 0, sumY = 0;
-
-    for (unsigned int i = 0; i < num; i++) {
-        sumXSq += fitX.at(i) * fitX.at(i);
-        sumX += fitX.at(i);
-        sumY += fitY.at(i);
-        sumXY += fitX.at(i) * fitY.at(i);
+    for (int i = cfdMinPosition; i < cfdMaxPosition; i++) {
+        if(cfd_.at(i) > 0) {
+            xyBelowZero.first = i - 1;
+            xyBelowZero.second = cfd_.at(i - 1);
+            xyAboveZero.first = i;
+            xyAboveZero.second = cfd_.at(i);
+            break;
+        }
     }
 
-    double deltaPrime = num * sumXSq - sumX * sumX;
+    double slope = Polynomial::CalculateSlope(xyBelowZero, xyAboveZero);
 
-    //Rerun the negative of the intercept / slope
-    return -((1 / deltaPrime) * (sumXSq * sumY - sumX * sumXY)) /
-           ((1 / deltaPrime) * (num * sumXY - sumX * sumY));
+    return - Polynomial::CalculateYIntercept(xyAboveZero, slope) / slope;
 }
+
+vector<double> TraditionalCfd::GetCfd() { return cfd_; }
