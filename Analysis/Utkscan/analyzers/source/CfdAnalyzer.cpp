@@ -1,21 +1,18 @@
-/** \file CfdAnalyzer.cpp
- * \brief Uses a Digital CFD to obtain waveform phases
- *
- * This code will obtain the phase of a waveform using a digital CFD.
- * Currently the only method is a polynomial fit to the crossing point.
- * For 100-250 MHz systems, this is not going to produce good timing.
- * This code was originally written by S. Padgett.
- *
- * \author S. V. Paulauskas
- * \date 22 July 2011
- */
+///@file CfdAnalyzer.cpp
+///@brief Uses a Digital CFD to obtain waveform phases
+/// This code will obtain the phase of a waveform using a digital CFD. Currently the only method is a polynomial fit
+/// to the crossing point. For 100-250 MHz systems, this is not going to produce good timing. This code was originally
+/// written by S. Padgett.
+///@author S. V. Paulauskas
+///@date July 22, 2011
+#include "CfdAnalyzer.hpp"
+
+#include "PolynomialCfd.hpp"
+#include "TraditionalCfd.hpp"
+
 #include <iostream>
 #include <vector>
 #include <utility>
-
-#include "CfdAnalyzer.hpp"
-#include "PolynomialCfd.hpp"
-#include "TraditionalCfd.hpp"
 
 using namespace std;
 
@@ -48,7 +45,7 @@ void CfdAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
 
     ///@TODO We do not currently have any CFDs that require L, so we are not going to pass that variable. In
     /// addition, we do not have an overloaded version of CalculatePhase that takes a tuple<double, double, double>
-    trace.SetPhase(driver_->CalculatePhase(trace.GetTraceSansBaseline(), make_pair(get<1>(pars), get<2>(pars)),
+    trace.SetPhase(driver_->CalculatePhase(trace.GetWaveform(), make_pair(get<0>(pars), get<1>(pars)),
                                            trace.GetExtrapolatedMaxInfo(), trace.GetBaselineInfo()));
     EndAnalyze();
 }
