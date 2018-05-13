@@ -37,17 +37,19 @@ public:
     ///@return The phase calculated by the algorithm.
     virtual double CalculatePhase(const std::vector<unsigned int> &data, const std::pair<double, double> &pars,
                                   const std::pair<unsigned int, double> &max,
-                                  const std::pair<double, double> baseline) {
-        return 0.0;
-    }
+                                  const std::pair<double, double> baseline) { return 0.0; }
 
     ///@Brief Overload of the Calculate phase method to allow for data vectors of type double. We do this since we
     // cannot template a virtual method.
     virtual double CalculatePhase(const std::vector<double> &data, const std::pair<double, double> &pars,
                                   const std::pair<unsigned int, double> &max,
-                                  const std::pair<double, double> baseline) {
-        return 0.0;
-    }
+                                  const std::pair<double, double> baseline)  { return 0.0; }
+
+    ///@Brief Overload of the Calculate phase method to use a tuple instead of a pair for the parameters. This is for
+    /// the CFDs who have 3 parameters instead of 2.
+    virtual double CalculatePhase(const std::vector<double> &data, const std::tuple<double, double, double> &pars,
+                                  const std::pair<unsigned int, double> &max,
+                                  const std::pair<double, double> baseline) { return 0.0; }
 
     /// @return the amplitude from fits
     virtual double GetAmplitude(void) { return 0.0; }

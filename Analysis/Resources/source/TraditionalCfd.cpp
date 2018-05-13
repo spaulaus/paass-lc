@@ -8,14 +8,14 @@
 
 using namespace std;
 
-double TraditionalCfd::CalculatePhase(const std::vector<double> &data, const std::pair<double, double> &pars,
+double TraditionalCfd::CalculatePhase(const std::vector<double> &data, const std::tuple<double, double, double> &pars,
                                       const std::pair<unsigned int, double> &max,
                                       const std::pair<double, double> baseline) {
     if (data.empty())
         throw range_error("TraditionalCfd::CalculatePhase - The data vector was empty!");
 
-    double fraction = pars.first;
-    auto delay = (unsigned int) pars.second;
+    auto fraction = get<0>(pars);
+    auto delay = (unsigned int) get<1>(pars);
 
     cfd_.clear();
     for (unsigned int i = 0; i < data.size() - delay; i++)
