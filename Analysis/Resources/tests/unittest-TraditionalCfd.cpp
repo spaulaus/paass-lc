@@ -14,14 +14,9 @@ using namespace unittest_trace_variables;
 using namespace unittest_cfd_variables;
 
 TEST_FIXTURE(TraditionalCfd, TestTraditionalCfd) {
-    //Checking that we throw a range_error when the data vector is zero
-    CHECK_THROW(CalculatePhase(empty_vector_double, cfd_test_pars, max_pair, baseline_pair), range_error);
-
-    //The expected value in this case is the value that I obtained after debugging the algorithm using other means.
-    // This check is here simply to tell us whether or not the algorithm has changed drastically from the
-    // "acceptable" value.
-    CHECK_CLOSE(traditionalCfdPhase,
-                CalculatePhase(trace_sans_baseline, cfd_test_pars, max_pair, baseline_pair), 0.001);
+    pair<double, double> pars(get<0>(cfdTestPars), get<1>(cfdTestPars));
+    CHECK_THROW(CalculatePhase(empty_vector_double, pars, max_pair, baseline_pair), range_error);
+    CHECK_CLOSE(traditionalCfdPhase, CalculatePhase(trace_sans_baseline, pars, max_pair, baseline_pair), 0.001);
 }
 
 int main(int argv, char *argc[]) {

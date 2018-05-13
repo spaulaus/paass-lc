@@ -8,6 +8,7 @@
 #define PIXIESUITE_UNITTESTSAMPLEDATA_HPP
 
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -159,8 +160,9 @@ namespace unittest_encoded_data {
 }
 
 namespace unittest_cfd_variables {
-    static const std::pair<double, double> cfd_test_pars(0.5, 2.);
+    static const std::tuple<double, double, double> cfdTestPars(0.5, 2, 3);
     static constexpr double traditionalCfdPhase = 74.972;
+    static constexpr double xiaCfdPhase = 76.61773552417647;
 }
 
 namespace unittest_fit_variables {
