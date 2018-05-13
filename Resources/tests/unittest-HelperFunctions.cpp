@@ -10,6 +10,12 @@ using namespace std;
 using namespace unittest_trace_variables;
 using namespace unittest_helper_functions;
 
+TEST(TestCalculateSlopeAndIntercept) {
+    auto result = Polynomial::CalculateSlope(xy1, xy2);
+    CHECK_EQUAL(slope, result);
+    CHECK_EQUAL(intercept, Polynomial::CalculateYIntercept(xy1, slope));
+}
+
 ///This tests that the TraceFunctions::CalculateBaseline function works as
 /// expected. This also verifies the Statistics functions CalculateAverage
 /// and CalculateStandardDeviation

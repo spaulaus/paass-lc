@@ -7,6 +7,7 @@
 #ifndef PIXIESUITE_UNITTESTSAMPLEDATA_HPP
 #define PIXIESUITE_UNITTESTSAMPLEDATA_HPP
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -159,6 +160,7 @@ namespace unittest_encoded_data {
 
 namespace unittest_cfd_variables {
     static const std::pair<double, double> cfd_test_pars(0.5, 2.);
+    static constexpr double traditionalCfdPhase = 74.972;
 }
 
 namespace unittest_fit_variables {
@@ -254,6 +256,11 @@ namespace unittest_gaussian_trace {
 }
 
 namespace unittest_helper_functions {
+    static const std::pair<double, double> xy1(74, -729.0);
+    static const std::pair<double, double> xy2(75, 21.0);
+    static const double slope = 750.0;
+    static const double intercept = -56229.0;
+
     static const std::vector<unsigned int> integration_data = {0, 1, 2, 3, 4, 5};
     static const double integral = 12.5;
 

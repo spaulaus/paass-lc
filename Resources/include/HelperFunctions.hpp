@@ -21,6 +21,24 @@
 using namespace std;
 
 namespace Polynomial {
+    /// Calculates the slope of a line give two sets of xy pairs. The points should be provided as (x1,y1) and (x2,y2)
+    /// @param[in] xy1 : The first xy point for calculating the slope.
+    /// @param[in] xy2 : The second xy point for calculating the slope
+    /// @returns : The slope of a line going through the two points.
+    template<class T>
+    static const double CalculateSlope(const std::pair<T, T> &xy1, const std::pair<T, T> &xy2) {
+        return (xy2.second - xy1.second) / (xy2.first - xy1.first);
+    }
+
+    /// Calculates the y intercept of a line crossing through the given point with the given slope
+    /// @param[in] xy : The (x,y) pair of the line that we want to calculate the intercept for
+    /// @param[in] slope : The slope of the line passing through the provided pair
+    /// @returns : The y intercept of the line passing throught he point with the provided slope
+    template<class T>
+    static const double CalculateYIntercept(const std::pair<T, T> &xy, const double &slope) {
+        return xy.second - slope * xy.first;
+    }
+
     template<class T>
     static const pair<double, vector<double> > CalculatePoly2(
             const vector<T> &data, const unsigned int &startBin) {
