@@ -1,25 +1,21 @@
 ///@file TraditionalCfd.cpp
 ///@brief Traditional CFD implemented digitally, similar behavior to a NIM Module.
-///@author S. V. Paulauskas
+///@author S. Padgett and S. V. Paulauskas
 ///@date July 22, 2011
 #include "TraditionalCfd.hpp"
 
 #include "HelperFunctions.hpp"
+#include "TimingConfiguration.hpp"
 
 using namespace std;
 
-double TraditionalCfd::CalculatePhase(const std::vector<double> &data, const std::tuple<double, double, double> &pars,
-                                      const std::pair<unsigned int, double> &max,
-                                      const std::pair<double, double> baseline) {
+double TraditionalCfd::CalculatePhase(const std::vector<double> &data, const TimingConfiguration &cfg) {
     if (data.empty())
         throw range_error("TraditionalCfd::CalculatePhase - The data vector was empty!");
 
-    auto fraction = get<0>(pars);
-    auto delay = (unsigned int) get<1>(pars);
-
     cfd_.clear();
-    for (unsigned int i = 0; i < data.size() - delay; i++)
-        cfd_.push_back(fraction * (data[i] - data[i + delay]));
+    for (unsigned int i = 0; i < data.size() - cfg.GetDelay(); i++)
+        cfd_.push_back(cfg.GetDelay() * (data[i] - data[i + cfg.GetDelay()]));
 
     pair<double, double> xyBelowZero(0, 0);
     pair<double, double> xyAboveZero(0, 0);
@@ -27,7 +23,7 @@ double TraditionalCfd::CalculatePhase(const std::vector<double> &data, const std
     auto cfdMinPosition = min_element(cfd_.begin(), cfd_.end()) - cfd_.begin();
     auto cfdMaxPosition = max_element(cfd_.begin(), cfd_.end()) - cfd_.begin();
 
-    for (int i = cfdMinPosition; i < cfdMaxPosition; i++) {
+    for (signed long i = cfdMinPosition; i < cfdMaxPosition; i++) {
         if(cfd_.at(i) > 0) {
             xyBelowZero.first = i - 1;
             xyBelowZero.second = cfd_.at(i - 1);

@@ -15,11 +15,12 @@ target_link_libraries(unittest-PolynomialCfd UnitTest++)
 install(TARGETS unittest-PolynomialCfd DESTINATION bin/unittests)
 add_test(PolynomialCfd unittest-PolynomialCfd)
 
-add_executable(unittest-TraditionalCfd unittest-TraditionalCfd.cpp
-        ../source/TraditionalCfd.cpp)
+add_executable(unittest-TraditionalCfd unittest-TraditionalCfd.cpp ../source/TraditionalCfd.cpp
+        ../source/TimingConfiguration.cpp)
 target_link_libraries(unittest-TraditionalCfd UnitTest++)
 install(TARGETS unittest-TraditionalCfd DESTINATION bin/unittests)
-add_test(TraditionalCfd unittest-PolynomialCfd)
+add_test(TraditionalCfd unittest-TraditionalCfd)
+
 
 if (ROOT_FOUND)
     add_executable(unittest-RootFitter unittest-RootFitter.cpp ../source/RootFitter.cpp
