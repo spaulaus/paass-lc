@@ -21,6 +21,10 @@ target_link_libraries(unittest-TraditionalCfd UnitTest++)
 install(TARGETS unittest-TraditionalCfd DESTINATION bin/unittests)
 add_test(TraditionalCfd unittest-TraditionalCfd)
 
+add_executable(unittest-XiaCfd unittest-XiaCfd.cpp ../source/XiaCfd.cpp ../source/TimingConfiguration.cpp)
+target_link_libraries(unittest-XiaCfd UnitTest++)
+install(TARGETS unittest-XiaCfd DESTINATION bin/unittests)
+add_test(XiaCfd unittest-XiaCfd)
 
 if (ROOT_FOUND)
     add_executable(unittest-RootFitter unittest-RootFitter.cpp ../source/RootFitter.cpp
