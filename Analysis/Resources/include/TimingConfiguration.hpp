@@ -20,22 +20,28 @@ public:
     ~TimingConfiguration();
 
     ///@returns beta_;
-    double GetBeta();
+    double GetBeta() const;
 
     ///@returns delay_
-    unsigned int GetDelay();
+    unsigned int GetDelay() const;
 
     ///@returns fraction_
-    double GetFraction();
+    double GetFraction() const;
 
     ///@returns gamma_
-    double GetGamma();
+    double GetGamma() const;
 
     ///@returns gap_
-    unsigned int GetGap();
+    unsigned int GetGap() const;
 
     ///@returns length_
-    unsigned int GetLength();
+    unsigned int GetLength() const;
+
+    ///@returns qdc_
+    double GetQdc() const;
+
+    ///@returns true if isFastSiPm_ is true
+    bool IsFastSiPm() const;
 
     ///Sets beta_
     ///@param[in] a : The value for beta_
@@ -57,9 +63,17 @@ public:
     ///@param[in] a : The value for gap_
     void SetGap(const unsigned int &a);
 
+    ///Sets the isFastSiPm_ flag
+    ///@param[in] a : The value that we are going to set
+    void SetIsFastSiPm(const bool &a);
+
     ///Sets length_
     ///@param[in] a : The value for length_
     void SetLength(const unsigned int &a);
+
+    /// Sets the QDC that we want to set
+    /// \param[in] a the qdc of the waveform for the fit
+    void SetQdc(const double &a);
 
 private:
     double beta_; //!< The beta value used for fitting
@@ -67,7 +81,9 @@ private:
     double fraction_; //!< The fraction used to scale the CFD
     double gamma_; //!< The gamma value used for fitting
     unsigned int gap_; //!< The trapezoidal filter gap for XIA CFDs
+    bool isFastSiPm_; //!< True if we want to analyze signals from SiPM fast outputs
     unsigned int length_; //!< The trapezoidal filter length parameter for XIA CFDs
+    double qdc_;//!< qdc of the waveform being fitted
 };
 
 #endif //PAASS_LC_TIMINGCONFIGURATION_HPP

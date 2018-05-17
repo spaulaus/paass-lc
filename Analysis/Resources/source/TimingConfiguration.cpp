@@ -11,28 +11,36 @@ TimingConfiguration::TimingConfiguration() = default;
 
 TimingConfiguration::~TimingConfiguration() = default;
 
-double TimingConfiguration::GetBeta() {
+double TimingConfiguration::GetBeta() const {
     return beta_;
 }
 
-unsigned int TimingConfiguration::GetDelay() {
+unsigned int TimingConfiguration::GetDelay() const {
     return delay_;
 }
 
-double TimingConfiguration::GetFraction() {
+double TimingConfiguration::GetFraction() const {
     return fraction_;
 }
 
-double TimingConfiguration::GetGamma() {
+double TimingConfiguration::GetGamma() const {
     return gamma_;
 }
 
-unsigned int TimingConfiguration::GetGap() {
+unsigned int TimingConfiguration::GetGap() const {
     return gap_;
 }
 
-unsigned int TimingConfiguration::GetLength() {
+unsigned int TimingConfiguration::GetLength() const {
     return length_;
+}
+
+double TimingConfiguration::GetQdc() const {
+    return qdc_;
+}
+
+bool TimingConfiguration::IsFastSiPm() const {
+    return isFastSiPm_;
 }
 
 void TimingConfiguration::SetBeta(const double &a) {
@@ -55,6 +63,14 @@ void TimingConfiguration::SetGap(const unsigned int &a) {
     gap_ = a;
 }
 
+void TimingConfiguration::SetIsFastSiPm(const bool &a) {
+    isFastSiPm_ = a;
+}
+
 void TimingConfiguration::SetLength(const unsigned int &a) {
     length_ = a;
+}
+
+void TimingConfiguration::SetQdc(const double &a) {
+    qdc_ = a;
 }
