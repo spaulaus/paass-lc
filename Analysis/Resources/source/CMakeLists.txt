@@ -1,5 +1,6 @@
 #@author S. V. Paulauskas
-set(ResourceSources GslFitter.cpp PolynomialCfd.cpp TraditionalCfd.cpp TraceFilter.cpp TimingConfiguration.cpp)
+set(ResourceSources GslFitter.cpp PolynomialCfd.cpp TraditionalCfd.cpp TraceFilter.cpp TimingConfiguration.cpp
+        ChannelConfiguration.cpp)
 
 if (ROOT_FOUND)
     list(APPEND ResourceSources CrystalBallFunction.cpp CsiFunction.cpp EmCalTimingFunction.cpp

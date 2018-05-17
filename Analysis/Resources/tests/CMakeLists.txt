@@ -1,5 +1,6 @@
 #author S. V. Paulauskas
-add_executable(unittest-ChannelConfiguration unittest-ChannelConfiguration.cpp)
+add_executable(unittest-ChannelConfiguration unittest-ChannelConfiguration.cpp ../source/ChannelConfiguration.cpp
+        ../source/TimingConfiguration.cpp)
 target_link_libraries(unittest-ChannelConfiguration UnitTest++ ${LIBS})
 install(TARGETS unittest-ChannelConfiguration DESTINATION bin/unittests)
 add_test(ChannelConfiguration unittest-ChannelConfiguration)
