@@ -5,7 +5,7 @@ target_link_libraries(unittest-ChannelConfiguration UnitTest++ ${LIBS})
 install(TARGETS unittest-ChannelConfiguration DESTINATION bin/unittests)
 add_test(ChannelConfiguration unittest-ChannelConfiguration)
 
-set(GSL_FITTER_SOURCES ${GSL_FITTER_SOURCES} unittest-GslFitter.cpp ../source/GslFitter.cpp)
+set(GSL_FITTER_SOURCES ${GSL_FITTER_SOURCES} unittest-GslFitter.cpp ../source/GslFitter.cpp ../source/TimingConfiguration.cpp)
 add_executable(unittest-GslFitter ${GSL_FITTER_SOURCES})
 target_link_libraries(unittest-GslFitter ${GSL_LIBRARIES} UnitTest++)
 install(TARGETS unittest-GslFitter DESTINATION bin/unittests)
