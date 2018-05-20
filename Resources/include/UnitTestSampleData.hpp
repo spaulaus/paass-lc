@@ -175,10 +175,17 @@ namespace unittest_cfd_variables {
 
 namespace unittest_fit_variables {
     //Set the <beta, gamma> for the fitting from the results of a gnuplot script
-    static const std::pair<double, double> pmtParameters(0.2659404170, 0.2080547991796);
-    static const std::pair<double, double> gaussianParameters(1.0, 0.0);
+    namespace pmt{
+        static const double beta = 0.2659404170;
+        static const double gamma = 0.2080547991796;
+        static const double phase = -0.0826487;
+    }
 
-    static const double phase = -0.0826487;
+    namespace gaussian {
+        static const double beta = 1.0;
+        static const double gamma = 0.0;
+        static const double phase = 23.5;
+    }
 }
 
 namespace unittest_trace_variables {
@@ -217,8 +224,7 @@ namespace unittest_trace_variables {
             22.2571, 14.2571, 13.2571, 10.2571, 8.25714, 12.2571, 19.2571,
             19.2571, 18.2571
     };
-
-
+    
     static constexpr unsigned int length = 2;
     static constexpr unsigned int gap = 4;
     static const std::vector<double> filteredTrace = {
@@ -275,7 +281,6 @@ namespace unittest_gaussian_trace {
     static const double standardDeviation = 0.0;
     static const std::pair<double, double> baselinePair(baseline, standardDeviation);
     static const double qdc = 1e6;
-    static const double phase = 23.5;
     static const double sigma = 1.0;
 }
 
