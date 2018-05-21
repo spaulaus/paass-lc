@@ -21,13 +21,12 @@ double PolynomialCfd::CalculatePhase(const std::vector<double> &data, const Timi
     if (data.size() < max.first)
         throw range_error("PolynomialCfd::CalculatePhase - The maximum position is larger than the size of the data vector.");
 
-    double threshold = cfg.GetFraction() * max.second;
     double phase = std::numeric_limits<int>::min();
     double multiplier = 1.;
 
     vector<double> fitCoefficients;
     for (unsigned int cfdIndex = max.first; cfdIndex > 0; cfdIndex--) {
-        if (data[cfdIndex - 1] < threshold && data[cfdIndex] >= threshold) {
+        if (data[cfdIndex - 1] < cfg.GetFraction() && data[cfdIndex] >= cfg.GetFraction()) {
             // Fit the rise of the trace to a 2nd order polynomial.
             fitCoefficients = Polynomial::CalculatePoly2(data, cfdIndex - 1).second;
 
@@ -35,7 +34,8 @@ double PolynomialCfd::CalculatePhase(const std::vector<double> &data, const Timi
             if (fitCoefficients[2] > 1)
                 multiplier = -1.;
 
-            phase = (-fitCoefficients[1] + multiplier * sqrt(fitCoefficients[1] * fitCoefficients[1] - 4 * fitCoefficients[2] * (fitCoefficients[0] - threshold)))
+            phase = (-fitCoefficients[1] + multiplier * sqrt(fitCoefficients[1] * fitCoefficients[1]
+                    - 4 * fitCoefficients[2] * (fitCoefficients[0] - cfg.GetFraction())))
                     / (2 * fitCoefficients[2]);
 
             break;
