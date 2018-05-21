@@ -171,6 +171,12 @@ namespace unittest_cfd_variables {
         static constexpr unsigned int delay = 12;
         static constexpr double phase = 0.7380742;
     }
+
+    namespace polynomial {
+        static constexpr double fraction = 0.5;
+        static constexpr unsigned int delay = 2;
+        static constexpr double phase = 73.9898;
+    }
 }
 
 namespace unittest_fit_variables {

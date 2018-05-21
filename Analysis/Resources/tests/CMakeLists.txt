@@ -11,7 +11,7 @@ target_link_libraries(unittest-GslFitter ${GSL_LIBRARIES} UnitTest++)
 install(TARGETS unittest-GslFitter DESTINATION bin/unittests)
 add_test(GslFitter unittest-GslFitter)
 
-add_executable(unittest-PolynomialCfd unittest-PolynomialCfd.cpp ../source/PolynomialCfd.cpp)
+add_executable(unittest-PolynomialCfd unittest-PolynomialCfd.cpp ../source/PolynomialCfd.cpp ../source/TimingConfiguration.cpp)
 target_link_libraries(unittest-PolynomialCfd UnitTest++)
 install(TARGETS unittest-PolynomialCfd DESTINATION bin/unittests)
 add_test(PolynomialCfd unittest-PolynomialCfd)
