@@ -7,7 +7,7 @@
 
 #include "TimingConfiguration.hpp"
 
-TimingConfiguration::TimingConfiguration() = default;
+TimingConfiguration::TimingConfiguration() : isFastSiPm_(false) {}
 
 TimingConfiguration::~TimingConfiguration() = default;
 
