@@ -1,9 +1,9 @@
-///@file unittest-TraditionalCfd.cpp
+///@file unittest-XiaCfd.cpp
 ///@author S. V. Paulauskas
-///@date December 12, 2016
-#include "TimingConfiguration.hpp"
+///@date May 13, 2018
+#include "XiaCfd.hpp"
 
-#include "TraditionalCfd.hpp"
+#include "TimingConfiguration.hpp"
 #include "UnitTestSampleData.hpp"
 
 #include <UnitTest++.h>
@@ -12,12 +12,15 @@
 
 using namespace std;
 using namespace unittest_trace_variables;
-using namespace unittest_cfd_variables::traditional;
+using namespace unittest_cfd_variables::xia;
 
-TEST_FIXTURE(TraditionalCfd, TestTraditionalCfd) {
+TEST_FIXTURE(XiaCfd, TestXiaCfd) {
     TimingConfiguration cfg;
     cfg.SetFraction(fraction);
     cfg.SetDelay(delay);
+    cfg.SetGap(gap);
+    cfg.SetLength(length);
+
     CHECK_THROW(CalculatePhase(empty_vector_double, cfg), range_error);
     CHECK_CLOSE(phase, CalculatePhase(trace_sans_baseline, cfg), 0.001);
 }

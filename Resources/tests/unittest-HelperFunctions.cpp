@@ -10,6 +10,20 @@ using namespace std;
 using namespace unittest_trace_variables;
 using namespace unittest_helper_functions;
 
+TEST(TestTrapezoidalFiltering) {
+    CHECK_THROW(Filtering::TrapezoidalFilter(empty_vector_double, 0, 0), invalid_argument);
+    CHECK_THROW(Filtering::TrapezoidalFilter(trace_sans_baseline, trace_sans_baseline.size() + 10, 2), invalid_argument);
+    CHECK_THROW(Filtering::TrapezoidalFilter(trace_sans_baseline, 4, trace_sans_baseline.size() + 10), invalid_argument);
+    CHECK_ARRAY_CLOSE(filteredTrace, Filtering::TrapezoidalFilter(trace_sans_baseline, length, gap),
+                      filteredTrace.size(), 0.1);
+}
+
+TEST(TestCalculateSlopeAndIntercept) {
+    auto result = Polynomial::CalculateSlope(xy1, xy2);
+    CHECK_EQUAL(slope, result);
+    CHECK_EQUAL(intercept, Polynomial::CalculateYIntercept(xy1, slope));
+}
+
 ///This tests that the TraceFunctions::CalculateBaseline function works as
 /// expected. This also verifies the Statistics functions CalculateAverage
 /// and CalculateStandardDeviation

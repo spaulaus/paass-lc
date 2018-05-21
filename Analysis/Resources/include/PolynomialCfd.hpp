@@ -7,17 +7,17 @@
 
 #include "TimingDriver.hpp"
 
+class TimingConfiguration;
+
 class PolynomialCfd : public TimingDriver {
 public:
-    PolynomialCfd() {};
+    PolynomialCfd();
 
-    ~PolynomialCfd() {};
+    ~PolynomialCfd();
 
     /// Perform CFD analysis on the waveform using the pol2 algorithm.
-    double CalculatePhase(const std::vector<double> &data,
-                          const std::pair<double, double> &pars,
-                          const std::pair<unsigned int, double> &max,
-                          const std::pair<double, double> baseline);
+    double CalculatePhase(const std::vector<double> &data, const TimingConfiguration &cfg,
+                          const std::pair<unsigned int, double> &max, const std::pair<double, double> baseline);
 };
 
 #endif //PIXIESUITE_POLYNOMIALCFD_HPP

@@ -1,49 +1,31 @@
-///@file TraditionalCfd.cpp
-///@brief Same CFD algorithm implemented by Xia LLC but offline.
+///@file XiaCfd.cpp
+///@brief Approximation of the CFD algorithm implemented by XIA LLC on the Pixie-16 modules
 ///@author S. V. Paulauskas
 ///@date July 22, 2011
-
+///@date Rewritten May 13, 2018
 #include "XiaCfd.hpp"
 
-/// Perform CFD analysis on the waveform
-double XiaCfd::CalculatePhase(const double &F_/*=0.5*/,
-                              const size_t &D_/*=1*/,
-                              const size_t &L_/*=1*/) {
-    if (size == 0 || baseline < 0) { return -9999; }
-    if (!cfdvals)
-        cfdvals = new double[size];
+#include "HelperFunctions.hpp"
+#include "TimingConfiguration.hpp"
 
-    double cfdMinimum = 9999;
-    size_t cfdMinIndex = 0;
+#include <algorithm>
+#include <stdexcept>
 
-    phase = -9999;
+using namespace std;
 
-    // Compute the cfd waveform.
-    for (size_t cfdIndex = 0; cfdIndex < size; ++cfdIndex) {
-        cfdvals[cfdIndex] = 0.0;
-        if (cfdIndex >= L_ + D_ - 1) {
-            for (size_t i = 0; i < L_; i++)
-                cfdvals[cfdIndex] +=
-                        F_ * (event->adcTrace[cfdIndex - i] - baseline) -
-                        (event->adcTrace[cfdIndex - i - D_] - baseline);
-        }
-        if (cfdvals[cfdIndex] < cfdMinimum) {
-            cfdMinimum = cfdvals[cfdIndex];
-            cfdMinIndex = cfdIndex;
-        }
-    }
+double XiaCfd::CalculatePhase(const std::vector<double> &data, const TimingConfiguration &cfg) {
+    if (data.empty())
+        throw range_error("XiaCfd::CalculatePhase - The data vector was empty!");
 
-    // Find the zero-crossing.
-    if (cfdMinIndex > 0) {
-        // Find the zero-crossing.
-        for (size_t cfdIndex = cfdMinIndex - 1; cfdIndex >= 0; cfdIndex--) {
-            if (cfdvals[cfdIndex] >= 0.0 && cfdvals[cfdIndex + 1] < 0.0) {
-                phase = cfdIndex - cfdvals[cfdIndex] /
-                                   (cfdvals[cfdIndex + 1] - cfdvals[cfdIndex]);
-                break;
-            }
-        }
-    }
+    cfd_.clear();
+    cfd_.resize(data.size(), 0.0);
 
-    return phase;
+    auto filter = Filtering::TrapezoidalFilter(data, cfg.GetLength(), cfg.GetGap());
+    for (unsigned int i = 0; i < filter.size() - cfg.GetDelay(); i++)
+        cfd_[i + cfg.GetDelay()] = filter[i + cfg.GetDelay()] - filter[i] / pow(2, cfg.GetFraction() + 1);
+
+    for (auto i = max_element(cfd_.begin(), cfd_.end()) - cfd_.begin(); i <= min_element(cfd_.begin(), cfd_.end()) - cfd_.begin(); i++)
+        if (cfd_.at(i) <= 0.0)
+            return cfd_.at(i - 1) / (cfd_.at(i - 1) + fabs(cfd_.at(i)));
+    return 0.0;
 }

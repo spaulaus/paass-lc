@@ -2,16 +2,17 @@
 ///@brief Class to parse the Map node in the utkscan configuration file
 ///@author S. V. Paulauskas, D. Miller, K. Miernik
 ///@date February 09, 2017
-#include <iostream>
-
-#include <cstring>
+#include "MapNodeXmlParser.hpp"
 
 #include "DefaultConfigurationValues.hpp"
 #include "HelperFunctions.hpp"
-#include "MapNodeXmlParser.hpp"
 #include "StringManipulationFunctions.hpp"
 #include "TreeCorrelator.hpp"
 #include "XmlInterface.hpp"
+
+#include <iostream>
+
+#include <cstring>
 
 using namespace std;
 
@@ -90,13 +91,15 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
                 sstream_.str("");
             }
 
+            TimingConfiguration timingConfiguration;
+
             if (channel.child("Calibration").text())
                 ParseCalibrations(channel.child("Calibration"), chanCfg, isVerbose);
             else if (isVerbose)
                 messenger_.detail("This channel has no calibration associated with it.", 2);
 
             if (channel.child("Cfd"))
-                ParseCfdNode(channel.child("Cfd"), chanCfg, isVerbose);
+                ParseCfdNode(channel.child("Cfd"), timingConfiguration, isVerbose);
             else if (isVerbose)
                 messenger_.detail("Using default CFD settings for this channel.", 2);
 
@@ -106,7 +109,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
                 messenger_.detail("Using default filter settings for this channel.", 2);
 
             if (channel.child("Fit"))
-                ParseFittingNode(channel.child("Fit"), chanCfg, isVerbose);
+                ParseFittingNode(channel.child("Fit"), timingConfiguration, isVerbose);
             else if (isVerbose)
                 messenger_.detail("Using default fitter settings for this channel.", 2);
 
@@ -121,6 +124,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
                 messenger_.detail("This channel is not walk corrected.", 2);
 
             lib->Set(module_number, channelNumber, chanCfg);
+            chanCfg.SetTimingConfiguration(timingConfiguration);
 
             //Create basic place for TreeCorrelator
             std::map<string, string> params;
@@ -178,20 +182,20 @@ void MapNodeXmlParser::ParseCalibrations(const pugi::xml_node &node, const Chann
 ///We parse the Cfd node here. This node contains the information necessary to the proper function of the various Cfd
 /// timing codes. The only currently recognized node here is the Parameters node. If the Cfd node exists then the
 /// Parameter node must also exist.
-void MapNodeXmlParser::ParseCfdNode(const pugi::xml_node &node, ChannelConfiguration &config, const bool &isVerbose) {
-        config.SetCfdParameters(make_tuple(
-                node.child("Cfd").attribute("f").as_double(DefaultConfig::cfdF),
-                node.child("Cfd").attribute("d").as_double(DefaultConfig::cfdD),
-                node.child("Cfd").attribute("l").as_double(DefaultConfig::cfdL)));
+void MapNodeXmlParser::ParseCfdNode(const pugi::xml_node &node, TimingConfiguration &config, const bool &isVerbose) {
+    config.SetFraction(node.attribute("f").as_double(DefaultConfig::cfdF));
+    config.SetDelay(node.attribute("d").as_uint(DefaultConfig::cfdD));
+    config.SetLength(node.attribute("l").as_uint(DefaultConfig::cfdL));
+    config.SetGap(node.attribute("g").as_uint(DefaultConfig::cfdL));
 }
 
 ///This method parses the fitting node. There are only two free parameters at the moment. The main part of this node
 /// is the fitting parameters. These parameters are critical to the function of the software. If the fitting node is
 /// present then the Parameters node must also be.
-void MapNodeXmlParser::ParseFittingNode(const pugi::xml_node &node, ChannelConfiguration &config,
+void MapNodeXmlParser::ParseFittingNode(const pugi::xml_node &node, TimingConfiguration &config,
                                         const bool &isVerbose) {
-    config.SetFittingParameters(make_pair(node.attribute("beta").as_double(DefaultConfig::fitBeta),
-                                          node.attribute("gamma").as_double(DefaultConfig::fitGamma)));
+    config.SetBeta(node.attribute("beta").as_double(DefaultConfig::fitBeta));
+    config.SetGamma(node.attribute("gamma").as_double(DefaultConfig::fitGamma));
 }
 
 ///This node parses the Trace node. This node contains all of the information necessary for the users to do trace
