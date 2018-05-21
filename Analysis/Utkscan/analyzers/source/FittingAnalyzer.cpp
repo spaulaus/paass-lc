@@ -52,12 +52,14 @@ void FittingAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         return;
     }
 
-    driver_->SetQdc(trace.GetQdc());
+    auto timingConfiguration = cfg.GetTimingConfiguration();
+
+    timingConfiguration.SetQdc(trace.GetQdc());
 
     if (cfg.GetType() == "beta" && cfg.GetSubtype() == "double" && cfg.HasTag("timing"))
-        driver_->SetIsFastSiPm(true);
+        timingConfiguration.SetIsFastSiPm(true);
 
-    trace.SetPhase(driver_->CalculatePhase(trace.GetWaveform(), cfg.GetFittingParameters(), trace.GetMaxInfo(),
+    trace.SetPhase(driver_->CalculatePhase(trace.GetWaveform(), timingConfiguration, trace.GetMaxInfo(),
                                            trace.GetBaselineInfo()) + trace.GetMaxInfo().first);
     EndAnalyze();
 }

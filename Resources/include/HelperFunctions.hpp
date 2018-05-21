@@ -20,7 +20,56 @@
 
 using namespace std;
 
+namespace Filtering {
+    /// Implementation of a simple trapezoidal filter, which doesn't use all of the fancy filtering in the class.
+    ///@param[in] data : The data that we want to filter
+    ///@param[in] l : The filter risetime
+    ///@param[in] g : The filter gap.
+    ///@returns A vector<double> containing the filter
+    template<class T>
+    static const vector<double> TrapezoidalFilter(const vector<T> &data, const int &l, const int &g) {
+        if (data.empty())
+            throw invalid_argument("HelperFunctions::Filtering::TrapezoidalFilter - The data vector was empty!");
+
+        if (int(data.size() - 2 * l - g + 1) <= 0)
+            throw invalid_argument("HelperFunctions::Filtering::TrapezoidalFilter - Provided filter arguments are too"
+                                   " long to filter the data. Provide shorter values.");
+
+        vector<double> filter(data.size(), 0.0);
+        double sum1 = 0, sum2 = 0;
+        for (int i = 0; i < (int) data.size(); i++) {
+            if ((i - 2 * l - g + 1) >= 0) {
+                for (int a = i - 2 * l - g + 1; a < i - l - g; a++)
+                    sum1 += data[a];
+                for (int a = i - l + 1; a < i; a++)
+                    sum2 += data[a];
+                filter[i] += sum2 - sum1;
+            }
+            sum1 = sum2 = 0.;
+        }
+        return filter;
+    }
+}
+
 namespace Polynomial {
+    /// Calculates the slope of a line give two sets of xy pairs. The points should be provided as (x1,y1) and (x2,y2)
+    /// @param[in] xy1 : The first xy point for calculating the slope.
+    /// @param[in] xy2 : The second xy point for calculating the slope
+    /// @returns : The slope of a line going through the two points.
+    template<class T>
+    static const double CalculateSlope(const std::pair<T, T> &xy1, const std::pair<T, T> &xy2) {
+        return (xy2.second - xy1.second) / (xy2.first - xy1.first);
+    }
+
+    /// Calculates the y intercept of a line crossing through the given point with the given slope
+    /// @param[in] xy : The (x,y) pair of the line that we want to calculate the intercept for
+    /// @param[in] slope : The slope of the line passing through the provided pair
+    /// @returns : The y intercept of the line passing throught he point with the provided slope
+    template<class T>
+    static const double CalculateYIntercept(const std::pair<T, T> &xy, const double &slope) {
+        return xy.second - slope * xy.first;
+    }
+
     template<class T>
     static const pair<double, vector<double> > CalculatePoly2(
             const vector<T> &data, const unsigned int &startBin) {

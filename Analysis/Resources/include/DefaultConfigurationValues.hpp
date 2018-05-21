@@ -24,9 +24,10 @@ namespace DefaultConfig {
     static const double fitGamma = 0.208072;
 
     ///These are used when reading /Configuration/Map/Module/Channel/Cfd
-    static const double cfdF = 0.8;
-    static const double cfdD = 1.;
-    static const double cfdL = 0.;
+    static const double cfdF = 0.25;
+    static const unsigned int cfdD = 3;
+    static const unsigned int cfdL = 2;
+    static const unsigned int cfdG = 4;
 }
 
 #endif //PAASS_DEFAULTCONFIGURATIONVALUES_HPP
