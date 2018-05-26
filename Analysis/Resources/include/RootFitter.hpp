@@ -8,8 +8,8 @@
 #include "TimingDriver.hpp"
 
 class TF1;
-
 class VandleTimingFunction;
+class TimingConfiguration;
 
 class RootFitter : public TimingDriver {
 public:
@@ -18,10 +18,8 @@ public:
     ~RootFitter();
 
     /// Perform fitting analysis using ROOT
-    double CalculatePhase(const std::vector<double> &data,
-                          const std::pair<double, double> &pars,
-                          const std::pair<unsigned int, double> &maxInfo,
-                          std::pair<double, double> baseline);
+    double CalculatePhase(const std::vector<double> &data, const TimingConfiguration &cfg,
+                          const std::pair<unsigned int, double> &maxInfo, std::pair<double, double> baseline);
 
 private:
     TF1 *func_;

@@ -6,15 +6,15 @@
 /// @copyright All rights reserved. Released under the Creative Commons Attribution-ShareAlike 4.0 International License
 #include "GslFitter.hpp"
 
+#include "TimingConfiguration.hpp"
+
+#include <stdexcept>
+
 using namespace std;
 
-GslFitter::GslFitter() : TimingDriver() {
-    isFastSiPm_ = false;
-}
+GslFitter::GslFitter() : TimingDriver() {}
 
-GslFitter::~GslFitter() {
-    // Does nothing special
-}
+GslFitter::~GslFitter() = default;
 
 int GslFitter::GaussianFunction(const gsl_vector *x, void *FitConfiguration, gsl_vector *f) {
     size_t n = ((struct GslFitter::FitConfiguration *) FitConfiguration)->n;
@@ -150,7 +150,7 @@ void GslFitter::InitializeGaussian(size_t &numParameters, double *initialFitValu
 #endif
 }
 
-double GslFitter::CalculatePhase(const std::vector<double> &data, const std::pair<double, double> &pars,
+double GslFitter::CalculatePhase(const std::vector<double> &data, const TimingConfiguration &cfg,
                                  const std::pair<unsigned int, double> &max, const std::pair<double, double> baseline) {
     if (data.empty())
         throw range_error("GslFitter::CalculatePhase - The data vector had a zero size. No data to fit!!");
@@ -165,7 +165,7 @@ double GslFitter::CalculatePhase(const std::vector<double> &data, const std::pai
     double initialFitValues[2];
     gsl_multifit_function_fdf fitFunction;
 
-    if (!isFastSiPm_)
+    if (!cfg.IsFastSiPm())
         InitializePmtFunction(numParameters, initialFitValues, fitFunction);
     else
         InitializeGaussian(numParameters, initialFitValues, fitFunction, numDataPoints);
@@ -183,7 +183,7 @@ double GslFitter::CalculatePhase(const std::vector<double> &data, const std::pai
         weights[i] = baseline.second;
     }
 
-    struct FitConfiguration fitData = {numDataPoints, y, weights, pars.first, pars.second, qdc_};
+    struct FitConfiguration fitData = {numDataPoints, y, weights, cfg.GetBeta(), cfg.GetGamma(), cfg.GetQdc()};
     gsl_vector_view x = gsl_vector_view_array(initialFitValues, numParameters);
 
     fitFunction.n = numDataPoints;
@@ -215,7 +215,7 @@ double GslFitter::CalculatePhase(const std::vector<double> &data, const std::pai
 #endif
 
     double phase = 0.0;
-    if (!isFastSiPm_) {
+    if (!cfg.IsFastSiPm()) {
         phase = gsl_vector_get(solver->x, 0);
         amp_ = gsl_vector_get(solver->x, 1);
     } else {

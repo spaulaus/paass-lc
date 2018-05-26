@@ -11,9 +11,7 @@
 #include <gsl/gsl_fit.h>
 #include <gsl/gsl_multifit_nlin.h>
 
-#include <iostream>
-
-#include <cmath>
+class TimingConfiguration;
 
 class GslFitter : public TimingDriver {
 public:
@@ -28,7 +26,7 @@ public:
     /// @param[in] pars The parameters for the fit
     /// @param[in] max : Information about the maximum position and value
     /// @param[in] baseline : The average and standard deviation of the baseline
-    double CalculatePhase(const std::vector<double> &data, const std::pair<double, double> &pars,
+    double CalculatePhase(const std::vector<double> &data, const TimingConfiguration &cfg,
                           const std::pair<unsigned int, double> &max, const std::pair<double, double> baseline);
 
     /// @brief Structure that holds information required by the GSL fitting routines to calculate the value of the

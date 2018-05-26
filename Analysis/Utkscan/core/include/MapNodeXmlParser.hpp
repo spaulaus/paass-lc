@@ -5,20 +5,18 @@
 #ifndef PAASS_MAPNODEXMLPARSER_HPP
 #define PAASS_MAPNODEXMLPARSER_HPP
 
-#include <set>
-#include <sstream>
-
-#include "pugixml.hpp"
-
 #include "Calibrator.hpp"
 #include "ChannelConfiguration.hpp"
 #include "DetectorLibrary.hpp"
 #include "Messenger.hpp"
+#include "TimingConfiguration.hpp"
 #include "WalkCorrector.hpp"
 #include "XmlParser.hpp"
 
-///A class that handles parsing nodes necessary for the Globals class from
-/// utkscan's configuration file.
+#include <set>
+#include <sstream>
+
+///A class that handles parsing nodes necessary for the Globals class from utkscan's configuration file.
 class MapNodeXmlParser : public XmlParser {
 public:
     ///Default Constructor
@@ -39,8 +37,7 @@ private:
     ///A stringstream that we can use repeatedly without having to redefine.
     std::stringstream sstream_;
 
-    ///A calibrator object that holds the calibrations that we parsed out of
-    /// the file.
+    ///A calibrator object that holds the calibrations that we parsed out of the file.
     Calibrator calibrations_;
 
     ///A WalkCorrector object that contains the parsed walk corrections.
@@ -54,22 +51,19 @@ private:
 
     ///Parses the Cfd node from the xml configuration file.
     ///@param[in] node : The node that we are going to parse
-    ///@param[in] globals : A pointer to the globals class so we can set the
-    /// values that we need.
+    ///@param[in] globals : A pointer to the globals class so we can set the values that we need.
     ///@throw invalid_argument if the Parameters node cannot be found.
-    void ParseCfdNode(const pugi::xml_node &node, ChannelConfiguration &config, const bool &isVerbose);
+    void ParseCfdNode(const pugi::xml_node &node, TimingConfiguration &config, const bool &isVerbose);
 
     ///Parses the Fitting node from the xml configuration file.
     ///@param[in] node : The node that we are going to parse
-    ///@param[in] globals : A pointer to the globals class so we can set the
-    /// values that we need.
+    ///@param[in] globals : A pointer to the globals class so we can set the values that we need.
     ///@throw invalid_argument if the Parameters node cannot be found.
-    void ParseFittingNode(const pugi::xml_node &node, ChannelConfiguration &config, const bool &isVerbose);
+    void ParseFittingNode(const pugi::xml_node &node, TimingConfiguration &config, const bool &isVerbose);
 
     ///Parses the Trace node from the xml configuration file.
     ///@param[in] node : The node that we are going to parse
-    ///@param[in] globals : A pointer to the globals class so we can set the
-    /// values that we need.
+    ///@param[in] globals : A pointer to the globals class so we can set the values that we need.
     ///@throw invalid_argument If the WaveformRange is missing
     void ParseTraceNode(const pugi::xml_node &node, ChannelConfiguration &config, const bool &isVerbose);
 

@@ -7,6 +7,8 @@
 #ifndef PIXIESUITE_UNITTESTSAMPLEDATA_HPP
 #define PIXIESUITE_UNITTESTSAMPLEDATA_HPP
 
+#include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -158,13 +160,38 @@ namespace unittest_encoded_data {
 }
 
 namespace unittest_cfd_variables {
-    static const std::pair<double, double> cfd_test_pars(0.5, 2.);
+    namespace traditional {
+        static constexpr double fraction = 0.5;
+        static constexpr unsigned int delay = 2;
+        static constexpr double phase = 74.972;
+    }
+
+    namespace xia {
+        static constexpr double fraction = 0.25;
+        static constexpr unsigned int delay = 12;
+        static constexpr double phase = 0.7380742;
+    }
+
+    namespace polynomial {
+        static constexpr double fraction = 0.5;
+        static constexpr unsigned int delay = 2;
+        static constexpr double phase = 73.9898;
+    }
 }
 
 namespace unittest_fit_variables {
     //Set the <beta, gamma> for the fitting from the results of a gnuplot script
-    static const std::pair<double, double> pmtParameters(0.2659404170, 0.2080547991796);
-    static const std::pair<double, double> gaussianParameters(1.0, 0.0);
+    namespace pmt{
+        static const double beta = 0.2659404170;
+        static const double gamma = 0.2080547991796;
+        static const double phase = -0.0826487;
+    }
+
+    namespace gaussian {
+        static const double beta = 1.0;
+        static const double gamma = 0.0;
+        static const double phase = 23.5;
+    }
 }
 
 namespace unittest_trace_variables {
@@ -203,6 +230,18 @@ namespace unittest_trace_variables {
             22.2571, 14.2571, 13.2571, 10.2571, 8.25714, 12.2571, 19.2571,
             19.2571, 18.2571
     };
+    
+    static constexpr unsigned int length = 2;
+    static constexpr unsigned int gap = 4;
+    static const std::vector<double> filteredTrace = {
+            0 ,0 ,0 ,0 ,0 ,0 ,0 ,1.0 ,-1.0 ,0.0 ,4.0 ,2.0 ,0.0 ,0.0 ,-1.0 ,1.0 ,1.0 ,-1.0 ,-3.0 ,-4.0 ,1.0 ,2.0 ,1.0 ,
+            1.0 ,1.0 ,3.0 ,4.0 ,1.0 ,-5.0 ,-3.0 ,1.0 ,0.0 ,0.0 ,-3.0 ,-2.0 ,-2.0 ,0.0 ,2.0 ,2.0 ,1.0 ,4.0 ,5.0 ,2.0 ,
+            -1.0 ,-6.0 ,-2.0 ,-3.0 ,-1.0 ,0.0 ,-4.0 ,-1.0 ,3.0 ,6.0 ,1.0 ,0.0 ,0.0 ,2.0 ,2.0 ,-1.0 ,-2.0 ,-2.0 ,0.0 ,
+            0.0 ,-1.0 ,-2.0 ,-1.0 ,1.0 ,6.0 ,4.0 ,1.0 ,-1.0 ,-1.0 ,0.0 ,61.0 ,682.0 ,1919.0 ,3073.0 ,3381.0 ,3030.0 ,
+            2420.0 ,1254.0 ,-444.0 ,-1971.0 ,-2564.0 ,-2424.0 ,-2044.0 ,-1626.0 ,-1247.0 ,-919.0 ,-661.0 ,-480.0 ,
+            -351.0 ,-292.0 ,-272.0 ,-216.0 ,-139.0 ,-85.0 ,-34.0 ,40.0 ,99.0 ,74.0 ,8.0 ,-19.0 ,-30.0 ,-37.0 ,-34.0 ,
+            -21.0 ,-8.0 ,-7.0 ,-7.0 ,-8.0 ,-14.0 ,-15.0 ,-12.0 ,-8.0 ,1.0 ,6.0 ,5.0 ,9.0 ,7.0 ,1.0 ,-7.0 ,-3.0 ,5.0
+    };
 
     static const std::pair<unsigned int, unsigned int> waveform_range(71, 86);
 
@@ -210,7 +249,6 @@ namespace unittest_trace_variables {
                                               trace_sans_baseline.begin() + waveform_range.second);
 
     static const double waveform_qdc = 21329.9;
-    static const double phase = -0.0826487;
 
     //An empty data vector to test error checking.
     static const std::vector<unsigned int> empty_vector_uint;
@@ -249,11 +287,15 @@ namespace unittest_gaussian_trace {
     static const double standardDeviation = 0.0;
     static const std::pair<double, double> baselinePair(baseline, standardDeviation);
     static const double qdc = 1e6;
-    static const double phase = 23.5;
     static const double sigma = 1.0;
 }
 
 namespace unittest_helper_functions {
+    static const std::pair<double, double> xy1(74, -729.0);
+    static const std::pair<double, double> xy2(75, 21.0);
+    static const double slope = 750.0;
+    static const double intercept = -56229.0;
+
     static const std::vector<unsigned int> integration_data = {0, 1, 2, 3, 4, 5};
     static const double integral = 12.5;
 

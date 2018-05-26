@@ -13,6 +13,6 @@ install(TARGETS unittest-RootHandler DESTINATION bin/unittests)
 add_test(RootHandler unittest-RootHandler)
 
 add_executable(unittest-WalkCorrector unittest-WalkCorrector.cpp ../source/WalkCorrector.cpp)
-target_link_libraries(unittest-WalkCorrector UnitTest++ ${LIBS})
+target_link_libraries(unittest-WalkCorrector UnitTest++ ${LIBS} ResourceStatic)
 install(TARGETS unittest-WalkCorrector DESTINATION bin/unittests)
 add_test(WalkCorrector unittest-WalkCorrector)
