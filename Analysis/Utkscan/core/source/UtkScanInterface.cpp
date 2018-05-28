@@ -47,7 +47,7 @@ bool UtkScanInterface::Initialize(string prefix_) {
     unpacker_->SetEventWidth(Globals::get()->GetEventLengthInTicks());
     Globals::get()->SetOutputFilename(GetOutputFilename());
     Globals::get()->SetOutputPath(GetOutputPath());
-    RootHandler::get(GetOutputPath() + GetOutputFilename() + ".root");
+    RootHandler::get(GetOutputPath() + GetOutputFilename());
 
 #ifndef USE_HRIBF
     try {

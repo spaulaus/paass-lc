@@ -11,15 +11,16 @@
 using namespace std;
 
 RootHandler *RootHandler::instance_ = nullptr;
-TFile *RootHandler::file_ = nullptr; //!< The ROOT file that all the information will be stored in.
+TFile *RootHandler::histogramFile_ = nullptr; //!< The ROOT file that all the information will be stored in.
+TFile *RootHandler::treeFile_ = nullptr; //!< The ROOT file that all the information will be stored in.
 map<std::string, TTree *> RootHandler::treeList_; //!< The list of trees known to the system
 map<unsigned int, TH1 *> RootHandler::histogramList_; //!< The list of 1D histograms known to the system
 mutex RootHandler::flushMutex_;
 
-/** Instance is created upon first call */
+/// Instance is created upon first call
 RootHandler *RootHandler::get() {
     if (!instance_)
-        instance_ = new RootHandler("histograms.root");
+        instance_ = new RootHandler("roothandler-default");
     return (instance_);
 }
 
@@ -30,18 +31,34 @@ RootHandler *RootHandler::get(const std::string &fileName) {
 }
 
 RootHandler::RootHandler(const std::string &fileName) {
-    file_ = new TFile(fileName.c_str(), "recreate");
+    histogramFile_ = new TFile((fileName+"-hist.root").c_str(), "recreate");
+    treeFile_ = new TFile((fileName+"-tree.root").c_str(), "recreate");
+    TH1::AddDirectory(false);
 }
 
 RootHandler::~RootHandler() {
-    if(file_) {
+    if(histogramFile_) {
         while(!flushMutex_.try_lock())
             usleep(1000000);
 
-        file_->Write(0, TObject::kWriteDelete);
-        file_->Close();
-        delete file_;
+        histogramFile_->cd();
+
+        for(const auto &hist : histogramList_)
+            hist.second->Write(nullptr, TObject::kWriteDelete);
+
+        histogramFile_->Write(nullptr, TObject::kWriteDelete);
+        histogramFile_->Close();
+        delete histogramFile_;
     }
+
+    if(treeFile_) {
+        treeFile_->cd();
+        treeFile_->Write(0, TObject::kWriteDelete);
+        treeFile_->Close();
+        delete treeFile_;
+    }
+
+    delete treeFile_;
     instance_ = nullptr;
 }
 
@@ -63,13 +80,17 @@ void RootHandler::RegisterBranch(const std::string &treeName, const std::string 
     if (tree == treeList_.end())
         throw invalid_argument("Roothandler::RegisterBranch - Attempt to graft branch named " + name
                                + " onto tree named " + treeName + ", which is unknown to us!!");
+    treeFile_->cd();
     tree->second->Branch(name.c_str(), address, leaflist.c_str());
+    histogramFile_->cd();
 }
 
 TTree *RootHandler::RegisterTree(const std::string &name, const std::string &description/*=""*/) {
+    treeFile_->cd();
     auto tree = treeList_.find(name);
     if (tree != treeList_.end())
         return tree->second;
+    treeFile_->cd();
     return treeList_.emplace(make_pair(name, new TTree(name.c_str(), description.c_str()))).first->second;
 }
 
@@ -83,9 +104,10 @@ bool RootHandler::Plot(const unsigned int &id, const double &xval, const double 
         return false;
     }
 
+    histogramFile_->cd();
+
     bool hasYval = yval != -1;
     bool hasZval = zval != -1;
-
     if(!hasYval && !hasZval)
         histogram->Fill(xval);
     if(hasYval && !hasZval)
@@ -105,6 +127,8 @@ TH1 *RootHandler::RegisterHistogram(const unsigned int &id, const std::string &t
     if (histogram != histogramList_.end())
         return histogram->second;
 
+    histogramFile_->cd();
+
     if (!yBins && !zBins)
         return histogramList_.emplace(make_pair(id, new TH1D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins))).first->second;
     if(yBins && !zBins)
@@ -115,11 +139,19 @@ TH1 *RootHandler::RegisterHistogram(const unsigned int &id, const std::string &t
 }
 
 void RootHandler::AsyncFlush() {
-    file_->Write(0, TObject::kWriteDelete);
+    for(const auto &hist : histogramList_) {
+        histogramFile_->cd();
+        hist.second->Write(nullptr, TObject::kWriteDelete);
+    }
     flushMutex_.unlock();
 }
 
 void RootHandler::Flush() {
+    treeFile_->cd();
+    for(const auto &tree : treeList_)
+        tree.second->AutoSave("overwrite");
+
+    histogramFile_->cd();
     if(flushMutex_.try_lock()) {
         thread worker0(AsyncFlush);
         worker0.detach();

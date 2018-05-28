@@ -84,6 +84,8 @@ public:
 
     ///Method that will update all the trees and histograms in the system.
     void Flush();
+
+    void FlushTree(TTree *tree);
 private:
     ///The static instance of the RootHandler that everybody can access.
     static RootHandler *instance_;
@@ -107,9 +109,10 @@ private:
     ///Method that will asynchronously flush trees and histograms.
     static void AsyncFlush();
 
-    static TFile *file_; //!< The ROOT file that all the information will be stored in.
-    static std::map<std::string, TTree *> treeList_; //!< The list of trees known to the system
+    static TFile *histogramFile_; //!< The ROOT file storing histograms
     static std::map<unsigned int, TH1 *> histogramList_; //!< The list of 1D histograms known to the system
+    static TFile *treeFile_; //!< The ROOT file storing TTrees
+    static std::map<std::string, TTree *> treeList_; //!< The list of trees known to the system
     static std::mutex flushMutex_; //!< Mutex to ensure that we don't spawn more than one AsyncWrite thread.
 };
 
