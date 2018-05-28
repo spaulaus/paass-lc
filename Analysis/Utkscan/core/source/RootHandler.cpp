@@ -58,7 +58,6 @@ RootHandler::~RootHandler() {
         delete treeFile_;
     }
 
-    delete treeFile_;
     instance_ = nullptr;
 }
 
