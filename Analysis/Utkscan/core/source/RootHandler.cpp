@@ -33,7 +33,6 @@ RootHandler *RootHandler::get(const std::string &fileName) {
 RootHandler::RootHandler(const std::string &fileName) {
     histogramFile_ = new TFile((fileName+"-hist.root").c_str(), "recreate");
     treeFile_ = new TFile((fileName+"-tree.root").c_str(), "recreate");
-    TH1::AddDirectory(false);
 }
 
 RootHandler::~RootHandler() {
@@ -42,9 +41,9 @@ RootHandler::~RootHandler() {
             usleep(1000000);
 
         histogramFile_->cd();
-
         for(const auto &hist : histogramList_)
-            hist.second->Write(nullptr, TObject::kWriteDelete);
+            if(hist.second->GetEntries() > 0)
+                hist.second->Write(nullptr, TObject::kWriteDelete);
 
         histogramFile_->Write(nullptr, TObject::kWriteDelete);
         histogramFile_->Close();
@@ -53,7 +52,7 @@ RootHandler::~RootHandler() {
 
     if(treeFile_) {
         treeFile_->cd();
-        treeFile_->Write(0, TObject::kWriteDelete);
+        treeFile_->Write(nullptr, TObject::kWriteDelete);
         treeFile_->Close();
         delete treeFile_;
     }
@@ -79,18 +78,17 @@ void RootHandler::RegisterBranch(const std::string &treeName, const std::string 
     if (tree == treeList_.end())
         throw invalid_argument("Roothandler::RegisterBranch - Attempt to graft branch named " + name
                                + " onto tree named " + treeName + ", which is unknown to us!!");
-    treeFile_->cd();
     tree->second->Branch(name.c_str(), address, leaflist.c_str());
-    histogramFile_->cd();
 }
 
 TTree *RootHandler::RegisterTree(const std::string &name, const std::string &description/*=""*/) {
-    treeFile_->cd();
     auto tree = treeList_.find(name);
     if (tree != treeList_.end())
         return tree->second;
-    treeFile_->cd();
-    return treeList_.emplace(make_pair(name, new TTree(name.c_str(), description.c_str()))).first->second;
+
+    auto *pTempTree = treeList_.emplace(make_pair(name, new TTree(name.c_str(), description.c_str()))).first->second;
+    pTempTree->SetDirectory(treeFile_);
+    return pTempTree;
 }
 
 bool RootHandler::Plot(const unsigned int &id, const double &xval, const double &yval/*=-1*/, const double &zval/*=-1*/) {
@@ -102,8 +100,6 @@ bool RootHandler::Plot(const unsigned int &id, const double &xval, const double 
         /// just silently ignored any Plot request to an unknown histogram id.
         return false;
     }
-
-    histogramFile_->cd();
 
     bool hasYval = yval != -1;
     bool hasZval = zval != -1;
@@ -126,31 +122,34 @@ TH1 *RootHandler::RegisterHistogram(const unsigned int &id, const std::string &t
     if (histogram != histogramList_.end())
         return histogram->second;
 
-    histogramFile_->cd();
+    TH1 *pTempHistogram = nullptr;
 
     if (!yBins && !zBins)
-        return histogramList_.emplace(make_pair(id, new TH1D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins))).first->second;
-    if(yBins && !zBins)
-        return histogramList_.emplace(make_pair(id, new TH2D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, yBins, 0, yBins))).first->second;
-    if(!yBins)
-        return histogramList_.emplace(make_pair(id, new TH2D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, zBins, 0, zBins))).first->second;
-    return histogramList_.emplace(make_pair(id, new TH3D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, yBins, 0, yBins, zBins, 0, zBins))).first->second;
+        pTempHistogram = histogramList_.emplace(make_pair(id, new TH1D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins))).first->second;
+    else if(yBins && !zBins)
+        pTempHistogram = histogramList_.emplace(make_pair(id, new TH2D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, yBins, 0, yBins))).first->second;
+    else if(!yBins)
+        pTempHistogram = histogramList_.emplace(make_pair(id, new TH2D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, zBins, 0, zBins))).first->second;
+    else
+        pTempHistogram = histogramList_.emplace(make_pair(id, new TH3D(("h"+to_string(id)).c_str(), title.c_str(), xBins, 0, xBins, yBins, 0, yBins, zBins, 0, zBins))).first->second;
+
+    pTempHistogram->SetDirectory(histogramFile_);
+    return pTempHistogram;
 }
 
 void RootHandler::AsyncFlush() {
     for(const auto &hist : histogramList_) {
         histogramFile_->cd();
-        hist.second->Write(nullptr, TObject::kWriteDelete);
+        if(hist.second->GetEntries() > 0)
+            hist.second->Write(nullptr, TObject::kWriteDelete);
     }
     flushMutex_.unlock();
 }
 
 void RootHandler::Flush() {
-    treeFile_->cd();
     for(const auto &tree : treeList_)
         tree.second->AutoSave("overwrite");
 
-    histogramFile_->cd();
     if(flushMutex_.try_lock()) {
         thread worker0(AsyncFlush);
         worker0.detach();
