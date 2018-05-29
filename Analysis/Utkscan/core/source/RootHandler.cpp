@@ -1,8 +1,7 @@
-/** \file RootHandler.cpp
- * \brief Implemenation of class to dump event info to a root tree
- * \author David Miller and S. V. Paulauskas
- * \date Jan 2010
- */
+///@file RootHandler.cpp
+///@brief Class to handle communications between utkscan and ROOT
+///@author David Miller and S. V. Paulauskas
+///@date January 2010
 #include "RootHandler.hpp"
 
 #include <iostream>
@@ -72,8 +71,7 @@ TH3D *RootHandler::Get3DHistogram(const unsigned int &id) {
     return dynamic_cast<TH3D*>(GetHistogramFromList(id, "Get2DHistogram"));
 }
 
-void RootHandler::RegisterBranch(const std::string &treeName, const std::string &name, void *address,
-                                 const std::string &leaflist) {
+void RootHandler::RegisterBranch(const std::string &treeName, const std::string &name, void *address, const std::string &leaflist) {
     auto tree = treeList_.find(treeName);
     if (tree == treeList_.end())
         throw invalid_argument("Roothandler::RegisterBranch - Attempt to graft branch named " + name
