@@ -25,10 +25,10 @@ namespace dammIds {
 using namespace std;
 using namespace dammIds::experiment;
 
-///DeclarehistogramXD automatically registers the histograms with ROOT. If you want to define a new histogram add its
-/// ID in the experiment namespace above, and then declare it here. The ROOT file contains the IDs prefixed with an
+///DeclarehistogramXD registers the histograms with ROOT. If you want to define a new histogram add its
+/// ID in the experiment namespace above, and then declare it here. The ROOT file contains IDs prefixed with an
 /// "h". This is due to a C++ restriction of variable names starting with a number.
-void TemplateExpProcessor::DeclarePlots(void) {
+void TemplateExpProcessor::DeclarePlots() {
     histo.DeclareHistogram1D(D_TSIZE, S3, "Num Template Evts");
     histo.DeclareHistogram1D(D_GEENERGY, SA, "Gamma Energy with Cut");
     histo.DeclareHistogram2D(DD_TENVSGEN, SA, SA, "Template En vs. Ge En");
@@ -46,16 +46,16 @@ TemplateExpProcessor::TemplateExpProcessor(const double &gcut) : EventProcessor(
     SetupRootOutput();
 }
 
-TemplateExpProcessor::~TemplateExpProcessor() {}
+TemplateExpProcessor::~TemplateExpProcessor() = default;
 
 ///Associates this Experiment Processor with template and ge detector types
-void TemplateExpProcessor::SetAssociatedTypes(void) {
+void TemplateExpProcessor::SetAssociatedTypes() {
     associatedTypes.insert("template");
     associatedTypes.insert("clover");
 }
 
 ///Registers the ROOT tree and branches with RootHandler.
-void TemplateExpProcessor::SetupRootOutput(void) {
+void TemplateExpProcessor::SetupRootOutput() {
     tree_ = RootHandler::get()->RegisterTree("data", "Tree that stores some of our data");
     RootHandler::get()->RegisterBranch("data", "tof", &tof_, "tof/D");
     RootHandler::get()->RegisterBranch("ten", "ten", &tEnergy, "ten/D");
@@ -71,11 +71,11 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
     vector <vector<AddBackEvent>> geAddback;
 
     ///Obtain the list of pre-processed template events that were created in TemplateProcessor::PreProecess
-    if (event.GetSummary("template")->GetList().size() != 0)
+    if (event.GetSummary("template")->GetList().empty())
         tEvts = dynamic_cast<TemplateProcessor*>(DetectorDriver::get()->GetProcessor("TemplateProcessor"))->GetTemplateEvents();
 
     ///Obtain the list of Ge events and addback events that were created in CloverProcessor::PreProcess
-    if (event.GetSummary("clover")->GetList().size() != 0) {
+    if (event.GetSummary("clover")->GetList().empty()) {
         CloverProcessor *cloverProcessor =
                 dynamic_cast<CloverProcessor*>(DetectorDriver::get()->GetProcessor("CloverProcessor"));
         geEvts = cloverProcessor->GetGeEvents();

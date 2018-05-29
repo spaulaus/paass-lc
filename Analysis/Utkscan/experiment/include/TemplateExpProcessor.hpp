@@ -22,7 +22,7 @@ public:
     ~TemplateExpProcessor();
 
     /// Declare the plots used in the analysis
-    void DeclarePlots(void);
+    void DeclarePlots();
 
     /// Process the events that depend on other unassociated detector types.
     ///@param [in] event : the event to process
@@ -31,10 +31,10 @@ public:
 
 private:
     ///Sets the detector types that are associated with this processor
-    void SetAssociatedTypes(void);
+    void SetAssociatedTypes();
 
     /// Method to register our tree and branches when constructing the class
-    void SetupRootOutput(void);
+    void SetupRootOutput();
 
     double gCutoff_; //!< Variable used to set gamma cutoff energy
     TTree *tree_; //!< Pointer to the tree that we're going to define in the constructor
