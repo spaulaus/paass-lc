@@ -9,14 +9,13 @@
 
 using namespace std;
 
-RootHandler *RootHandler::instance_ = nullptr;
-TFile *RootHandler::histogramFile_ = nullptr; //!< The ROOT file that all the information will be stored in.
-TFile *RootHandler::treeFile_ = nullptr; //!< The ROOT file that all the information will be stored in.
-map<std::string, TTree *> RootHandler::treeList_; //!< The list of trees known to the system
-map<unsigned int, TH1 *> RootHandler::histogramList_; //!< The list of 1D histograms known to the system
-mutex RootHandler::flushMutex_;
+RootHandler *RootHandler::instance_ = nullptr; //!< The ONLY instance of this class.
+TFile *RootHandler::histogramFile_ = nullptr; //!< ROOT file storing user registered histograms
+TFile *RootHandler::treeFile_ = nullptr; //!< ROOT File storing user registered trees.
+map<std::string, TTree *> RootHandler::treeList_; //!< The list of user registered trees
+map<unsigned int, TH1 *> RootHandler::histogramList_; //!< List of user registered histograms
+mutex RootHandler::flushMutex_; //!< Ensures only one thread writes to histogramFile_
 
-/// Instance is created upon first call
 RootHandler *RootHandler::get() {
     if (!instance_)
         instance_ = new RootHandler("roothandler-default");

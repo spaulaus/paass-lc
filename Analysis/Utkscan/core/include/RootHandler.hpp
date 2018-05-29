@@ -1,5 +1,5 @@
 ///@file RootHandler.hpp
-///@brief Processor to dump data from events into a root tree. Mostly rewritten in February 2018.
+///@brief Handles communication between utkscan and ROOT. Completely rewritten in February 2018.
 ///@authors D. Miller and S. V. Paulauskas
 ///@date January 2010
 #ifndef __ROOTHANDLER_HPP__
@@ -28,8 +28,7 @@ public:
 
     ///Default Destructor that does the final write to the ROOT file and clears out all our pointers. Because this is
     /// a singleton class, we MUST delete instance_ so that the ROOT file finalizes properly. This will ensure that
-    /// the destructor is called.
-    /// Ex. delete RootHandler::get();
+    /// the destructor is called. Ex. delete RootHandler::get();
     ~RootHandler();
 
     /// Method to access a specific histogram
@@ -71,7 +70,7 @@ public:
     ///@param[in] xbins : The numbers of bins in the X Direction
     ///@param[in] yBins : The Number of bins in the Y Direction
     ///@param[in] zBins : The Number of bins in teh Z direction.
-    ///@return a pointer to the newly registered histogram, or a pointer to the histogram of the same name
+    ///@return a pointer to the newly registered histogram, or a pointer to the histogram of the same id
     TH1 *RegisterHistogram(const unsigned int &id, const std::string &title, const unsigned int &xbins,
                            const unsigned int &yBins = 0, const unsigned int &zBins = 0);
 
@@ -82,10 +81,12 @@ public:
     /// TTree if one was inserted.
     TTree *RegisterTree(const std::string &name, const std::string &description = "");
 
-    ///Method that will update all the trees and histograms in the system.
+    ///Method that will update all the trees and histograms in the system. It spawns a new thread that writes histograms
+    ///  to disk. It locks the histogramFile_ for writing. Trees write to disk serially due to the complex memory
+    ///  management necessary to write them in parallel. BEWARE: This could become a time sink if you have a lot of
+    ///  big trees defined in the system.
     void Flush();
 
-    void FlushTree(TTree *tree);
 private:
     ///The static instance of the RootHandler that everybody can access.
     static RootHandler *instance_;
@@ -100,20 +101,19 @@ private:
 
     ///Checks that a histogram is defined in the histogramList_
     ///@param[in] id : The ID of the histogram that we're looking for
-    ///@param[in] callingFunctionName : The name of the function that called this one, so that we can generate the
-    /// throw message
+    ///@param[in] callingFunctionName : The name of the function that called this one, so that we can generate the throw message
     ///@throws invalid_argument if we couldn't find the histogram in the list
     ///@returns a pointer to the histogram in the list if we found it.
     TH1 *GetHistogramFromList(const unsigned int &id, const std::string &callingFunctionName);
 
-    ///Method that will asynchronously flush trees and histograms.
+    ///Method that loops through histogramList_ and calls Write() on everything that has a non-zero number of entries.
     static void AsyncFlush();
 
-    static TFile *histogramFile_; //!< The ROOT file storing histograms
-    static std::map<unsigned int, TH1 *> histogramList_; //!< The list of 1D histograms known to the system
-    static TFile *treeFile_; //!< The ROOT file storing TTrees
-    static std::map<std::string, TTree *> treeList_; //!< The list of trees known to the system
-    static std::mutex flushMutex_; //!< Mutex to ensure that we don't spawn more than one AsyncWrite thread.
+    static TFile *histogramFile_; //!< ROOT file storing user registered histograms
+    static std::map<unsigned int, TH1 *> histogramList_; //!< List of user registered histograms
+    static TFile *treeFile_; //!< ROOT File storing user registered trees.
+    static std::map<std::string, TTree *> treeList_; //!< The list of user registered trees
+    static std::mutex flushMutex_; //!< Ensures only one thread writes to histogramFile_
 };
 
 #endif // __ROOTHANDLER_HPP_
