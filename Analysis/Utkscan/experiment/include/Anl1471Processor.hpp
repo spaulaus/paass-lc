@@ -4,41 +4,38 @@
 ///@date July 14, 2015
 #ifndef __ANL1471PROCESSOR_HPP_
 #define __ANL1471PROCESSOR_HPP_
-
-#include <fstream>
-
 #include "EventProcessor.hpp"
+
+class TTree;
 
 /// Class to process ANL experiment related events
 class Anl1471Processor : public EventProcessor {
 public:
-    /** Default Constructor */
+    ///Default Constructor
     Anl1471Processor();
 
-    /** Default Destructor */
+    ///Default Destructor
     ~Anl1471Processor();
 
-    /** Declare the plots used in the analysis */
-    virtual void DeclarePlots(void);
+    ///Declare the plots used in the analysis
+    void DeclarePlots(void);
 
-    /** Constructor taking a list of detector types as an argument
-     * \param [in] typeList : the list of bar types that are in the analysis
-     * \param [in] res : The resolution of the DAMM histograms
-
-     * \param [in] offset : The offset of the DAMM histograms
-     * \param [in] numStarts : number of starts in the analysis */
-    Anl1471Processor(const std::vector<std::string> &typeList,
-                     const double &res, const double &offset,
+    ///Constructor taking a list of detector types as an argument
+    ///@param [in] typeList : the list of bar types that are in the analysis
+    ///@param [in] res : The resolution of the DAMM histograms
+    ///@param [in] offset : The offset of the DAMM histograms
+    ///@param [in] numStarts : number of starts in the analysis
+    Anl1471Processor(const std::vector<std::string> &typeList, const double &res, const double &offset, 
                      const double &numStarts);
 
-    /** Process the event
-    * \param [in] event : the event to process
-    * \return Returns true if the processing was successful */
-    virtual bool Process(RawEvent &event);
+    ///Process the event
+    ///@param [in] event : the event to process
+    ///@return Returns true if the processing was successful
+    bool Process(RawEvent &event);
 
 private:
-    std::string fileName_;
-    std::vector<std::string> fileNames_;
+    TTree *gammaTree_;  //!< Tree containing gamma event information
+    TTree *vandleTree_; //!< Tree containing vandle event information
 };
 
 #endif
