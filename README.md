@@ -1,5 +1,6 @@
 # Laughing Conqueror - Pixie Acquisition and Analysis Software Suite (PAASS)
 <!-- Author: S. Paulauskas -->
+[![Analytics](https://beaconimagepaass.appspot.com/UA-116276466-2/welcome-page)](https://github.com/spaulaus/ga-beacon)
 ## Build Status
 Branch | Build status
 ---------|-------------:
