@@ -1,5 +1,6 @@
 # @authors C. R. Thornsberry, K. Smith
 set(Interface_SOURCES AcquisitionConfig.cpp AcquisitionInterface.cpp EmulatedInterface.cpp Lock.cpp)
+
 if (PAASS_BUILD_XIA_INTERFACE)
 	list(APPEND Interface_SOURCES PixieInterface.cpp)
 endif (PAASS_BUILD_XIA_INTERFACE)

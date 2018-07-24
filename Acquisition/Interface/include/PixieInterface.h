@@ -127,7 +127,7 @@ public:
     bool GetStatistics(unsigned short mod);
 
     // # GetStatistics must be called before calling these #
-    stats_t &GetStatisticsData(void) { return statistics; }
+    stats_t &GetStatisticsData(void) { return statistics_; }
 
     double GetInputCountRate(int mod, int chan);
 
@@ -171,9 +171,8 @@ public:
     short GetSlotNumber(int mod) const { return slotMap_[mod]; }
 
     enum BootFlags {
-        BootComm = 0x01, BootTrigger = 0x02, BootSignal = 0x04,
-        BootDSP = 0x08, DownloadParameters = 0x10, ProgramFPGA = 0x20,
-        SetDAC = 0x40, BootAll = 0x7f
+        BootComm = 0x01, BootTrigger = 0x02, BootSignal = 0x04, BootDSP = 0x08, DownloadParameters = 0x10,
+        ProgramFPGA = 0x20, SetDAC = 0x40, BootAll = 0x7f
     };
 
     /** Handy functions for manipulating CSRA/B */
@@ -201,21 +200,19 @@ private:
     void CatcherMessage(void);
 #endif
 
-    bool doneInit;
+    bool doneInit_;
 
     // checks retval and outputs default OK/ERROR message
     bool CheckError(bool exitOnError = false) const;
 
-    stats_t statistics;
+    stats_t statistics_;
 
-    int retval; // return value from pixie functions
-
-    std::queue<Pixie16::word_t> extraWords[Pixie16::maximumNumberOfModulesPerCrate];
+    std::queue<Pixie16::word_t> extraWords_[Pixie16::maximumNumberOfModulesPerCrate];
 
     // temporary variables which hold the parameter which is being modified
     //   to deal with the const-incorrectness of the Pixie-16 API
-    static const size_t nameSize = 120;
-    char tmpName[nameSize];
+    static const size_t nameSize_ = 120;
+    char tmpName_[nameSize_];
 };
 
 #endif // __PIXIEINTERFACE_H_

@@ -10,22 +10,22 @@ using namespace std;
 
 AcquisitionConfig::AcquisitionConfig() {
     // Set-up valid configuration keys if they don't exist yet
-    if (validConfigKeys.empty()) {
+    if (validConfigKeys_.empty()) {
         // module files
-        validConfigKeys.insert("ModuleType");
-        validConfigKeys.insert("ModuleBaseDir");
-        validConfigKeys.insert("SpFpgaFile");
-        validConfigKeys.insert("TrigFpgaFile");
-        validConfigKeys.insert("ComFpgaFile");
-        validConfigKeys.insert("DspConfFile");
-        validConfigKeys.insert("DspVarFile");
+        validConfigKeys_.insert("ModuleType");
+        validConfigKeys_.insert("ModuleBaseDir");
+        validConfigKeys_.insert("SpFpgaFile");
+        validConfigKeys_.insert("TrigFpgaFile");
+        validConfigKeys_.insert("ComFpgaFile");
+        validConfigKeys_.insert("DspConfFile");
+        validConfigKeys_.insert("DspVarFile");
         // global files
-        validConfigKeys.insert("PixieBaseDir");
-        validConfigKeys.insert("DspSetFile");
-        validConfigKeys.insert("DspWorkingSetFile");
-        validConfigKeys.insert("ListModeFile");
-        validConfigKeys.insert("SlotFile");
-        validConfigKeys.insert("CrateConfig");
+        validConfigKeys_.insert("PixieBaseDir");
+        validConfigKeys_.insert("DspSetFile");
+        validConfigKeys_.insert("DspWorkingSetFile");
+        validConfigKeys_.insert("ListModeFile");
+        validConfigKeys_.insert("SlotFile");
+        validConfigKeys_.insert("CrateConfig");
     }
 }
 
@@ -53,7 +53,7 @@ bool AcquisitionConfig::ReadConfigFile(const char *fn) {
         std::string tag, value;
         if ((lineStream >> tag >> value)) {
             //Check if tag is recognized
-            if (validConfigKeys.find(tag) == validConfigKeys.end()) {
+            if (validConfigKeys_.find(tag) == validConfigKeys_.end()) {
                 cout << "Unrecognized tag " << Display::WarningStr(tag)
                      << " in PixieInterface configuration file." << endl;
             }
@@ -67,7 +67,7 @@ bool AcquisitionConfig::ReadConfigFile(const char *fn) {
                 std::cout << "Module Type: ";
 
                 //If we have multiple entires for one type we throw an error.
-                if (configStrings.find(moduleType) != configStrings.end()) {
+                if (configStrings_.find(moduleType) != configStrings_.end()) {
                     error = true;
 
                     std::cout << Display::ErrorStr(moduleType) << "\n";
@@ -94,11 +94,11 @@ bool AcquisitionConfig::ReadConfigFile(const char *fn) {
                 }
                 if (newModule && tag != "ModuleBaseDir") {
                     std::cout << " PixieBaseDir\t"
-                              << configStrings["global"]["PixieBaseDir"]
+                              << configStrings_["global"]["PixieBaseDir"]
                               << "\n";
                 }
                 newModule = false;
-                if (configStrings[moduleType][tag] != "") {
+                if ((configStrings_[moduleType][tag]).empty()) {
                     error = true;
 
                     std::cout << " " << Display::ErrorStr(tag) << "\t" << value << endl;
@@ -112,17 +112,17 @@ bool AcquisitionConfig::ReadConfigFile(const char *fn) {
                 } else {
                     std::cout << " " << tag << "\t" << value << endl;
                 }
-                configStrings[moduleType][tag] = ConfigFileName(moduleType,
+                configStrings_[moduleType][tag] = ConfigFileName(moduleType,
                                                                 value);
             } else {
                 std::cout << " " << tag << "\t" << value << endl;
-                configStrings["global"][tag] = ConfigFileName("global", value);
+                configStrings_["global"][tag] = ConfigFileName("global", value);
             }
 
             //Check if BaseDir is defined differently then in the environment
             if (tag == "PixieBaseDir") {
                 // check if this matches the environment PXI_ROOT if it is set
-                if (getenv("PXI_ROOT") != NULL) {
+                if (getenv("PXI_ROOT") != nullptr) {
                     if (value != string(getenv("PXI_ROOT"))) {
                         cout << Display::WarningStr("This does not match the value of PXI_ROOT set in the environment")
                              << endl;
@@ -208,11 +208,11 @@ string AcquisitionConfig::ConfigFileName(const string &type, const string &str) 
     //Try to determine correct BaseDir.
     string baseDir;
     //If the file is a global type we use PixieBaseDir
-    if (type == "global") baseDir = configStrings["global"]["PixieBaseDir"];
+    if (type == "global") baseDir = configStrings_["global"]["PixieBaseDir"];
         //Otherwise we try the ModuleBaseDir for the specified type and then the PixieBaseDir
     else {
-        baseDir = configStrings[type]["ModuleBaseDir"];
-        if (baseDir.empty()) baseDir = configStrings["global"]["PixieBaseDir"];
+        baseDir = configStrings_[type]["ModuleBaseDir"];
+        if (baseDir.empty()) baseDir = configStrings_["global"]["PixieBaseDir"];
     }
     //No success so we assume they want the local directory.
     if (baseDir.empty()) baseDir = ".";
@@ -222,5 +222,9 @@ string AcquisitionConfig::ConfigFileName(const string &type, const string &str) 
 }
 
 std::string AcquisitionConfig::Get(std::string moduleType, std::string tag) {
-    return configStrings[moduleType][tag];
+    return configStrings_[moduleType][tag];
+}
+
+bool AcquisitionConfig::HasModuleConfig(const std::string &moduleType) {
+    return configStrings_.find(moduleType) != configStrings_.end();
 }

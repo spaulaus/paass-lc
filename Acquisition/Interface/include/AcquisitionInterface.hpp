@@ -71,6 +71,7 @@ protected:
     unsigned short numberOfModules_;
     unsigned short numberOfChannels_;
     unsigned short slotMap_[Pixie16::maximumNumberOfModulesPerCrate];
+    int retval_;
 
     AcquisitionConfig config_;
 private:

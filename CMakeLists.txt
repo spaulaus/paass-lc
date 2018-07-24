@@ -57,6 +57,7 @@ option(PAASS_BUILD_ANALYSIS "Build analysis related programs" ON)
 option(PAASS_BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(PAASS_BUILD_TESTS "Builds programs designed to test the package. Including UnitTest++ test." OFF)
+option(PAASS_BUILD_XIA_INTERFACE "Builds the interface for XIA Pixie16 modules" ON)
 
 #------------------------------------------------------------------------------
 
@@ -72,9 +73,6 @@ find_package(PLX)
 
 #Find the Pixie Firmware
 find_package(XIA)
-if(XIA_FOUND)
-    include_directories(${XIA_INCLUDE_DIR})
-endif(XIA_FOUND)
 
 #Find curses library used for pretty much everything at this point.
 find_package(Curses REQUIRED)

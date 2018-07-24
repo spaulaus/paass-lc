@@ -30,8 +30,7 @@
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
 
-typedef PixieInterface::word_t word_t;
-typedef word_t eventdata_t[maxEventSize];
+typedef Pixie16::word_t eventdata_t[maxEventSize];
 
 class MCA;
 
@@ -104,7 +103,7 @@ class Poll{
 private:
     Terminal *poll_term_;
     ///A vector to store the partial events
-    std::vector<word_t> *partialEvents;
+    std::vector<Pixie16::word_t> *partialEvents;
 
     double startTime; ///Time when the acquistion was started.
     double lastSpillTime; ///Time when the last spill finished.
@@ -225,10 +224,10 @@ private:
     bool OpenOutputFile(bool continueRun = false);
 
     /// Write a data spill to disk.
-    int write_data(word_t *data, unsigned int nWords);
+    int write_data(Pixie16::word_t *data, unsigned int nWords);
 
     /// Broadcast a data spill onto the network.
-    void broadcast_data(word_t *data, unsigned int nWords);
+    void broadcast_data(Pixie16::word_t *data, unsigned int nWords);
 
     /// Broadcast a data spill onto the network in the classic pacman format.
     void broadcast_pac_data();

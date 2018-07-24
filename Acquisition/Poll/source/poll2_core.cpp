@@ -201,7 +201,7 @@ Poll::~Poll(){
 }
 
 void Poll::PrintModuleInfo() {
-    for (int mod=0; mod<pif->GetNumberCards(); mod++) {
+    for (int mod=0; mod<pif->GetNumberOfModules(); mod++) {
         unsigned short revision, adcBits, adcMsps;
         unsigned int serialNumber;
         if (pif->GetModuleInfo(mod, &revision, &serialNumber, &adcBits, &adcMsps)) {
@@ -225,7 +225,7 @@ bool Poll::Initialize(){
     }
 
     // Initialize the pixie interface and boot
-    pif->GetSlots();
+    pif->ReadSlotConfig();
     if(!pif->Init()){ return false; }
 
     PrintModuleInfo();
@@ -242,13 +242,13 @@ bool Poll::Initialize(){
     if(!synch_mods()){ return false; }
 
     // Allocate memory buffers for FIFO
-    n_cards = pif->GetNumberCards();
+    n_cards = pif->GetNumberOfModules();
 
     // This port number is used to avoid tying up udptoipc's port
     client->Init("127.0.0.1", 5555);
 
     //Allocate an array of vectors to store partial events from the FIFO.
-    partialEvents = new std::vector<word_t>[n_cards];
+    partialEvents = new std::vector<Pixie16::word_t>[n_cards];
 
     //Create a stats handler and set the interval.
     statsHandler = new StatsHandler(n_cards);
@@ -399,7 +399,7 @@ bool Poll::synch_mods(){
         firstTime = false;
     }
 
-    for(unsigned int mod = 0; mod < pif->GetNumberCards(); mod++){
+    for(unsigned int mod = 0; mod < pif->GetNumberOfModules(); mod++){
         if (!pif->WriteSglModPar(synchString, 0, mod)){ hadError = true; }
     }
 
@@ -409,7 +409,7 @@ bool Poll::synch_mods(){
     return !hadError;
 }
 
-int Poll::write_data(word_t *data, unsigned int nWords){
+int Poll::write_data(Pixie16::word_t *data, unsigned int nWords){
     // Open an output file if needed
     if(!output_file.IsOpen()){
         std::cout << Display::ErrorStr() << " Recording data, but no file is open!\n";
@@ -435,10 +435,10 @@ int Poll::write_data(word_t *data, unsigned int nWords){
     return output_file.Write((char*)data, nWords);
 }
 
-void Poll::broadcast_data(word_t *data, unsigned int nWords) {
+void Poll::broadcast_data(Pixie16::word_t *data, unsigned int nWords) {
     // Maximum size of the shared memory buffer
     static const unsigned int maxShmSizeL = 4050; // in pixie words
-    static const unsigned int maxShmSize  = maxShmSizeL * sizeof(word_t); // in bytes
+    static const unsigned int maxShmSize  = maxShmSizeL * sizeof(Pixie16::word_t); // in bytes
 
     if(shm_mode){ // Broadcast the spill onto the network using the new shm style
         int shm_data[maxShmSizeL+2]; // packets of data
@@ -628,7 +628,7 @@ void Poll::show_thresh() {
 /// Acquire raw traces from a pixie module.
 void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/){
     size_t trace_size = PixieInterface::GetTraceLength();
-    size_t module_size = pif->GetNumberChannels() * trace_size;
+    size_t module_size = pif->GetNumberOfChannels() * trace_size;
     std::cout << sys_message_head << "Searching for traces from mod = " << mod_ << ", chan = " << chan_ << " above threshold = " << thresh_ << ".\n";
     std::cout << sys_message_head << "Allocating " << (trace_size+module_size)*sizeof(unsigned short) << " bytes of memory for pixie traces.\n";
     std::cout << sys_message_head << "Searching for traces. Please wait...\n";
@@ -646,7 +646,7 @@ void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/){
     else{ std::cout << sys_message_head << "Found trace above threshold in " << gtraces.GetAttempts() << " attempts.\n"; }
 
     std::cout << "  Baselines:\n";
-    for(unsigned int channel = 0; channel < pif->GetNumberChannels(); channel++){
+    for(unsigned int channel = 0; channel < pif->GetNumberOfChannels(); channel++){
         if(channel == (unsigned)chan_){ std::cout << "\033[0;33m"; }
         if(channel < 10){ std::cout << "   0" << channel << ": "; }
         else{ std::cout << "   " << channel << ": "; }
@@ -660,7 +660,7 @@ void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/){
     else{ // Write the output file.
         // Add a header.
         get_traces_out << "time";
-        for(size_t channel = 0; channel < pif->GetNumberChannels(); channel++){
+        for(size_t channel = 0; channel < pif->GetNumberOfChannels(); channel++){
             if(channel < 10){ get_traces_out << "\tC0" << channel; }
             else{ get_traces_out << "\tC" << channel; }
         }
@@ -669,7 +669,7 @@ void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/){
         // Write channel traces.
         for(size_t index = 0; index < trace_size; index++){
             get_traces_out << index;
-            for(size_t channel = 0; channel < pif->GetNumberChannels(); channel++){
+            for(size_t channel = 0; channel < pif->GetNumberOfChannels(); channel++){
                 get_traces_out << "\t" << module_data[(channel * trace_size) + index];
             }
             get_traces_out << std::endl;
@@ -1631,7 +1631,7 @@ void Poll::UpdateStatus() {
 
 void Poll::ReadScalers() {
     static std::vector< std::pair<double, double> > xiaRates(16, std::make_pair<double, double>(0,0));
-    static int numChPerMod = pif->GetNumberChannels();
+    static int numChPerMod = pif->GetNumberOfChannels();
 
     for (unsigned short mod=0;mod < n_cards; mod++) {
         //Tell interface to get stats data from the modules.
@@ -1645,14 +1645,14 @@ void Poll::ReadScalers() {
     }
 }
 bool Poll::ReadFIFO() {
-    static word_t *fifoData = new word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
+    static Pixie16::word_t *fifoData = new Pixie16::word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
 
     if (!acq_running) return false;
 
     //Number of words in the FIFO of each module.
-    std::vector<word_t> nWords(n_cards);
+    std::vector<Pixie16::word_t> nWords(n_cards);
     //Iterator to determine which card has the most words.
-    std::vector<word_t>::iterator maxWords;
+    std::vector<Pixie16::word_t>::iterator maxWords;
 
     //We loop until the FIFO has reached the threshold for any module unless we are stopping and then we skip the loop.
     for (unsigned int timeout = 0; timeout < POLL_TRIES; timeout++){
@@ -1733,13 +1733,13 @@ bool Poll::ReadFIFO() {
             //We now need to parse the event to determine if there is a hanging event. Also, allows a check for corrupted data.
             size_t parseWords = dataWords;
             //We declare the eventSize outside the loop in case there is a partial event.
-            word_t eventSize = 0, prevEventSize = 0;
-            word_t slotExpected = pif->GetSlotNumber(mod);
+            Pixie16::word_t eventSize = 0, prevEventSize = 0;
+            Pixie16::word_t slotExpected = pif->GetSlotNumber(mod);
             while (parseWords < dataWords + nWords[mod]) {
                 //Check first word to see if data makes sense.
                 // We check the slot, channel and event size.
-                word_t slotRead = ((fifoData[parseWords] & 0xF0) >> 4);
-                word_t chanRead = (fifoData[parseWords] & 0xF);
+                Pixie16::word_t slotRead = ((fifoData[parseWords] & 0xF0) >> 4);
+                Pixie16::word_t chanRead = (fifoData[parseWords] & 0xF);
                 eventSize = ((fifoData[parseWords] & 0x7FFE2000) >> 17);
                 bool virtualChannel = ((fifoData[parseWords] & 0x20000000) != 0);
 
@@ -1761,7 +1761,7 @@ bool Poll::ReadFIFO() {
 
                 // Update the statsHandler with the event (for monitor.bash)
                 if(!virtualChannel && statsHandler){
-                    statsHandler->AddEvent(mod, chanRead, sizeof(word_t) * eventSize);
+                    statsHandler->AddEvent(mod, chanRead, sizeof(Pixie16::word_t) * eventSize);
                 }
 
                 //Iterate to the next event and continue parsing
@@ -1772,8 +1772,8 @@ bool Poll::ReadFIFO() {
             //We now check the outcome of the data parsing.
             //If we have too many words as an event was not completely pulled form the FIFO
             if (parseWords > dataWords + nWords[mod]) {
-                word_t missingWords = parseWords - dataWords - nWords[mod];
-                word_t partialSize = eventSize - missingWords;
+                Pixie16::word_t missingWords = parseWords - dataWords - nWords[mod];
+                Pixie16::word_t partialSize = eventSize - missingWords;
                 if (debug_mode) std::cout << "Partial event " << partialSize << "/" << eventSize << " words!\n";
 
                 //We could get the words now from the FIFO, but me may have to wait. Instead we store the partial event for the next FIFO read.
@@ -1817,7 +1817,7 @@ bool Poll::ReadFIFO() {
 
                 //Print the following event
                 //Determine size of following event.
-                word_t nextEventSize = 0;
+                Pixie16::word_t nextEventSize = 0;
                 if (parseWords + eventSize < dataWords + nWords[mod]) {
                     nextEventSize = ((fifoData[parseWords + eventSize] & 0x7FFE2000) >> 17);
                 }

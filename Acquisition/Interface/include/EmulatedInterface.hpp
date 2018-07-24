@@ -7,55 +7,36 @@
 
 class EmulatedInterface : public AcquisitionInterface {
 public:
-    EmulatedInterface(const char *cfgFile);
+    EmulatedInterface();
+    EmulatedInterface(const char *cfgFile = "");
 
-    virtual ~EmulatedInterface() {};
+    ~EmulatedInterface();
 
-    virtual bool Init(bool offlineMode = false) { return true; };
+    bool AcquireTraces(int mod);
+    bool AdjustOffsets(unsigned short mod);
+    bool Boot(Interface::BootType mode, bool useWorkingSetFile);
+    unsigned long CheckFIFOWords(unsigned short mod);
+    bool CheckRunStatus(short mod = -1);
+    bool EndRun(short mod = -1);
+    bool Init(bool offlineMode = false);
 
-    virtual bool Boot(Interface::BootType mode, bool useWorkingSetFile) { return true; };
+    void PrintSglChanPar(const char *name, int mod, int chan, double *prev = nullptr) {};
+    void PrintSglModPar(const char *name, int mod, Pixie16::word_t *prev = nullptr) {};
 
-    virtual unsigned long CheckFIFOWords(unsigned short mod) { return 0; };
+    bool ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords, unsigned short mod, bool verbose = false);
+    bool ReadHistogram(Pixie16::word_t *hist, unsigned long sz, unsigned short mod, unsigned short ch);
+    bool ReadSlotConfig(const char *slotCfgFile = nullptr);
+    bool ReadSglChanPar(const char *name, double &val, int mod, int chan);
+    bool ReadSglChanTrace(unsigned short *buf, unsigned long sz, unsigned short mod, unsigned short chan);
+    bool ReadSglModPar(const char *name, Pixie16::word_t &val, int mod);
+    bool RemovePresetRunLength(int mod);
 
-    virtual bool ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords,
-                               unsigned short mod, bool verbose = false) { return false; };
+    bool StartHistogramRun(short mod, unsigned short mode);
+    bool StartListModeRun(short mod = -1, unsigned short listMode = 0, unsigned short runMode = 0);
+    bool SaveDSPParameters(const char *fn = nullptr);
 
-    virtual bool StartHistogramRun(short mod, unsigned short mode) { return false; };
-
-    virtual bool WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval = nullptr) { return false; };
-
-    virtual bool ReadSglModPar(const char *name, Pixie16::word_t &val, int mod) { return false; };
-
-    virtual void PrintSglModPar(const char *name, int mod, Pixie16::word_t *prev = nullptr) {};
-
-    virtual bool
-    WriteSglChanPar(const char *name, double val, int mod, int chan, double *pval = nullptr) { return false; };
-
-    virtual bool ReadSglChanPar(const char *name, double &val, int mod, int chan) { return false; };
-
-    virtual void PrintSglChanPar(const char *name, int mod, int chan, double *prev = nullptr) {};
-
-    virtual bool SaveDSPParameters(const char *fn = nullptr) { return false; };
-
-    virtual bool AcquireTraces(int mod) { return false; };
-
-    // # AcquireTraces must be called before calling this #
-    virtual bool ReadSglChanTrace(unsigned short *buf, unsigned long sz,
-                                  unsigned short mod, unsigned short chan) { return false; };
-
-    virtual bool AdjustOffsets(unsigned short mod) { return false; };
-
-    virtual bool StartListModeRun(short mod = -1, unsigned short listMode = 0,
-                                  unsigned short runMode = 0) { return false; };
-
-    bool CheckRunStatus(short mod = -1) { return false; };
-
-    virtual bool EndRun(short mod = -1) { return false; };
-
-    virtual bool ReadHistogram(Pixie16::word_t *hist, unsigned long sz,
-                               unsigned short mod, unsigned short ch) { return false; };
-
-    virtual bool RemovePresetRunLength(int mod) { return false; };
+    bool WriteSglChanPar(const char *name, double val, int mod, int chan, double *pval = nullptr);
+    bool WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval = nullptr);
 };
 
 #endif //__EMULATEDINTERFACE_HPP_
