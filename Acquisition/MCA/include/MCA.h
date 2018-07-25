@@ -1,6 +1,9 @@
-///@authors K. Smith, C. R. Thornsberry
-#ifndef MCA_H
-#define MCA_H
+/// @file MCA.h
+/// @brief Base class for the MCA writer classes
+/// @author K. Smith, C. R. Thornsberry, S. V. Paulauskas
+/// @date Updated July 25, 2018
+#ifndef PAASSLC_MCA_H
+#define PAASSLC_MCA_H
 
 #include <ctime>
 
@@ -10,20 +13,6 @@ class AcquisitionInterface;
 
 ///Abstract MCA class
 class MCA {
-protected:
-    /// Timers for the MCA object
-    time_t start_time;
-    time_t stop_time;
-
-    ///Default number of bins in histogram.
-    static const size_t HIS_SIZE = 16384;
-    ///Default number of channels in ADC.
-    static const size_t ADC_SIZE = 32768;
-
-    ///Flag indicating if histogram construction was successful.
-    bool _isOpen;
-    ///Pointer to the AcquisitionInterface
-    AcquisitionInterface *_pif;
 public:
     ///Default constructor.
     MCA(AcquisitionInterface *pif);
@@ -51,6 +40,20 @@ public:
 
     ///Update the MCA histograms.
     virtual bool Step();
-};
 
-#endif 
+protected:
+    /// Timers for the MCA object
+    time_t start_time;
+    time_t stop_time;
+
+    ///Default number of bins in histogram.
+    static const size_t HIS_SIZE = 16384;
+    ///Default number of channels in ADC.
+    static const size_t ADC_SIZE = 32768;
+
+    ///Flag indicating if histogram construction was successful.
+    bool _isOpen;
+    ///Pointer to the AcquisitionInterface
+    AcquisitionInterface *_pif;
+};
+#endif //PAASSLC_MCA_H

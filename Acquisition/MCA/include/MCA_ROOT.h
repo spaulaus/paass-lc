@@ -1,20 +1,39 @@
-///@authors K. Smith, C. R. Thornsberry
-#ifndef MCA_ROOT_H
-#define MCA_ROOT_H
-
-#include <iostream>
-
+/// @file MCA_ROOT.h
+/// @brief Class to handle outputting MCA data into ROOT files
+/// @author K. Smith, C. R. Thornsberry, S. V. Paulauskas
+/// @date Updated July 25, 2018
+#ifndef PAASSLC_MCA_ROOT_H
+#define PAASSLC_MCA_ROOT_H
 #include "MCA.h"
 
+#include <iostream>
 #include <map>
-#include <stdio.h>
+
+#include <cstdio>
+
 #include <unistd.h>
 
 class TFile;
-
 class TH1F;
 
 class MCA_ROOT : public MCA {
+public:
+    ///Default constructor
+    MCA_ROOT(AcquisitionInterface *pif, const char *basename);
+
+    ///Defaul destructor
+    ~MCA_ROOT();
+
+    bool StoreData(int mod, int ch);
+
+    void Flush();
+
+    bool OpenFile(const char *basename);
+
+    TH1F *GetHistogram(int mod, int ch);
+
+    void Reset();
+
 private:
     TFile *_file;
     std::map<int, TH1F *> _histograms;
@@ -49,24 +68,6 @@ private:
         }
 
     };
-
-public:
-    ///Default constructor
-    MCA_ROOT(AcquisitionInterface *pif, const char *basename);
-
-    ///Defaul destructor
-    ~MCA_ROOT();
-
-    bool StoreData(int mod, int ch);
-
-    void Flush();
-
-    bool OpenFile(const char *basename);
-
-    TH1F *GetHistogram(int mod, int ch);
-
-    void Reset();
-
 };
 
 #endif

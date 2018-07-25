@@ -54,5 +54,3 @@ int main(int argc, char *argv[]) {
 
     return EXIT_SUCCESS;
 }
-
-// vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 autoindent
