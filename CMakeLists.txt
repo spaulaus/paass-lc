@@ -57,17 +57,9 @@ option(PAASS_BUILD_ANALYSIS "Build analysis related programs" ON)
 option(PAASS_BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(PAASS_BUILD_TESTS "Builds programs designed to test the package. Including UnitTest++ test." OFF)
-option(PAASS_USE_DAMM "Use DAMM for MCA" ON)
 
 #------------------------------------------------------------------------------
 
-#Definitions with compiler options
-#The MCA will write DAMM histograms as output
-if (PAASS_USE_DAMM)
-    add_definitions("-D USE_DAMM")
-endif (PAASS_USE_DAMM)
-
-#------------------------------------------------------------------------------
 #Find packages needed for the software.
 #Load additional find_package scripts.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/Cmake/modules/")
