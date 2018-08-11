@@ -35,7 +35,6 @@ void help(const char *progName_) {
     std::cout << "  --thresh (-t) <num>   | Sets FIFO read threshold to num% full (50% by default)\n";
     std::cout << "  --zero                | Zero clocks on each START_ACQ (false by default)\n";
     std::cout << "  --debug (-d)          | Set debug mode to true (false by default)\n";
-    std::cout << "  --pacman (-p)         | Use classic poll operation for use with Pacman.\n";
     std::cout << "  --help (-h)           | Display this help dialogue.\n\n";
 }
 
@@ -61,7 +60,6 @@ int main(int argc, char *argv[]) {
             {"thresh",        required_argument, NULL, 't'},
             {"zero",          no_argument,       NULL, 0},
             {"debug",         no_argument,       NULL, 'd'},
-            {"pacman",        no_argument,       NULL, 'p'},
             {"help",          no_argument,       NULL, 'h'},
             {"prefix",        no_argument,       NULL, 0},
             {"?",             no_argument,       NULL, 0},
@@ -101,9 +99,6 @@ int main(int argc, char *argv[]) {
                 break;
             case 'd':
                 poll.SetDebugMode();
-                break;
-            case 'p':
-                poll.SetPacmanMode();
                 break;
             case 'h' :
                 help(argv[0]);
@@ -165,8 +160,6 @@ int main(int argc, char *argv[]) {
     poll_term.AddStatusWindow();
     poll_term.EnableTabComplete();
     poll_term.SetLogFile(poll2Dir + "poll2.log");
-    if (poll.GetPacmanMode()) poll_term.EnableTimeout();
-
     poll.PrintModuleInfo();
 
     poll.SetThreshWords(EXTERNAL_FIFO_LENGTH * threshPercent / 100.0);
@@ -184,7 +177,6 @@ int main(int argc, char *argv[]) {
     std::cout << "Using unknown Pixie16 revision!!!\n";
 #endif
 
-    if (poll.GetPacmanMode()) { std::cout << "Using pacman mode!\n"; }
     std::cout << std::endl;
 
     poll.SetTerminal(&poll_term);

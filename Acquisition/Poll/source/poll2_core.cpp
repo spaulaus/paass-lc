@@ -46,17 +46,16 @@
 #include "Display.h"
 
 #include "MCA_ROOT.h"
-#include "MCA_DAMM.h"
 
 // Values associated with the minimum timing between pixie calls (in us)
 // Adjusted to help alleviate the issue with data corruption
 #define POLL_TRIES 100
 
-// 2 GB. Maximum allowable .ldf file size in bytes
-#define MAX_FILE_SIZE 2147483648ll
-
 // Length of shm packet header (in bytes)
 #define PKT_HEAD_LEN 8
+
+// 2 GB. Maximum allowable .ldf file size in bytes
+#define MAX_FILE_SIZE 2147483648ll
 
 // Maximum shm packet size (in bytes)
 #define MAX_PKT_DATA (MAX_ORPH_DATA - PKT_HEAD_LEN)
@@ -87,7 +86,6 @@ MCA_args::MCA_args(){
 
 MCA_args::MCA_args(bool useRoot_, int totalTime_, std::string basename_){
     running = false;
-    useRoot = useRoot_;
     totalTime = totalTime_;
     basename = basename_;
 
@@ -104,16 +102,7 @@ bool MCA_args::Initialize(PixieInterface *pif_){
     pif_->RemovePresetRunLength(0);
 
     // Initialize the MCA object.
-#if defined(USE_ROOT) && defined(USE_DAMM)
-    if(useRoot)
-        mca = (MCA*)(new MCA_ROOT(pif_, basename.c_str()));
-    else
-        mca = (MCA*)(new MCA_DAMM(pif_, basename.c_str()));
-#elif defined(USE_ROOT)
     mca = (MCA*)(new MCA_ROOT(pif_, basename.c_str()));
-#elif defined(USE_DAMM)
-	mca = (MCA*)(new MCA_DAMM(pif_, basename.c_str()));
-#endif
 
     pif_->StartHistogramRun();
 
@@ -176,7 +165,6 @@ Poll::Poll() :
         zero_clocks(false),
         debug_mode(false),
         shm_mode(false),
-        pac_mode(false),
         init(false),
         runTime(-1.0),
         // Options relating to output data file
@@ -185,10 +173,7 @@ Poll::Poll() :
         output_title("PIXIE data file"), // Set with 'title' command
         next_run_num(1), // Set with 'runnum' command
         output_format(0), // Set with 'oform' command
-        current_file_num(0),
-        // Some pacman stuff
-        udp_sequence(0),
-        total_spill_chunks(0)
+        current_file_num(0)
 {
     pif = new PixieInterface("pixie.cfg");
 
@@ -259,19 +244,8 @@ bool Poll::Initialize(){
     // Allocate memory buffers for FIFO
     n_cards = pif->GetNumberCards();
 
-    if(pac_mode){
-        //Initialize pacman data port
-        client->Init("127.0.0.1", 45080);
-
-        //Initialize pacman command port
-        server = new Server();
-        server->Init(45086, 1); // Set the timeout to 1 second.
-    }
-    else{
-        //Initialize Cory's shm port
-        // This port number is used to avoid tying up udptoipc's port
-        client->Init("127.0.0.1", 5555);
-    }
+    // This port number is used to avoid tying up udptoipc's port
+    client->Init("127.0.0.1", 5555);
 
     //Allocate an array of vectors to store partial events from the FIFO.
     partialEvents = new std::vector<word_t>[n_cards];
@@ -283,11 +257,7 @@ bool Poll::Initialize(){
     //Build the list of commands
     commands_.insert(commands_.begin(), pollStatusCommands_.begin(), pollStatusCommands_.end());
     commands_.insert(commands_.begin(), paramControlCommands_.begin(), paramControlCommands_.end());
-    //Omit the run control commands.
-    if (!pac_mode) {
-        commands_.insert(commands_.begin(), runControlCommands_.begin(), runControlCommands_.end());
-    }
-    else commands_.push_back("mca");
+    commands_.insert(commands_.begin(), runControlCommands_.begin(), runControlCommands_.end());
 
     return init = true;
 }
@@ -301,9 +271,7 @@ bool Poll::Close(){
     if(!init){ return false; }
 
     //Send message to Cory's SHM that we are closing.
-    if(!pac_mode){ client->SendMessage((char *)"$KILL_SOCKET", 13); }
-        //Close the pacman command port.
-    else{ server->Close(); }
+    client->SendMessage((char *)"$KILL_SOCKET", 13);
     //Close the UDP data / SHM port.
     client->Close();
 
@@ -350,7 +318,7 @@ bool Poll::CloseOutputFile(const bool continueRun /*=false*/){
     output_file.CloseFile();
 
     //Broadcast to Cory's SHM that the file is now closed.
-    if(!pac_mode){ client->SendMessage((char *)"$CLOSE_FILE", 12); }
+    client->SendMessage((char *)"$CLOSE_FILE", 12);
 
     //Set the flag that no file is open.
     file_open = false;
@@ -410,8 +378,7 @@ bool Poll::OpenOutputFile(bool continueRun){
     statsHandler->Clear();
     statsHandler->Dump();
 
-    //When using Cory's SHM send a message that the file is open.
-    if(!pac_mode){ client->SendMessage((char *)"$OPEN_FILE", 12); }
+    client->SendMessage((char *)"$OPEN_FILE", 12);
 
     file_open = true;
 
@@ -473,56 +440,7 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
     static const unsigned int maxShmSizeL = 4050; // in pixie words
     static const unsigned int maxShmSize  = maxShmSizeL * sizeof(word_t); // in bytes
 
-    if(pac_mode){ // Broadcast the spill onto the network using the classic pacman shm style
-        unsigned int nBufs = nWords / maxShmSizeL;
-        unsigned int wordsLeft = nWords % maxShmSizeL;
-
-        unsigned int totalBufs = nBufs + 1 + ((wordsLeft != 0) ? 1 : 0);
-
-        if (debug_mode) std::cout << "Broadcasting " << totalBufs << " pacman buffers.\n";
-
-        word_t *pWrite = (word_t *)AcqBuf.Data;
-
-        // Chop the data and send it through the network
-        for(size_t buf=0; buf < nBufs; buf++){
-            // Get a long sized pointer to the data block for writing
-            // put a header on each shared memory buffer
-            AcqBuf.BufLen = (maxShmSizeL + 3) * sizeof(word_t);
-            pWrite[0] = AcqBuf.BufLen; // size
-            pWrite[1] = totalBufs; // number of buffers we expect
-            pWrite[2] = buf;
-            memcpy(&pWrite[3], &data[buf * maxShmSizeL], maxShmSize);
-
-            broadcast_pac_data();
-            usleep(1);
-        }
-
-        // Send the last fragment (if there is any)
-        if (wordsLeft != 0) {
-            AcqBuf.BufLen = (wordsLeft + 3) * sizeof(word_t);
-            pWrite[0] = AcqBuf.BufLen;
-            pWrite[1] = totalBufs;
-            pWrite[2] = nBufs;
-            memcpy(&pWrite[3], &data[nBufs * maxShmSizeL],
-                   wordsLeft * sizeof(word_t) );
-
-            broadcast_pac_data();
-            usleep(1);
-        }
-
-        // Send a buffer to say that we are done
-        AcqBuf.BufLen = 5 * sizeof(word_t);
-        pWrite[0] = AcqBuf.BufLen;
-        pWrite[1] = totalBufs;
-        pWrite[2] = totalBufs - 1;
-
-        // Pacman looks for the following data
-        pWrite[3] = 0x2;
-        pWrite[4] = 0x270f; // vsn 9999
-
-        broadcast_pac_data();
-    }
-    else if(shm_mode){ // Broadcast the spill onto the network using the new shm style
+    if(shm_mode){ // Broadcast the spill onto the network using the new shm style
         int shm_data[maxShmSizeL+2]; // packets of data
         unsigned int num_net_chunks = nWords / maxShmSizeL;
         unsigned int num_net_remain = nWords % maxShmSizeL;
@@ -530,7 +448,9 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
 
         unsigned int net_chunk = 1;
         unsigned int words_bcast = 0;
-        if(debug_mode){ std::cout << " debug: Splitting " << nWords << " words into network spill of " << num_net_chunks << " chunks (fragment = " << num_net_remain << " words)\n"; }
+        if(debug_mode)
+            std::cout << " debug: Splitting " << nWords << " words into network spill of " << num_net_chunks
+                      << " chunks (fragment = " << num_net_remain << " words)\n";
 
         while(words_bcast < nWords){
             if(nWords - words_bcast > maxShmSizeL){ // Broadcast the spill chunks
@@ -556,82 +476,23 @@ void Poll::broadcast_data(word_t *data, unsigned int nWords) {
     }
 }
 
-void Poll::broadcast_pac_data(){
-    const int BufEnd=0xFFFFFFFF;
-    short int status, cont_pkt;
-    char *bufptr;
-    int size,bytes;
-
-    size = AcqBuf.BufLen;
-    memcpy(AcqBuf.Data+size, &BufEnd, 4);
-    size += 4;
-    if(size % 2 != 0){
-        memcpy(AcqBuf.Data+size,&BufEnd,2);
-        size+=2;
-    }
-
-    if (debug_mode) std::cout << "PAC broadcast size " << size << "/" << MAX_PKT_DATA << " B.\n";
-
-    if(size <= MAX_PKT_DATA){
-        AcqBuf.Sequence = udp_sequence++;
-        AcqBuf.DataSize = size + 8;
-        AcqBuf.TotalEvents = ++total_spill_chunks;
-        AcqBuf.Events = 1;
-        AcqBuf.Cont=0;
-
-        status = client->SendMessage((char *)&AcqBuf, size + PKT_HEAD_LEN + 8);
-        if(status < 0){ std::cout << Display::WarningStr("[WARNING]") << ": Error sending UDP message to pacman."; }
-
-        return;
-    }
-
-    cont_pkt = 1;
-    bufptr =(char *)&AcqBuf;
-    total_spill_chunks++;
-    //This loops through the large data packet and writes the header info into
-    // data_pack::Data for each packet as it goes along. It does not follow the structure.
-    do {
-        if(size > MAX_PKT_DATA){
-            bytes = MAX_PKT_DATA;
-            *((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 0; //Events
-        }
-        else{
-            bytes = size;
-            *((unsigned short *)(bufptr+PKT_HEAD_LEN+4)) = 1; //Events
-        }
-        *((int *)(bufptr+PKT_HEAD_LEN)) = total_spill_chunks; //TotalEvents
-        *((unsigned short *)(bufptr+PKT_HEAD_LEN+6)) = cont_pkt; //Cont
-        *((unsigned int *)(bufptr)) = udp_sequence++; //Sequence
-        *((int *)(bufptr+4)) = bytes+8; //DataSize
-
-        status = client->SendMessage((char *)bufptr, bytes + PKT_HEAD_LEN + 8);
-        if(status < 0){ std::cout << Display::WarningStr("[WARNING]") << ": Error sending UDP message to pacman."; }
-
-        cont_pkt++;
-        bufptr += bytes;
-        size = size - bytes;
-    } while (size > 0);
-}
-
 /* Print help dialogue for POLL options. */
 void Poll::help(){
     std::cout << "  Help:\n";
-    if(!pac_mode){
-        std::cout << "   run                 - Start data acquisition and start recording data to disk\n";
-        std::cout << "   stop                - Stop data acqusition and stop recording data to disk\n";
-        std::cout << "   startacq (startvme) - Start data acquisition\n";
-        std::cout << "   stopacq (stopvme)   - Stop data acquisition\n";
-        std::cout << "   timedrun <seconds>  - Run for the specified number of seconds\n";
-        std::cout << "   acq (shm)           - Run in \"shared-memory\" mode\n";
-        std::cout << "   spill (hup)         - Force dump of current spill\n";
-        std::cout << "   prefix [name]       - Set the output filename prefix (default='run_#.ldf')\n";
-        std::cout << "   fdir [path]         - Set the output file directory (default='./')\n";
-        std::cout << "   title [runTitle]    - Set the title of the current run (default='PIXIE Data File)\n";
-        std::cout << "   runnum [number]     - Set the number of the current run (default=0)\n";
-        std::cout << "   oform [0|1|2]       - Set the format of the output file (default=0)\n";
-        std::cout << "   reboot              - Reboot PIXIE crate\n";
-        std::cout << "   stats [time]        - Set the time delay between statistics dumps (default=-1)\n";
-    }
+    std::cout << "   run                 - Start data acquisition and start recording data to disk\n";
+    std::cout << "   stop                - Stop data acqusition and stop recording data to disk\n";
+    std::cout << "   startacq (startvme) - Start data acquisition\n";
+    std::cout << "   stopacq (stopvme)   - Stop data acquisition\n";
+    std::cout << "   timedrun <seconds>  - Run for the specified number of seconds\n";
+    std::cout << "   acq (shm)           - Run in \"shared-memory\" mode\n";
+    std::cout << "   spill (hup)         - Force dump of current spill\n";
+    std::cout << "   prefix [name]       - Set the output filename prefix (default='run_#.ldf')\n";
+    std::cout << "   fdir [path]         - Set the output file directory (default='./')\n";
+    std::cout << "   title [runTitle]    - Set the title of the current run (default='PIXIE Data File)\n";
+    std::cout << "   runnum [number]     - Set the number of the current run (default=0)\n";
+    std::cout << "   oform [0|1|2]       - Set the format of the output file (default=0)\n";
+    std::cout << "   reboot              - Reboot PIXIE crate\n";
+    std::cout << "   stats [time]        - Set the time delay between statistics dumps (default=-1)\n";
     std::cout << "   mca [root|damm] [time] [filename]     - Use MCA to record data for debugging purposes\n";
     std::cout << "   dump [filename]                       - Dump pixie settings to file (default='Fallback.set')\n";
     std::cout << "   pread <mod> <chan> <param>            - Read parameters from individual PIXIE channels\n";
@@ -740,15 +601,12 @@ void Poll::show_status(){
     std::cout << "   Acq starting    - " << StringManipulation::BoolToString(do_start_acq) << std::endl;
     std::cout << "   Acq stopping    - " << StringManipulation::BoolToString(do_stop_acq) << std::endl;
     std::cout << "   Acq running     - " << StringManipulation::BoolToString(acq_running) << std::endl;
-    if(!pac_mode){
-        std::cout << "   Shared memory   - " << StringManipulation::BoolToString(shm_mode) << std::endl;
-        std::cout << "   Write to disk   - " << StringManipulation::BoolToString(record_data) << std::endl;
-        std::cout << "   File open       - " << StringManipulation::BoolToString(output_file.IsOpen()) << std::endl;
-        std::cout << "   Rebooting       - " << StringManipulation::BoolToString(do_reboot) << std::endl;
-        std::cout << "   Force Spill     - " << StringManipulation::BoolToString(force_spill) << std::endl;
-        std::cout << "   Do MCA run      - " << StringManipulation::BoolToString(do_MCA_run) << std::endl;
-    }
-    else{ std::cout << "   Pacman mode     - " << StringManipulation::BoolToString(pac_mode) << std::endl; }
+    std::cout << "   Shared memory   - " << StringManipulation::BoolToString(shm_mode) << std::endl;
+    std::cout << "   Write to disk   - " << StringManipulation::BoolToString(record_data) << std::endl;
+    std::cout << "   File open       - " << StringManipulation::BoolToString(output_file.IsOpen()) << std::endl;
+    std::cout << "   Rebooting       - " << StringManipulation::BoolToString(do_reboot) << std::endl;
+    std::cout << "   Force Spill     - " << StringManipulation::BoolToString(force_spill) << std::endl;
+    std::cout << "   Do MCA run      - " << StringManipulation::BoolToString(do_MCA_run) << std::endl;
     std::cout << "   Run ctrl Exited - " << StringManipulation::BoolToString(run_ctrl_exit) << std::endl;
 
     std::cout << "\n  Poll Options:\n";
@@ -861,71 +719,6 @@ void Poll::CommandControl(){
         if(kill_all){ // Check if poll has been killed externally (pacman)
             while(!run_ctrl_exit){ sleep(1); }
             break;
-        }
-        if(pac_mode){ // Check for commands from pacman, if enabled
-            int select_dummy;
-            if(server->Select(select_dummy)){
-                UDP_Packet pacman_command;
-
-                // We have a pacman command. Retrieve the command
-                server->RecvMessage((char *)&pacman_command, sizeof(UDP_Packet));
-
-                /* Valid poll commands
-                    0x11 - INIT_ACQ
-                    0x22 - START_ACQ
-                    0x33 - STOP_ACQ
-                    0x44 - STATUS_ACQ
-                    0x55 - PAC_FILE
-                    0x66 - HOST
-                    0x77 - ZERO_CLK
-                   Return codes:
-                    0x00 - ACQ_OK
-                    0x01 - ACQ_RUN
-                    0x02 - ACQ_STOP
-                    0xFB - ACQ_STP_HALT
-                    0xFC - ACQ_STR_RUN*/
-
-                if(pacman_command.Data[0] == 0x11){ // INIT_ACQ
-                    std::cout << "RECV PACMAN COMMAND 0x11 (INIT_ACQ)\n";
-                    pacman_command.Data[0] = 0x00;
-                }
-                else if(pacman_command.Data[0] == 0x22){ // START_ACQ
-                    std::cout << "RECV PACMAN COMMAND 0x22 (START_ACQ)\n";
-                    if(acq_running){ pacman_command.Data[0] = 0xFC; }
-                    else{ pacman_command.Data[0] = 0x00; }
-                    do_start_acq = true;
-                }
-                else if(pacman_command.Data[0] == 0x33){ // STOP_ACQ
-                    std::cout << "RECV PACMAN COMMAND 0x33 (STOP_ACQ)\n";
-                    if(!acq_running){ pacman_command.Data[0] = 0xFB; }
-                    else{ pacman_command.Data[0] = 0x00; }
-                    do_stop_acq = true;
-                }
-                else if(pacman_command.Data[0] == 0x44){ // STATUS_ACQ
-                    std::cout << "RECV PACMAN COMMAND 0x44 (STATUS_ACQ)\n";
-                    pacman_command.Data[0] = 0x00;
-                    pacman_command.Data[1] = acq_running ? 0x01 : 0x02;
-                }
-                else if(pacman_command.Data[0] == 0x55){ // PAC_FILE
-                    std::cout << "RECV PACMAN COMMAND 0x55 (PAC_FILE)\n";
-                    pacman_command.Data[0] = 0x00;
-                }
-                else if(pacman_command.Data[0] == 0x66){ // HOST
-                    std::cout << "RECV PACMAN COMMAND 0x66 (HOST)\n";
-                    pacman_command.Data[0] = 0x00;
-                }
-                else if(pacman_command.Data[0] == 0x77){ // ZERO_CLK
-                    std::cout << "RECV PACMAN COMMAND 0x77 (ZERO_CLK)\n";
-                    pacman_command.Data[0] = 0x00;
-                }
-                else{
-                    std::cout << "RECV PACMAN COMMAND 0x" << std::hex << (int)pacman_command.Data[0] << std::dec << " (?)\n";
-                    pacman_command.Data[0] = 0x00;
-                }
-
-                // Send the reply to pacman
-                server->SendMessage((char *)&pacman_command, sizeof(UDP_Packet));
-            }
         }
 
         cmd = poll_term_->GetCommand(arg);
@@ -1455,7 +1248,7 @@ void Poll::CommandControl(){
                 debug_mode = true;
             }
         }
-        else if(cmd == "mca" || cmd == "MCA"){ // Run MCA program using either root or damm
+        else if(cmd == "mca" || cmd == "MCA"){ // Run MCA program using root
             if(do_MCA_run){
                 std::cout << sys_message_head << "MCA program is already running\n\n";
                 continue;
@@ -1484,159 +1277,139 @@ void Poll::CommandControl(){
             }
 
             do_MCA_run = true;
-        }
-        else if(!pac_mode){ // These command are only available when not running in pacman mode!
-            if(cmd == "run"){ // Tell POLL to start acq and start recording data to disk.
+        } else if(cmd == "run"){ // Tell POLL to start acq and start recording data to disk.
                 start_run();
+        } else if(cmd == "timedrun"){
+            if(!arg.empty()){
+                double runSeconds = strtod(arg.c_str(), NULL);
+                if(StringManipulation::IsNumeric(arg) && runSeconds > 0.0)
+                    start_run(true, runSeconds);
+                else
+                    std::cout << sys_message_head << Display::ErrorStr() << " User attempted to run for an invalid length of time (" << arg << ")!\n";
+            } else{
+                std::cout << sys_message_head << "Invalid number of parameters to timedrun\n";
+                std::cout << sys_message_head << " -SYNTAX- timedrun <seconds>\n";
             }
-            else if(cmd == "timedrun"){
-                if(!arg.empty()){
-                    double runSeconds = strtod(arg.c_str(), NULL);
-                    if(StringManipulation::IsNumeric(arg) && runSeconds > 0.0)
-                        start_run(true, runSeconds);
-                    else
-                        std::cout << sys_message_head << Display::ErrorStr() << " User attempted to run for an invalid length of time (" << arg << ")!\n";
-                }
-                else{
-                    std::cout << sys_message_head << "Invalid number of parameters to timedrun\n";
-                    std::cout << sys_message_head << " -SYNTAX- timedrun <seconds>\n";
-                }
+        } else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition without recording to disk.
+            start_run(false);
+        } else if(cmd == "stop" || cmd == "stopacq" || cmd == "stopvme"){ // Tell POLL to stop recording data to disk and stop acq.
+            stop_run();
+        } else if(cmd == "shm"){ // Toggle "shared-memory" mode
+            if(shm_mode){
+                std::cout << sys_message_head << "Toggling shared-memory mode OFF\n";
+                shm_mode = false;
+            } else{
+                std::cout << sys_message_head << "Toggling shared-memory mode ON\n";
+                shm_mode = true;
             }
-            else if(cmd == "startacq" || cmd == "startvme"){ // Tell POLL to start data acquisition without recording to disk.
-                start_run(false);
+        } else if(cmd == "reboot"){ // Tell POLL to attempt a PIXIE crate reboot
+            if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while MCA is running\n"; }
+            else if(acq_running || do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while acquisition running\n"; }
+            else{
+                do_reboot = true;
+                poll_term_->pause(do_reboot);
             }
-            else if(cmd == "stop" || cmd == "stopacq" || cmd == "stopvme"){ // Tell POLL to stop recording data to disk and stop acq.
-                stop_run();
-            }
-            else if(cmd == "shm"){ // Toggle "shared-memory" mode
-                if(shm_mode){
-                    std::cout << sys_message_head << "Toggling shared-memory mode OFF\n";
-                    shm_mode = false;
-                }
-                else{
-                    std::cout << sys_message_head << "Toggling shared-memory mode ON\n";
-                    shm_mode = true;
-                }
-            }
-            else if(cmd == "reboot"){ // Tell POLL to attempt a PIXIE crate reboot
-                if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while MCA is running\n"; }
-                else if(acq_running || do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while acquisition running\n"; }
-                else{
-                    do_reboot = true;
-                    poll_term_->pause(do_reboot);
-                }
-            }
-            else if(cmd == "hup" || cmd == "spill"){ // Force spill
-                if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
-                else if(!acq_running){ std::cout << sys_message_head << "Acquisition is not running\n"; }
-                else{ force_spill = true; }
-            }
-            else if(cmd == "fdir"){ // Change the output file directory
-                if (arg == "") { std::cout << sys_message_head << "Using output directory '" << output_directory << "'\n"; }
-                else if (file_open) {
-                    std::cout << sys_message_head << Display::WarningStr("Warning:") << " Directory cannot be changed while a file is open!\n";
-                }
-                else {
-                    output_directory = arg;
-                    current_file_num = 0;
+        } else if(cmd == "hup" || cmd == "spill"){ // Force spill
+            if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
+            else if(!acq_running){ std::cout << sys_message_head << "Acquisition is not running\n"; }
+            else{ force_spill = true; }
+        } else if(cmd == "fdir"){ // Change the output file directory
+            if (arg == "") { std::cout << sys_message_head << "Using output directory '" << output_directory << "'\n"; }
+            else if (file_open) {
+                std::cout << sys_message_head << Display::WarningStr("Warning:") << " Directory cannot be changed while a file is open!\n";
+            } else {
+                output_directory = arg;
+                current_file_num = 0;
 
-                    // Append a '/' if the user did not include one
-                    if(*(output_directory.end()-1) != '/'){ output_directory += '/'; }
+                // Append a '/' if the user did not include one
+                if(*(output_directory.end()-1) != '/'){ output_directory += '/'; }
 
-                    std::cout << sys_message_head << "Set output directory to '" << output_directory << "'.\n";
+                std::cout << sys_message_head << "Set output directory to '" << output_directory << "'.\n";
 
-                    //Check what run files already exist.
-                    unsigned int temp_run_num = next_run_num;
-                    std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
-                    if (temp_run_num != next_run_num) {
-                        std::cout << sys_message_head << Display::WarningStr("Warning") << ": Run file existed for run " << temp_run_num << "! Next run number will be " << next_run_num << ".\n";
-                    }
+                //Check what run files already exist.
+                unsigned int temp_run_num = next_run_num;
+                std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
+                if (temp_run_num != next_run_num) {
+                    std::cout << sys_message_head << Display::WarningStr("Warning") << ": Run file existed for run " << temp_run_num << "! Next run number will be " << next_run_num << ".\n";
+                }
 
-                    std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
-                }
+                std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
             }
-            else if (cmd == "prefix") {
-                if (arg == "") {
-                    std::cout << sys_message_head << "Using output filename prefix '" << filename_prefix << "'.\n";
-                }
-                else if (file_open) {
-                    std::cout << sys_message_head << Display::WarningStr("Warning:") << " Prefix cannot be changed while a file is open!\n";
-                }
-                else {
-                    filename_prefix = arg;
-                    next_run_num = 1;
+        } else if (cmd == "prefix") {
+            if (arg == "") {
+                std::cout << sys_message_head << "Using output filename prefix '" << filename_prefix << "'.\n";
+            } else if (file_open) {
+                std::cout << sys_message_head << Display::WarningStr("Warning:") << " Prefix cannot be changed while a file is open!\n";
+            } else {
+                filename_prefix = arg;
+                next_run_num = 1;
 
-                    //Check what run files already exist.
-                    std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
-                    if (next_run_num != 1) {
-                        std::cout << sys_message_head << Display::WarningStr("Warning") << ": Some run files existed! Next run number will be " << next_run_num << ".\n";
-                    }
+                //Check what run files already exist.
+                std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
+                if (next_run_num != 1) {
+                    std::cout << sys_message_head << Display::WarningStr("Warning") << ": Some run files existed! Next run number will be " << next_run_num << ".\n";
+                }
 
-                    std::cout << sys_message_head << "Set output filename prefix to '" << filename_prefix << "'.\n";
-                    std::cout << sys_message_head << "Next file will be '" << output_file.GetNextFileName(next_run_num,filename_prefix, output_directory) << "'.\n";
-                }
+                std::cout << sys_message_head << "Set output filename prefix to '" << filename_prefix << "'.\n";
+                std::cout << sys_message_head << "Next file will be '" << output_file.GetNextFileName(next_run_num,filename_prefix, output_directory) << "'.\n";
             }
-            else if(cmd == "title"){ // Change the title of the output file
-                if (arg == "") { std::cout << sys_message_head << "Using output file title '" << output_title << "'.\n"; }
-                else if (file_open) {
-                    std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run title cannot be changed while a file is open!\n";
+        } else if(cmd == "title"){ // Change the title of the output file
+            if (arg == "") { std::cout << sys_message_head << "Using output file title '" << output_title << "'.\n"; }
+            else if (file_open) {
+                std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run title cannot be changed while a file is open!\n";
+            } else {
+                //Check if argument is within double quotes and strip them. Otherwise take the whole argument.
+                if (arg.find_first_of('"') == 0 && arg.find_last_of('"') == arg.length() - 1)
+                    output_title = arg.substr(1,arg.length() - 2);
+                else output_title = arg;
+                if(output_format == 0 && output_title.size() > 80){
+                    std::cout << sys_message_head << Display::WarningStr("Warning:") << " Title length " << output_title.size() - 80 << " characters too long for ldf format!\n";
+                    output_title = output_title.substr(0, 80);
                 }
-                else {
-                    //Check if argument is within double quotes and strip them. Otherwise take the whole argument.
-                    if (arg.find_first_of('"') == 0 && arg.find_last_of('"') == arg.length() - 1)
-                        output_title = arg.substr(1,arg.length() - 2);
-                    else output_title = arg;
-                    if(output_format == 0 && output_title.size() > 80){
-                        std::cout << sys_message_head << Display::WarningStr("Warning:") << " Title length " << output_title.size() - 80 << " characters too long for ldf format!\n";
-                        output_title = output_title.substr(0, 80);
-                    }
-                    std::cout << sys_message_head << "Set run title to '" << output_title << "'.\n";
-                }
+                std::cout << sys_message_head << "Set run title to '" << output_title << "'.\n";
             }
-            else if(cmd == "runnum"){ // Change the run number to the specified value
-                if (arg == "") {
-                    if (output_file.IsOpen())
-                        std::cout << sys_message_head << "Current output file run number '" << output_file.GetRunNumber() << "'.\n";
-                    if (!output_file.IsOpen() || next_run_num != output_file.GetRunNumber())
-                        std::cout << sys_message_head << "Next output file run number '" << next_run_num << "' for prefix '" << filename_prefix << "'.\n";
+        } else if(cmd == "runnum"){ // Change the run number to the specified value
+            if (arg == "") {
+                if (output_file.IsOpen())
+                    std::cout << sys_message_head << "Current output file run number '" << output_file.GetRunNumber()
+                              << "'.\n";
+                if (!output_file.IsOpen() || next_run_num != output_file.GetRunNumber())
+                    std::cout << sys_message_head << "Next output file run number '" << next_run_num << "' for prefix '"
+                              << filename_prefix << "'.\n";
+            } else if (file_open) {
+                std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run number cannot be changed while a file is open!\n";
+            } else {
+                next_run_num = atoi(arg.c_str());
+                std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
+                if (next_run_num != (unsigned int)atoi(arg.c_str())) {
+                    std::cout << sys_message_head << Display::WarningStr("Wanring") << ": Run file existed for run " << atoi(arg.c_str()) << ".\n";
                 }
-                else if (file_open) {
-                    std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run number cannot be changed while a file is open!\n";
-                }
-                else {
-                    next_run_num = atoi(arg.c_str());
-                    std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
-                    if (next_run_num != (unsigned int)atoi(arg.c_str())) {
-                        std::cout << sys_message_head << Display::WarningStr("Wanring") << ": Run file existed for run " << atoi(arg.c_str()) << ".\n";
-                    }
-                    std::cout << sys_message_head << "Set run number to '" << next_run_num << "'.\n";
-                    std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
-                }
+                std::cout << sys_message_head << "Set run number to '" << next_run_num << "'.\n";
+                std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
             }
-            else if(cmd == "oform"){ // Change the output file format
-                if(arg != ""){
-                    int format = atoi(arg.c_str());
-                    if(format == 0 || format == 1 || format == 2){
-                        output_format = atoi(arg.c_str());
-                        std::cout << sys_message_head << "Set output file format to '" << output_format << "'\n";
-                        if(output_format == 1){ std::cout << "  Warning! This output format is experimental and is not recommended for data taking\n"; }
-                        else if(output_format == 2){ std::cout << "  Warning! This output format is experimental and is not recommended for data taking\n"; }
-                        output_file.SetFileFormat(output_format);
-                    }
-                    else{
-                        std::cout << sys_message_head << "Unknown output file format ID '" << format << "'\n";
-                        std::cout << "  Available file formats include:\n";
-                        std::cout << "   0 - .ldf (HRIBF) file format (default)\n";
-                        std::cout << "   1 - .pld (PIXIE) file format (experimental)\n";
-                        std::cout << "   2 - .root file format (slow, not recommended)\n";
-                    }
+        } else if(cmd == "oform"){ // Change the output file format
+            if(arg != ""){
+                int format = atoi(arg.c_str());
+                if(format == 0 || format == 1){
+                    output_format = atoi(arg.c_str());
+                    std::cout << sys_message_head << "Set output file format to '" << output_format << "'\n";
+
+                    if(output_format == 1)
+                        std::cout << "  Warning! This output format is experimental and is not recommended for data taking\n";
+
+                    output_file.SetFileFormat(output_format);
+                } else{
+                    std::cout << sys_message_head << "Unknown output file format ID '" << format << "'\n";
+                    std::cout << "  Available file formats include:\n";
+                    std::cout << "   0 - .pld (PIXIE) file format (experimental)\n";
+                    std::cout << "   1 - .root file format (slow, not recommended)\n";
                 }
-                else{ std::cout << sys_message_head << "Using output file format '" << output_format << "'\n"; }
-                if(output_file.IsOpen()){ std::cout << sys_message_head << "New output format used for new files only! Current file is unchanged.\n"; }
+            } else{ std::cout << sys_message_head << "Using output file format '" << output_format << "'\n"; }
+
+            if(output_file.IsOpen()){
+                std::cout << sys_message_head << "New output format used for new files only! Current file is unchanged.\n";
             }
-            else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
-        }
-        else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
+        } else{ std::cout << sys_message_head << "Unknown command '" << cmd << "'\n"; }
     }
 }
 
@@ -2090,9 +1863,11 @@ bool Poll::ReadFIFO() {
             statsHandler->ClearRates();
         }
 
-        if (!is_quiet || debug_mode) std::cout << "Writing/Broadcasting " << dataWords << " words.\n";
+        if (!is_quiet || debug_mode)
+            std::cout << "Writing/Broadcasting " << dataWords << " words.\n";
         //We have read the FIFO now we write the data
-        if (record_data && !pac_mode) write_data(fifoData, dataWords);
+        if (record_data)
+            write_data(fifoData, dataWords);
         broadcast_data(fifoData, dataWords);
 
     } //If we had exceeded the threshold or forced a flush

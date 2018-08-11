@@ -1,4 +1,7 @@
 # @authors C. R. Thornsberry, K. Smith
 include_directories(include)
-add_subdirectory(source)
-install(FILES share/mca_input.txt DESTINATION share)
+if(ROOT_FOUND)
+    add_subdirectory(source)
+else ()
+    message(STATUS "MCA not built as no compatible histogramming routines selected.")
+endif ()
