@@ -5,7 +5,7 @@ add_definitions(-D INSTALL_PREFIX="\\"${CMAKE_INSTALL_PREFIX}\\"")
 
 #Build the pixie interface
 include_directories(Interface/include)
-add_subdirectory(Interface/source)
+add_subdirectory(Interface)
 
 #Build the MCA objects
 include_directories(MCA/include)
