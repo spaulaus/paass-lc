@@ -78,7 +78,7 @@ TEST(TestIsNumeric) {
 TEST(RemoveSpaces) {
     std::string input = "He re is a  string wi h a  bunch o f  spaces!    We'll  rem ove  them , don' t   worry.";
     RemoveSpaces(input);
-    CHECK_EQUAL("Hereisastringwithabunchofspaces!We'llremovethem,don'tworry.", input);
+    CHECK_EQUAL("Hereisastringwihabunchofspaces!We'llremovethem,don'tworry.", input);
 
 }
 
