@@ -15,9 +15,6 @@ public:
 
     virtual ~AcquisitionInterface() {};
 
-    /// This reads the slot configuration file.
-    virtual bool ReadSlotConfig(const char *slotCfgFile = nullptr);
-
     /// @TODO Remove the offlineMode here, this should be separated into a Setter / Getter.
     /// Initializes the API.
     virtual bool Init(bool offlineMode = false) = 0;
@@ -64,13 +61,8 @@ public:
     virtual bool ReadFIFOWords(word_t *buf, unsigned long nWords, unsigned short mod, bool verbose = false) = 0;
 */
 
-    unsigned short GetNumberOfModules(void) const { return numberOfModules_; };
 
-    unsigned short GetNumberOfChannels(void) const { return numberOfChannels_; }
 protected:
-    unsigned short numberOfModules_;
-    unsigned short numberOfChannels_;
-    unsigned short slotMap_[Pixie16::maximumNumberOfModulesPerCrate];
     int retval_;
 
     AcquisitionConfig config_;
