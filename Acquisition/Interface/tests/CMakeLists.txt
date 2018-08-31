@@ -9,4 +9,4 @@ add_executable(unittest-AcquisitionConfig unittest-AcquisitionConfig.cpp ../sour
 target_include_directories(unittest-AcquisitionConfig PUBLIC BEFORE ../include/ PUBLIC BEFORE
         ${CMAKE_SOURCE_DIR}/Core/include ${CMAKE_SOURCE_DIR}/Resources/include)
 target_link_libraries(unittest-AcquisitionConfig UnitTest++ PaassCoreStatic Pugixml PaassResourceStatic)
-add_test(AcquisitionConfig unittest-AcquisitionConfig)
+add_test(NAME AcquisitionConfig COMMAND unittest-AcquisitionConfig WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

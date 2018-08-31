@@ -8,16 +8,16 @@
 
 #include <UnitTest++.h>
 
-#include <iostream>
 #include <stdexcept>
-#include <string>
 
 TEST_FIXTURE(AcquisitionConfig, TestAcquisitionConfig) {
-    try {
-        ReadConfiguration("/tmp/config.xml");
-    } catch(std::invalid_argument &invalidArgument) {
-        std::cout << invalidArgument.what() << std::endl;
-    }
+    CHECK_THROW(ReadConfiguration("test-xml-files/missing-bit.xml"), std::invalid_argument);
+    CHECK_THROW(ReadConfiguration("test-xml-files/missing-frequency.xml"), std::invalid_argument);
+    CHECK_THROW(ReadConfiguration("test-xml-files/missing-module-type.xml"), std::invalid_argument);
+    CHECK_THROW(ReadConfiguration("test-xml-files/missing-pixie-base-dir.xml"), std::invalid_argument);
+    CHECK_THROW(ReadConfiguration("test-xml-files/missing-revision.xml"), std::invalid_argument);
+    CHECK_THROW(ReadConfiguration("test-xml-files/missing-firmware-child.xml"), std::invalid_argument);
+    CHECK_THROW(ReadConfiguration("test-xml-files/too-many-modules.xml"), std::invalid_argument);
 }
 
 int main(int argv, char *argc[]) {

@@ -181,10 +181,10 @@ std::string AcquisitionConfig::ParseModuleTypeNode(const pugi::xml_node &parent)
     return moduleType;
 }
 
-string AcquisitionConfig::ConfigFileName(const string &type, const string &str) {
+string AcquisitionConfig::ConfigFileName(const string &type, const string &fileName) {
     //If the file name starts with a '.' or a '/' then we assume the BaseDir should be ignored.
-    if (str[0] == '.' || str[0] == '/')
-        return str;
+    if (fileName[0] == '.' || fileName[0] == '/')
+        return fileName;
 
     string baseDir;
     if (type == "global") //If the file is a global type we use PixieBaseDir
@@ -200,8 +200,12 @@ string AcquisitionConfig::ConfigFileName(const string &type, const string &str) 
         baseDir = ".";
 
     //Return the appended string.
-    return baseDir + '/' + str;
+    return baseDir + '/' + fileName;
 }
+
+unsigned short AcquisitionConfig::GetNumberOfModules() const { return numberOfModules_; }
+
+unsigned short AcquisitionConfig::GetNumberOfChannels() const { return numberOfChannels_; }
 
 std::string AcquisitionConfig::Get(const std::string &moduleType, const std::string &tag) {
     return configStrings_[moduleType][tag];
