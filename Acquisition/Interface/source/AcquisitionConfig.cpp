@@ -4,6 +4,7 @@
 /// @date August 11, 2018
 #include "AcquisitionConfig.hpp"
 
+#include "Constants.hpp"
 #include "Display.h"
 #include "HelperFunctions.hpp"
 #include "StringManipulationFunctions.hpp"
@@ -140,6 +141,8 @@ void AcquisitionConfig::ParseSlotDefinitionNode(const pugi::xml_node &node) {
 
             numberOfModulesInCrate++;
         }
+        numberOfModules_ += numberOfModulesInCrate;
+        numberOfChannels_ += numberOfModulesInCrate * Pixie16::maximumNumberOfChannels;
     }
 }
 
