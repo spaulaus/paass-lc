@@ -4,53 +4,64 @@
 /// @date August 09, 2018
 
 #include "MCA_ROOT.h"
+#include "EmulatedInterface.hpp"
 
 #include <iostream>
 
 int main(int argc, char *argv[]) {
-    int totalTime = 0;
+    int runLengthInSeconds = 0;
     const char *basename = "mca";
 
     switch(argc) {
         case 1:
-            totalTime = 10;
+            runLengthInSeconds = 10;
             break;
         case 2:
-            totalTime = std::stoi(argv[1]);
+            runLengthInSeconds = std::stoi(argv[1]);
             break;
         case 3:
-            totalTime = std::stoi(argv[1]);
-            basename = argv[3];
+            runLengthInSeconds = std::stoi(argv[1]);
+            basename = argv[2];
             break;
         default:
             std::cerr << "Usage : mca <run time in seconds> <(optional) basename of output file>" << std::endl;
             return EXIT_FAILURE;
     }
 
-    AcquisitionInterface *pif;
+    AcquisitionInterface *interface;
+    try {
+        interface = new EmulatedInterface("./pixie-config.xml");
+    } catch (std::invalid_argument &invalidArgument) {
+        return EXIT_FAILURE;
+    }
 
-#ifdef PAASS_BUILD_XIA_INTERFACE
-    pif = new PixieInterface("pixie.cfg");
-#else
-    pif = new EmulatedInterface("pixie.cfg");
-#endif
+//#ifdef PAASS_BUILD_XIA_INTERFACE
+//    interface = new PixieInterface("pixie.cfg");
+//#else
+//    interface = new EmulatedInterface("pixie.cfg");
+//#endif
 
-    pif->ReadSlotConfig();
+    ///@TODO : Why do we return anything from these methods if they're not used to validate ANYTHING?!?! I really
+    /// think that these should be wrapped in a try/catch. If any of these fails, it's a much bigger problem than just
+    /// returning false...
+    interface->Init();
+    interface->EndRun();
+    interface->Boot(Interface::BootType::MCA, true);
+    interface->RemovePresetRunLength(0);
 
-    pif->Init();
-
-    //cxx, end any ongoing runs
-    pif->EndRun();
-    pif->Boot(Interface::BootType::MCA, true);
-
-    pif->RemovePresetRunLength(0);
-
-    MCA *mca = new MCA_ROOT(&pif, basename);
+    MCA *mca;
+    try {
+        mca = new MCA_ROOT(interface, basename);
+    } catch (std::exception &exception) {
+        std::cout << "MCA_exec.cpp : Exception caught while trying to instance MCA_ROOT! what() follows." << std::endl
+                  << exception.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
     if (mca->IsOpen())
-        mca->Run(totalTime);
+        mca->Run(runLengthInSeconds);
     delete mca;
-    delete pif;
+    delete interface;
 
     return EXIT_SUCCESS;
 }
