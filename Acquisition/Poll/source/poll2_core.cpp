@@ -201,7 +201,7 @@ Poll::~Poll(){
 }
 
 void Poll::PrintModuleInfo() {
-    for (int mod=0; mod<pif->GetNumberOfModules(); mod++) {
+    for (int mod=0; mod<pif->GetConfiguration().GetNumberOfModules(); mod++) {
         unsigned short revision, adcBits, adcMsps;
         unsigned int serialNumber;
         if (pif->GetModuleInfo(mod, &revision, &serialNumber, &adcBits, &adcMsps)) {
@@ -225,7 +225,6 @@ bool Poll::Initialize(){
     }
 
     // Initialize the pixie interface and boot
-    pif->ReadSlotConfig();
     if(!pif->Init()){ return false; }
 
     PrintModuleInfo();
@@ -242,7 +241,7 @@ bool Poll::Initialize(){
     if(!synch_mods()){ return false; }
 
     // Allocate memory buffers for FIFO
-    n_cards = pif->GetNumberOfModules();
+    n_cards = pif->GetConfiguration().GetNumberOfModules();
 
     // This port number is used to avoid tying up udptoipc's port
     client->Init("127.0.0.1", 5555);
@@ -399,7 +398,7 @@ bool Poll::synch_mods(){
         firstTime = false;
     }
 
-    for(unsigned int mod = 0; mod < pif->GetNumberOfModules(); mod++){
+    for(unsigned int mod = 0; mod < pif->GetConfiguration().GetNumberOfModules(); mod++){
         if (!pif->WriteSglModPar(synchString, 0, mod)){ hadError = true; }
     }
 
@@ -628,7 +627,7 @@ void Poll::show_thresh() {
 /// Acquire raw traces from a pixie module.
 void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/){
     size_t trace_size = PixieInterface::GetTraceLength();
-    size_t module_size = pif->GetNumberOfChannels() * trace_size;
+    size_t module_size = pif->GetConfiguration().GetNumberOfChannels() * trace_size;
     std::cout << sys_message_head << "Searching for traces from mod = " << mod_ << ", chan = " << chan_ << " above threshold = " << thresh_ << ".\n";
     std::cout << sys_message_head << "Allocating " << (trace_size+module_size)*sizeof(unsigned short) << " bytes of memory for pixie traces.\n";
     std::cout << sys_message_head << "Searching for traces. Please wait...\n";
@@ -646,7 +645,7 @@ void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/){
     else{ std::cout << sys_message_head << "Found trace above threshold in " << gtraces.GetAttempts() << " attempts.\n"; }
 
     std::cout << "  Baselines:\n";
-    for(unsigned int channel = 0; channel < pif->GetNumberOfChannels(); channel++){
+    for(unsigned int channel = 0; channel < pif->GetConfiguration().GetNumberOfChannels(); channel++){
         if(channel == (unsigned)chan_){ std::cout << "\033[0;33m"; }
         if(channel < 10){ std::cout << "   0" << channel << ": "; }
         else{ std::cout << "   " << channel << ": "; }
@@ -660,7 +659,7 @@ void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/){
     else{ // Write the output file.
         // Add a header.
         get_traces_out << "time";
-        for(size_t channel = 0; channel < pif->GetNumberOfChannels(); channel++){
+        for(size_t channel = 0; channel < pif->GetConfiguration().GetNumberOfChannels(); channel++){
             if(channel < 10){ get_traces_out << "\tC0" << channel; }
             else{ get_traces_out << "\tC" << channel; }
         }
@@ -669,7 +668,7 @@ void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/){
         // Write channel traces.
         for(size_t index = 0; index < trace_size; index++){
             get_traces_out << index;
-            for(size_t channel = 0; channel < pif->GetNumberOfChannels(); channel++){
+            for(size_t channel = 0; channel < pif->GetConfiguration().GetNumberOfChannels(); channel++){
                 get_traces_out << "\t" << module_data[(channel * trace_size) + index];
             }
             get_traces_out << std::endl;
@@ -1631,7 +1630,7 @@ void Poll::UpdateStatus() {
 
 void Poll::ReadScalers() {
     static std::vector< std::pair<double, double> > xiaRates(16, std::make_pair<double, double>(0,0));
-    static int numChPerMod = pif->GetNumberOfChannels();
+    static int numChPerMod = pif->GetConfiguration().GetNumberOfChannels();
 
     for (unsigned short mod=0;mod < n_cards; mod++) {
         //Tell interface to get stats data from the modules.
