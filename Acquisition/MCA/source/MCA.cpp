@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include <unistd.h>
+#include <thread>
 
 MCA::MCA(AcquisitionInterface *pif) : pif_(pif) {}
 
@@ -46,7 +46,7 @@ void MCA::Run(const float &duration, const bool *stop) {
         if (duration > 0.0 && GetRunTimeInSeconds() >= duration)
             break;
 
-        sleep(2);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
 
         std::cout << "|" << std::fixed << std::setprecision(2) << GetRunTimeInSeconds() << " s |\r" << std::flush;
 
