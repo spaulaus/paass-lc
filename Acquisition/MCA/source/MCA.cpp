@@ -11,8 +11,6 @@
 #include <iostream>
 #include <iomanip>
 #include <unistd.h>
-#include <MCA.h>
-
 
 MCA::MCA(AcquisitionInterface *pif) : pif_(pif) {}
 
@@ -22,10 +20,16 @@ MCA::MCA(EmulatedInterface *pif) {}
 
 MCA::~MCA() = default;
 
+void MCA::Flush() {}
+
 double MCA::GetRunTimeInSeconds() {
     stopTime_ = std::chrono::steady_clock::now();
     return std::chrono::duration_cast<std::chrono::duration<double>>(stopTime_ - startTime_).count();
 }
+
+bool MCA::IsOpen() { return isOpen_; }
+
+bool MCA::OpenFile(const char *basename) {}
 
 void MCA::Run(const float &duration, const bool *stop) {
     //Start the pixie histogram
@@ -79,10 +83,4 @@ bool MCA::Step() {
     return true;
 }
 
-bool MCA::IsOpen() { return isOpen_; }
-
 bool MCA::StoreData(int mod, int ch) {}
-
-bool MCA::OpenFile(const char *basename) {}
-
-void MCA::Flush() {}

@@ -26,15 +26,6 @@ public:
     ///Default destructor.
     virtual ~MCA();
 
-    ///Return the length of time the MCA has been running.
-    double GetRunTime();
-
-    ///Abstract method describing how the MCA data is stored.
-    virtual bool StoreData(int mod, int ch);
-
-    ///Abstract method to open a storage file.
-    virtual bool OpenFile(const char *basename);
-
     ///Flush the current memory to disk.
     virtual void Flush();
 
@@ -43,6 +34,9 @@ public:
 
     ///Check if the histogram construction was successful.
     virtual bool IsOpen();
+
+    ///Abstract method to open a storage file.
+    virtual bool OpenFile(const char *basename);
 
     /// The MCA is initialized and run for the specified duration or until a
     /// stop command is received. At specific intervals the MCA output is
@@ -55,6 +49,9 @@ public:
 
     ///Update the MCA histograms.
     virtual bool Step();
+
+    ///Abstract method describing how the MCA data is stored.
+    virtual bool StoreData(int mod, int ch);
 
 protected:
     /// Timers for the MCA object
