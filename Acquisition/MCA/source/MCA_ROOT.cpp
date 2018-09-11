@@ -1,12 +1,12 @@
 ///@authors K. Smith, C. R. Thornsberry
 #include "MCA_ROOT.h"
+#include "AcquisitionInterface.hpp"
 #include "Display.h"
 
 #include <TFile.h>
 #include <TH1F.h>
 
-MCA_ROOT::MCA_ROOT(AcquisitionInterface *pif, const char *basename) :
-        MCA(pif) {
+MCA_ROOT::MCA_ROOT(AcquisitionInterface *pif, const char *basename) : MCA(pif) {
     OpenFile(basename);
 }
 
