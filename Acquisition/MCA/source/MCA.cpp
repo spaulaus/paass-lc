@@ -83,4 +83,4 @@ bool MCA::Step() {
     return true;
 }
 
-bool MCA::StoreData(int mod, int ch) { return true; }
+bool MCA::StoreData(const int &mod, const int &ch) { return true; }

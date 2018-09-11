@@ -11,9 +11,13 @@ class AcquisitionInterface;
 class PixieInterface;
 class EmulatedInterface;
 
-///Abstract MCA class
+///Abstract MCA class, provides functionality for all the derived MCA classes.
 class MCA {
 public:
+    ///@TODO We still need to figure out the right way that we want to call all this nonsense. Right now it's a bit
+    /// of a mess. We'll probably want to remove the AcquisitionInterface constructor and just leave the child
+    /// constructors, that probably makes the most sense.
+
     ///Default constructor.
     MCA(AcquisitionInterface *pif);
 
@@ -26,16 +30,19 @@ public:
     ///Default destructor.
     virtual ~MCA();
 
-    ///Flush the current memory to disk.
+    ///Flush the current memory to disk. will be overloaded by the children.
     virtual void Flush();
 
-    ///Return the length of time the MCA has been running.
+    ///@returns the length of time the MCA has been running.
     double GetRunTimeInSeconds();
 
-    ///Check if the histogram construction was successful.
+    /// Check if the output file is open and ready for writing.
+    /// @returns true if the file is open and available for writing.
     virtual bool IsOpen();
 
-    ///Abstract method to open a storage file.
+    /// Opens a file for writing
+    /// @param[in] basename : A character string containing just the file name w/o extension.
+    /// @returns true if the file was successfully opened. Returns false if the derived class does not override.
     virtual bool OpenFile(const char *basename);
 
     /// The MCA is initialized and run for the specified duration or until a
@@ -47,25 +54,24 @@ public:
     /// @param[in] stop External boolean flag for stop run command. 
     virtual void Run(const float &duration, const bool *stop = nullptr);
 
-    ///Update the MCA histograms.
+    /// Checks the Pixie run status, Updates the MCA histograms, sets the stopTime_
     virtual bool Step();
 
-    ///Abstract method describing how the MCA data is stored.
-    virtual bool StoreData(int mod, int ch);
+    /// Abstract method describing how the MCA data is stored.
+    /// @param[in] mod : the module that we want to store data for
+    /// @param[in] ch : the channel that we're going to store data for.
+    /// @returns true if we were able to successfully store the data for the given module / channel combo.
+    virtual bool StoreData(const int &mod, const int &ch);
 
 protected:
-    /// Timers for the MCA object
-    std::chrono::steady_clock::time_point startTime_;
-    std::chrono::steady_clock::time_point stopTime_;
+    std::chrono::steady_clock::time_point startTime_;//!< The time that run was called.
+    std::chrono::steady_clock::time_point stopTime_;//!< The time that we are going to be checking duration against.
 
-    ///Default number of bins in histogram.
-    static const size_t HIS_SIZE = 16384;
-    ///Default number of channels in ADC.
-    static const size_t ADC_SIZE = 32768;
+    static const size_t HIS_SIZE = 16384; //!< Default number of bins in histogram.
+    static const size_t ADC_SIZE = 32768; //!< Default number of channels in ADC.
+    bool isOpen_; //!< Flag indicating if histogram construction was successful.
 
-    ///Flag indicating if histogram construction was successful.
-    bool isOpen_;
-
-    AcquisitionInterface *pif_;
+    ///@TODO : This needs cleaned up along with all the constructors.
+    AcquisitionInterface *pif_; //!< A pointer to the Interface that we'll be using to run things.
 };
 #endif //PAASSLC_MCA_H
