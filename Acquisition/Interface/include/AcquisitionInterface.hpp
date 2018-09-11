@@ -55,6 +55,8 @@ public:
 
     virtual bool RemovePresetRunLength(int mod) = 0;
 
+    AcquisitionConfig GetConfiguration() const { return config_; }
+
 /*
     virtual bool GetStatistics(unsigned short mod);
     virtual unsigned long CheckFIFOWords(unsigned short mod) = 0;
