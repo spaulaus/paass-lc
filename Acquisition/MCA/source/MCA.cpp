@@ -29,7 +29,7 @@ double MCA::GetRunTimeInSeconds() {
 
 bool MCA::IsOpen() { return isOpen_; }
 
-bool MCA::OpenFile(const char *basename) {}
+bool MCA::OpenFile(const char *basename) { return false; }
 
 void MCA::Run(const float &duration, const bool *stop) {
     //Start the pixie histogram
@@ -83,4 +83,4 @@ bool MCA::Step() {
     return true;
 }
 
-bool MCA::StoreData(int mod, int ch) {}
+bool MCA::StoreData(int mod, int ch) { return true; }
