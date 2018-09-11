@@ -20,6 +20,11 @@ MCA::MCA(EmulatedInterface *pif) {}
 
 MCA::~MCA() = default;
 
+///@TODO This calculation needs revisited in the event that we have multiple crates.
+unsigned int MCA::CalculateHistogramId(const unsigned int &crate, const unsigned int &module, const unsigned int &channel) {
+    return crate * pif_->GetConfiguration().GetNumberOfModules() + module * Pixie16::maximumNumberOfChannels + channel;
+}
+
 void MCA::Flush() {}
 
 double MCA::GetRunTimeInSeconds() {

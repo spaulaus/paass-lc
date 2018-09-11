@@ -30,6 +30,8 @@ public:
     ///Default destructor.
     virtual ~MCA();
 
+    unsigned int CalculateHistogramId(const unsigned int &crate, const unsigned int &module, const unsigned int &channel);
+
     ///Flush the current memory to disk. will be overloaded by the children.
     virtual void Flush();
 
