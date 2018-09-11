@@ -267,7 +267,7 @@ bool GetTraces::operator()(PixieFunctionParms<int> &par) {
     float temp_val;
 
     // Reset parameters.
-    for (unsigned int i = 0; i < par.pif->GetNumberOfChannels(); i++) {
+    for (unsigned int i = 0; i < par.pif->GetConfiguration().GetNumberOfChannels(); i++) {
         baseline[i] = -1;
         maximum[i] = -9999;
     }
@@ -319,7 +319,7 @@ bool GetTraces::operator()(PixieFunctionParms<int> &par) {
 
     // Threshold was not reached. Copy the most recent pulse into
     // the module traces array.
-    for (unsigned int i = 0; i < par.pif->GetNumberOfChannels(); i++) {
+    for (unsigned int i = 0; i < par.pif->GetConfiguration().GetNumberOfChannels(); i++) {
         if (i == par.ch) { continue; } // Already did this channel.
 
         if (par.pif->ReadSglChanTrace(trace_data, trace_len, par.mod, i)) {
@@ -401,7 +401,7 @@ bool ParameterModuleDumper::operator()(PixieFunctionParms<std::string> &par) {
 
 bool OffsetAdjuster::operator()(PixieFunctionParms<int> &par) {
     bool hadError = par.pif->AdjustOffsets(par.mod);
-    for (size_t ch = 0; ch < par.pif->GetNumberOfChannels(); ch++) {
+    for (size_t ch = 0; ch < par.pif->GetConfiguration().GetNumberOfChannels(); ch++) {
         par.pif->PrintSglChanPar("VOFFSET", par.mod, ch);
     }
 

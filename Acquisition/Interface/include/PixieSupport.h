@@ -38,10 +38,10 @@ forChannel(PixieInterface *pif, int mod, int ch, PixieFunction<T> &f, T par) {
     bool hadError = false;
 
     if (mod < 0) {
-        for (parms.mod = 0; parms.mod < pif->GetNumberOfModules(); parms.mod++) {
+        for (parms.mod = 0; parms.mod < pif->GetConfiguration().GetNumberOfModules(); parms.mod++) {
             if (ch < 0) {
                 for (parms.ch = 0;
-                     parms.ch < pif->GetNumberOfChannels(); parms.ch++) {
+                     parms.ch < pif->GetConfiguration().GetNumberOfChannels(); parms.ch++) {
                     if (!f(parms)) { hadError = true; }
                 }
             } else {
@@ -54,7 +54,7 @@ forChannel(PixieInterface *pif, int mod, int ch, PixieFunction<T> &f, T par) {
         parms.mod = mod;
         if (ch < 0) {
             for (parms.ch = 0;
-                 parms.ch < pif->GetNumberOfChannels(); parms.ch++) {
+                 parms.ch < pif->GetConfiguration().GetNumberOfChannels(); parms.ch++) {
                 if (!f(parms)) { hadError = true; }
             }
         } else {
@@ -72,7 +72,7 @@ bool forModule(PixieInterface *pif, int mod, PixieFunction<T> &f, T par) {
     bool hadError = false;
 
     if (mod < 0) {
-        for (parms.mod = 0; parms.mod < pif->GetNumberOfChannels(); parms.mod++) {
+        for (parms.mod = 0; parms.mod < pif->GetConfiguration().GetNumberOfChannels(); parms.mod++) {
             if (!f(parms)) { hadError = true; }
         }
     } else {
