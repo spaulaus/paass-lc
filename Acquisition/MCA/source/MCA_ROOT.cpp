@@ -15,7 +15,7 @@ MCA_ROOT::MCA_ROOT(AcquisitionInterface *pif, const char *basename) : MCA(pif) {
 
 MCA_ROOT::~MCA_ROOT() {
     if (IsOpen()) {
-        _file->Write(0, TObject::kWriteDelete);
+        _file->Write(nullptr, TObject::kWriteDelete);
         _file->Close();
     }
     delete _file;
@@ -26,7 +26,7 @@ bool MCA_ROOT::OpenFile(const char *basename) {
     Display::LeaderPrint(message);
 
     //We redirect stderr, to catch ROOT error messages
-    cerr_redirect *redirect = new cerr_redirect("Pixie16msg.txt");
+    auto *redirect = new cerr_redirect("Pixie16msg.txt");
 
     //Try and open the file
     _file = new TFile(Form("%s.root", basename), "RECREATE");
@@ -48,7 +48,7 @@ bool MCA_ROOT::OpenFile(const char *basename) {
             _histograms[id] = new TH1F(Form("h%d%02d", card, ch), Form("Mod %d Ch %d", card, ch), ADC_SIZE, 0, ADC_SIZE);
         }
     }
-    _file->Write(0, TObject::kWriteDelete);
+    _file->Write(nullptr, TObject::kWriteDelete);
 
     return true;
 
@@ -88,6 +88,6 @@ void MCA_ROOT::Reset() {
 }
 
 void MCA_ROOT::Flush() {
-    _file->Write(0, TObject::kWriteDelete);
+    _file->Write(nullptr, TObject::kWriteDelete);
     _file->Flush();
 }
