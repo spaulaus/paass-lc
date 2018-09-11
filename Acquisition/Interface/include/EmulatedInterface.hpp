@@ -25,7 +25,6 @@ public:
 
     bool ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords, unsigned short mod, bool verbose = false);
     bool ReadHistogram(Pixie16::word_t *hist, unsigned long sz, unsigned short mod, unsigned short ch);
-    bool ReadSlotConfig(const char *slotCfgFile = nullptr);
     bool ReadSglChanPar(const char *name, double &val, int mod, int chan);
     bool ReadSglChanTrace(unsigned short *buf, unsigned long sz, unsigned short mod, unsigned short chan);
     bool ReadSglModPar(const char *name, Pixie16::word_t &val, int mod);

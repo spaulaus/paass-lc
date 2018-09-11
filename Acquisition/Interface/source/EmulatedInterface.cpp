@@ -28,7 +28,7 @@ bool EmulatedInterface::AdjustOffsets(unsigned short mod) {
 }
 
 bool EmulatedInterface::Boot(Interface::BootType mode, bool useWorkingSetFile) {
-    return false;
+    return true;
 }
 
 unsigned long EmulatedInterface::CheckFIFOWords(unsigned short mod) {
@@ -36,11 +36,11 @@ unsigned long EmulatedInterface::CheckFIFOWords(unsigned short mod) {
 }
 
 bool EmulatedInterface::CheckRunStatus(short mod) {
-    return false;
+    return true;
 }
 
 bool EmulatedInterface::EndRun(short mod) {
-    return false;
+    return true;
 }
 
 bool EmulatedInterface::Init(bool offlineMode) {
@@ -53,24 +53,6 @@ bool EmulatedInterface::ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords
 
 bool EmulatedInterface::ReadHistogram(Pixie16::word_t *hist, unsigned long sz, unsigned short mod, unsigned short ch) {
     return false;
-}
-
-bool EmulatedInterface::ReadSlotConfig(const char *slotCfgFile) {
-    numberOfModules_ = Pixie16::maximumNumberOfModulesPerCrate;
-    for (int i = 0; i < numberOfModules_; i++)
-        slotMap_[i] = 2 + i;
-
-    cout << "EmulatedPixieInterface::ReadSlotDefinition - Initialzed system with " << numberOfModules_ << " modules.\n";
-
-    for (int i = 0; i < numberOfModules_; i++)
-        cout << "||  M  S ";
-    cout << "|" << endl << "  ";
-
-    for (int i = 0; i < numberOfModules_; i++)
-        cout << "|| " << setw(2) << i << " " << setw(2) << slotMap_[i] << " ";
-    cout << "|" << endl;
-
-    return true;
 }
 
 bool EmulatedInterface::ReadSglChanPar(const char *name, double &val, int mod, int chan) {
@@ -87,11 +69,11 @@ bool EmulatedInterface::ReadSglModPar(const char *name, Pixie16::word_t &val, in
 }
 
 bool EmulatedInterface::RemovePresetRunLength(int mod) {
-    return false;
+    return true;
 }
 
 bool EmulatedInterface::StartHistogramRun(short mod, unsigned short mode) {
-    return false;
+    return true;
 }
 
 bool EmulatedInterface::StartListModeRun(short mod, unsigned short listMode, unsigned short runMode) {
