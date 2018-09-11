@@ -24,25 +24,31 @@ public:
     MCA(EmulatedInterface *pif);
 
     ///Default destructor.
-    virtual ~MCA() {};
+    virtual ~MCA();
 
     ///Return the length of time the MCA has been running.
     double GetRunTime();
 
     ///Abstract method describing how the MCA data is stored.
-    virtual bool StoreData(int mod, int ch) = 0;
+    virtual bool StoreData(int mod, int ch);
 
     ///Abstract method to open a storage file.
-    virtual bool OpenFile(const char *basename) = 0;
+    virtual bool OpenFile(const char *basename);
 
     ///Flush the current memory to disk.
-    virtual void Flush() = 0;
+    virtual void Flush();
 
     ///Check if the histogram construction was successful.
-    virtual bool IsOpen() { return _isOpen; };
+    virtual bool IsOpen();
 
-    ///Start the MCA running.
-    virtual void Run(float duration, bool *stop = nullptr);
+    /// The MCA is initialized and run for the specified duration or until a
+    /// stop command is received. At specific intervals the MCA output is
+    /// updated via MCA::StoreData(). Will continue until external bool (stop)
+    /// is set to false. If this pointer is set to NULL, will continue uninterrupted. 
+    ///
+    /// @param[in] duration Amount of time to run the MCA.
+    /// @param[in] stop External boolean flag for stop run command. 
+    virtual void Run(const float &duration, const bool *stop = nullptr);
 
     ///Update the MCA histograms.
     virtual bool Step();
@@ -58,8 +64,8 @@ protected:
     static const size_t ADC_SIZE = 32768;
 
     ///Flag indicating if histogram construction was successful.
-    bool _isOpen;
+    bool isOpen_;
 
-    AcquisitionInterface *_pif;
+    AcquisitionInterface *pif_;
 };
 #endif //PAASSLC_MCA_H
