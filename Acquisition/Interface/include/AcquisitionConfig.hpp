@@ -11,6 +11,7 @@
 
 #include <map>
 #include <set>
+#include <vector>
 
 ///@TODO : Make this an abstract base class so that we can read / configure more than just Pixie modules.
 class AcquisitionConfig {
@@ -48,6 +49,11 @@ public:
 
     /// @return the number of channels read in from the configuration
     unsigned short GetNumberOfChannels() const;
+
+    /// @returns the slot maps read in from the configuration
+    std::map<unsigned int, std::map<short, short> > GetSlotMaps() const;
+
+    std::vector<short unsigned int> GetSlotMapAsVector(const unsigned int &crateNum) const;
 private:
     unsigned short numberOfModules_; //!< The number of modules defined in the config.
     unsigned short numberOfChannels_; //!< The number of channels defined in the config.
@@ -92,7 +98,7 @@ private:
 
     std::set<std::string> validNodes_; //!< Contains a list of nodes that we are expecting.
     std::map<std::string, std::map<std::string, std::string> > configStrings_; //!< Map containing the configuration parameters
-    std::map<unsigned int, std::map<unsigned int, unsigned int> > slotMap_; //!< The slot maps parsed from the config
+    std::map<unsigned int, std::map<short, short> > slotMap_; //!< The slot maps parsed from the config
     std::map<unsigned int, std::string> pxisysMap_; //!< Map containing the pxisys paths for the crates.
 };
 

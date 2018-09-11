@@ -137,7 +137,7 @@ void AcquisitionConfig::ParseSlotDefinitionNode(const pugi::xml_node &node) {
                 + std::to_string(crateNumber) + " has too many modules defined. It has room for "
                 + std::to_string(maximumNumberOfModuleSlotsInCrate) + " modules!!");
 
-            slotMap_[crateNumber][slot] = number;
+            slotMap_[crateNumber][number] = slot;
 
             numberOfModulesInCrate++;
         }
@@ -209,6 +209,15 @@ string AcquisitionConfig::ConfigFileName(const string &type, const string &fileN
 unsigned short AcquisitionConfig::GetNumberOfModules() const { return numberOfModules_; }
 
 unsigned short AcquisitionConfig::GetNumberOfChannels() const { return numberOfChannels_; }
+
+std::map<unsigned int, std::map<short, short> > AcquisitionConfig::GetSlotMaps() const { return slotMap_; }
+
+std::vector<short unsigned int> AcquisitionConfig::GetSlotMapAsVector(const unsigned int &crateNum) const {
+    vector<short unsigned int> slotVector;
+    for (const auto &item : slotMap_.find(crateNum)->second)
+        slotVector.push_back(item.second);
+    return slotVector;
+}
 
 std::string AcquisitionConfig::Get(const std::string &moduleType, const std::string &tag) {
     return configStrings_[moduleType][tag];
