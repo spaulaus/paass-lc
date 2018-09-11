@@ -42,8 +42,8 @@ bool MCA_ROOT::OpenFile(const char *basename) {
     delete redirect;
 
     //Loop over the number of cards and channels to build the histograms.
-    for (int card = 0; card < _pif->GetNumberOfModules(); card++) {
-        for (unsigned int ch = 0; ch < _pif->GetNumberOfChannels(); ch++) {
+    for (int card = 0; card < pif_->GetConfiguration().GetNumberOfModules(); card++) {
+        for (unsigned int ch = 0; ch < pif_->GetConfiguration().GetNumberOfChannels(); ch++) {
             int id = (card + 1) * 100 + ch;
             _histograms[id] = new TH1F(Form("h%d%02d", card, ch), Form("Mod %d Ch %d", card, ch), ADC_SIZE, 0, ADC_SIZE);
         }
