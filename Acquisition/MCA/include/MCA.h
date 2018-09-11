@@ -5,17 +5,23 @@
 #ifndef PAASSLC_MCA_H
 #define PAASSLC_MCA_H
 
-#include <ctime>
-
-#include "PixieSupport.h"
+#include <chrono>
 
 class AcquisitionInterface;
+class PixieInterface;
+class EmulatedInterface;
 
 ///Abstract MCA class
 class MCA {
 public:
     ///Default constructor.
     MCA(AcquisitionInterface *pif);
+
+    ///Default constructor.
+    MCA(PixieInterface *pif);
+
+    ///Default constructor.
+    MCA(EmulatedInterface *pif);
 
     ///Default destructor.
     virtual ~MCA() {};
@@ -36,15 +42,15 @@ public:
     virtual bool IsOpen() { return _isOpen; };
 
     ///Start the MCA running.
-    virtual void Run(float duration, bool *stop = NULL);
+    virtual void Run(float duration, bool *stop = nullptr);
 
     ///Update the MCA histograms.
     virtual bool Step();
 
 protected:
     /// Timers for the MCA object
-    time_t start_time;
-    time_t stop_time;
+    std::chrono::steady_clock::time_point startTime_;
+    std::chrono::steady_clock::time_point stopTime_;
 
     ///Default number of bins in histogram.
     static const size_t HIS_SIZE = 16384;
@@ -53,7 +59,7 @@ protected:
 
     ///Flag indicating if histogram construction was successful.
     bool _isOpen;
-    ///Pointer to the AcquisitionInterface
+
     AcquisitionInterface *_pif;
 };
 #endif //PAASSLC_MCA_H

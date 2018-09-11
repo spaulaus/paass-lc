@@ -1,4 +1,7 @@
-/// @authors K. Miernik, K. Smith, C. R. Thornsberry
+/// @file MCA.cpp
+/// @brief Implementation of the base MCA class.
+/// @author K. Miernik, K. Smith, C. R. Thornsberry, and S. V. Paulauskas
+/// @date September 11, 2018
 #include "MCA.h"
 
 #include "AcquisitionInterface.hpp"
@@ -9,15 +12,16 @@
 #include <iomanip>
 #include <unistd.h>
 
-///Default constructor
-MCA::MCA(AcquisitionInterface *pif) : _pif(pif) {
-    time(&start_time);
-}
+MCA::MCA(AcquisitionInterface *pif) : _pif(pif) {}
+
+MCA::MCA(PixieInterface *pif) {}
+
+MCA::MCA(EmulatedInterface *pif) {}
 
 ///Return the length of time the MCA has been running.
 double MCA::GetRunTime() {
-    time(&stop_time);
-    return difftime(stop_time, start_time);
+    stopTime_ = std::chrono::steady_clock::now();
+    return std::chrono::duration_cast<std::chrono::duration<double>>(stopTime_ - startTime_).count();
 }
 
 /**The MCA is initialized and run for the specified duration or until a
@@ -32,44 +36,29 @@ void MCA::Run(float duration, bool *stop) {
     //Start the pixie histogram
     _pif->StartHistogramRun();
 
-    time(&start_time);
+    startTime_ = std::chrono::steady_clock::now();
 
-    //Loop until we reach the run duration or a stop is received.
     while (true) {
-        if (stop != NULL && *stop) { break; }
-        else if (duration > 0.0 && (difftime(stop_time, start_time) >=
-                                    duration)) { break; } // Adds support for infinite MCA runs
+        if(GetRunTime() > duration)
+            break;
+
+        if (stop != nullptr && *stop)
+            break;
+        if (duration > 0.0 && GetRunTime() >= duration)
+            break;
 
         sleep(2);
 
-        //Update run time
-        std::cout << "|" << std::fixed << std::setprecision(2) << GetRunTime()
-                  << " s |\r" << std::flush;
+        std::cout << "|" << std::fixed << std::setprecision(2) << GetRunTime() << " s |\r" << std::flush;
 
-        //Check if run is still ok
-        if (!_pif->CheckRunStatus()) {
+        if (!Step()) {
             std::cout << Display::ErrorStr("Run TERMINATED") << std::endl;
             break;
         }
-
-        //Store the MCA data via the inherited method StoreData()
-        for (int mod = 0; mod < _pif->GetNumberOfModules(); mod++) {
-            for (unsigned int ch = 0; ch < _pif->GetNumberOfChannels(); ch++) {
-                StoreData(mod, ch);
-            }
-        }
-
-        //Flush the data to disk.
-        Flush();
-
-        //Update the timer.
-        time(&stop_time);
     }
 
-    //End the run
     _pif->EndRun();
 
-    //Display run completion information.
     std::cout << std::endl;
     Display::LeaderPrint("Run finished");
     std::cout << Display::OkayStr() << std::endl;
@@ -77,25 +66,21 @@ void MCA::Run(float duration, bool *stop) {
     std::cout << std::fixed << std::setprecision(2) << GetRunTime() << " s"
               << std::endl;
 
-    //Uset cout flags
     std::cout.unsetf(std::ios_base::floatfield);
     std::cout.precision(6);
 }
 
 bool MCA::Step() {
-    if (!_pif || !_pif->CheckRunStatus()) { return false; }
+    if (!_pif || !_pif->CheckRunStatus())
+        return false;
 
-    //Store the MCA data via the inherited method StoreData()
-    for (int mod = 0; mod < _pif->GetNumberOfModules(); mod++) {
-        for (unsigned int ch = 0; ch < _pif->GetNumberOfChannels(); ch++) {
+    for (int mod = 0; mod < _pif->GetConfiguration().GetNumberOfModules(); mod++)
+        for (unsigned int ch = 0; ch < _pif->GetConfiguration().GetNumberOfChannels(); ch++)
             StoreData(mod, ch);
-        }
-    }
 
-    //Flush the data to disk.
     Flush();
 
-    time(&stop_time);
+    stopTime_ = std::chrono::steady_clock::now();
 
     return true;
 }
