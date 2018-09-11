@@ -168,7 +168,7 @@ public:
     // accessors
     static size_t GetTraceLength(void) { return TRACE_LENGTH; };
 
-    short GetSlotNumber(int mod) const { return slotMap_[mod]; }
+    short GetSlotNumber(int mod) const { return config_.GetSlotMaps()[0][mod]; }
 
     enum BootFlags {
         BootComm = 0x01, BootTrigger = 0x02, BootSignal = 0x04, BootDSP = 0x08, DownloadParameters = 0x10,

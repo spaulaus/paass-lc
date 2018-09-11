@@ -96,7 +96,7 @@ PixieInterface::~PixieInterface() {
 
     LeaderPrint("Closing Pixie interface");
 
-    retval_ = Pixie16ExitSystem(numberOfModules_);
+    retval_ = Pixie16ExitSystem(config_.GetNumberOfModules());
     CheckError();
 }
 
@@ -104,7 +104,7 @@ PixieInterface::~PixieInterface() {
 bool PixieInterface::Init(bool offlineMode) {
     LeaderPrint("Initializing Pixie");
 
-    retval_ = Pixie16InitSystem(numberOfModules_, slotMap_, offlineMode);
+    retval_ = Pixie16InitSystem(config_.GetNumberOfModules(), &(config_.GetSlotMapAsVector(0)[0]), offlineMode);
     doneInit_ = !CheckError(true);
 
     return doneInit_;
@@ -132,7 +132,7 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile) {
     //We also check if the modules are all the same. If not we set multiConf to true.
     bool multiConf = false;
     std::vector<std::string> moduleTypes;
-    for (int mod = 0; mod < numberOfModules_; mod++) {
+    for (int mod = 0; mod < config_.GetNumberOfModules(); mod++) {
         unsigned short rev, adcBits, adcMsps;
         unsigned int serNum;
         GetModuleInfo(mod, &rev, &serNum, &adcBits, &adcMsps);
@@ -155,7 +155,7 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile) {
 
         //Check that all module types are valid.
         bool error = false;
-        for (int mod = 0; mod < numberOfModules_; mod++) {
+        for (int mod = 0; mod < config_.GetNumberOfModules(); mod++) {
             if ( !config_.HasModuleConfig(moduleTypes.at(mod)) ) {
                 std::cout << ErrorStr() << " Configuration not defined for type " << moduleTypes.at(mod) << " (mod "
                           << mod << ")\n";
@@ -164,7 +164,7 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile) {
         }
         if (error) return false;
 
-        for (int i = 0; i < numberOfModules_; i++) {
+        for (int i = 0; i < config_.GetNumberOfModules(); i++) {
             retval_ = Pixie16BootModule(
                     &config_.Get(moduleTypes.at(i), "ComFpgaFile")[0],
                     &config_.Get(moduleTypes.at(i), "SpFpgaFile")[0],
@@ -196,7 +196,7 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile) {
         // boot all at once
         retval_ = Pixie16BootModule(&config_.Get(moduleType, "ComFpgaFile")[0], &config_.Get(moduleType, "SpFpgaFile")[0],
                                     &config_.Get(moduleType, "TrigFpgaFile")[0], &config_.Get(moduleType, "DspConfFile")[0],
-                                    &setFile[0], &config_.Get(moduleType, "DspVarFile")[0], numberOfModules_, mode);
+                                    &setFile[0], &config_.Get(moduleType, "DspVarFile")[0], config_.GetNumberOfModules(), mode);
 
         stringstream leader;
         leader << "Booting Pixie (" << moduleType << ")";
@@ -213,12 +213,12 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile) {
 
     Pixie16::word_t val;
 
-    for (int i = 0; i < numberOfModules_; i++) {
+    for (int i = 0; i < config_.GetNumberOfModules(); i++) {
         if (!ReadSglModPar("SlotID", val, i))
             hadError = true;
-        if (val != slotMap_[i]) {
+        if (val != config_.GetSlotMaps()[0][i]) {
             updated = true;
-            if (!WriteSglModPar("SlotID", slotMap_[i], i))
+            if (!WriteSglModPar("SlotID", config_.GetSlotMaps()[0][i], i))
                 hadError = true;
         }
     }
@@ -386,7 +386,7 @@ double PixieInterface::GetProcessedEvents(int mod) {
 
 bool PixieInterface::StartHistogramRun(short mod, unsigned short mode) {
     LeaderPrint("Starting histogram run");
-    if (mod < 0) mod = numberOfModules_;
+    if (mod < 0) mod = config_.GetNumberOfModules();
     retval_= Pixie16StartHistogramRun(mod, mode);
 
     return !CheckError();
@@ -394,7 +394,7 @@ bool PixieInterface::StartHistogramRun(short mod, unsigned short mode) {
 
 bool PixieInterface::StartListModeRun(short mod, unsigned short listMode, unsigned short runMode) {
     LeaderPrint("Starting list mode run");
-    if (mod < 0) mod = numberOfModules_;
+    if (mod < 0) mod = config_.GetNumberOfModules();
     retval_ = Pixie16StartListModeRun(mod, listMode, runMode);
 
     return !CheckError();
@@ -404,7 +404,7 @@ bool PixieInterface::CheckRunStatus(short mod) {
     bool error = false;
     if (mod >= 0) error = Pixie16CheckRunStatus(mod);
     else {
-        for (mod = 0; mod < numberOfModules_; mod++) {
+        for (mod = 0; mod < config_.GetNumberOfModules(); mod++) {
             if (!Pixie16CheckRunStatus(mod)) {
                 error = true;
                 break;
@@ -503,7 +503,7 @@ bool PixieInterface::EndRun(short mod) {
     if (mod >= 0)
         b = Pixie16EndRun(mod);
     else {
-        for (mod = 0; mod < numberOfModules_; mod++)
+        for (mod = 0; mod < config_.GetNumberOfModules(); mod++)
             if (!EndRun(mod)) b = false;
     }
 
