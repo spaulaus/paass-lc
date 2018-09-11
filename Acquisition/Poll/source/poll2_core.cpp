@@ -120,7 +120,7 @@ bool MCA_args::Step(){
 }
 
 bool MCA_args::CheckTime(){
-    if(!mca || (totalTime <= 0 || (mca->GetRunTime() >= totalTime))){ return false; }
+    if(!mca || (totalTime <= 0 || (mca->GetRunTimeInSeconds() >= totalTime))){ return false; }
     return true;
 }
 
@@ -1455,7 +1455,7 @@ void Poll::RunControl(){
                 if(!mca_args.CheckTime() || do_stop_acq){ // End the run.
                     pif->EndRun();
                     std::cout << sys_message_head << "Ending MCA run.\n";
-                    std::cout << sys_message_head << "Ran for " << mca_args.GetMCA()->GetRunTime() << " s.\n";
+                    std::cout << sys_message_head << "Ran for " << mca_args.GetMCA()->GetRunTimeInSeconds() << " s.\n";
                     mca_args.Close(pif);
                     do_stop_acq = false;
                     do_MCA_run = false;
@@ -1605,7 +1605,7 @@ void Poll::UpdateStatus() {
     if (file_open) status << " Run " << output_file.GetRunNumber();
 
     if(do_MCA_run){
-        status << " " << (int)mca_args.GetMCA()->GetRunTime() << "s";
+        status << " " << (int)mca_args.GetMCA()->GetRunTimeInSeconds() << "s";
         status << " of " << mca_args.GetTotalTime() << "s";
     }
     else{

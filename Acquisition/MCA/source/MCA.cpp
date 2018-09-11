@@ -22,8 +22,7 @@ MCA::MCA(EmulatedInterface *pif) {}
 
 MCA::~MCA() = default;
 
-///Return the length of time the MCA has been running.
-double MCA::GetRunTime() {
+double MCA::GetRunTimeInSeconds() {
     stopTime_ = std::chrono::steady_clock::now();
     return std::chrono::duration_cast<std::chrono::duration<double>>(stopTime_ - startTime_).count();
 }
@@ -35,17 +34,17 @@ void MCA::Run(const float &duration, const bool *stop) {
     startTime_ = std::chrono::steady_clock::now();
 
     while (true) {
-        if(GetRunTime() > duration)
+        if(GetRunTimeInSeconds() > duration)
             break;
 
         if (stop != nullptr && *stop)
             break;
-        if (duration > 0.0 && GetRunTime() >= duration)
+        if (duration > 0.0 && GetRunTimeInSeconds() >= duration)
             break;
 
         sleep(2);
 
-        std::cout << "|" << std::fixed << std::setprecision(2) << GetRunTime() << " s |\r" << std::flush;
+        std::cout << "|" << std::fixed << std::setprecision(2) << GetRunTimeInSeconds() << " s |\r" << std::flush;
 
         if (!Step()) {
             std::cout << Display::ErrorStr("Run TERMINATED") << std::endl;
@@ -59,7 +58,7 @@ void MCA::Run(const float &duration, const bool *stop) {
     Display::LeaderPrint("Run finished");
     std::cout << Display::OkayStr() << std::endl;
     Display::LeaderPrint("Total running time:");
-    std::cout << std::fixed << std::setprecision(2) << GetRunTime() << " s" << std::endl;
+    std::cout << std::fixed << std::setprecision(2) << GetRunTimeInSeconds() << " s" << std::endl;
 
     std::cout.unsetf(std::ios_base::floatfield);
     std::cout.precision(6);

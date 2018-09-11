@@ -38,6 +38,9 @@ public:
     ///Flush the current memory to disk.
     virtual void Flush();
 
+    ///Return the length of time the MCA has been running.
+    double GetRunTimeInSeconds();
+
     ///Check if the histogram construction was successful.
     virtual bool IsOpen();
 
