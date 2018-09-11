@@ -21,7 +21,7 @@ MCA_ROOT::~MCA_ROOT() {
 bool MCA_ROOT::OpenFile(const char *basename) {
 
     std::string message =
-            std::string("Creating new empty ROOT histogram ") + basename +
+            std::string("Creating new empty ROOT histogram ") + std::string(basename) +
             std::string(".root");
     Display::LeaderPrint(message);
     //We redirect stderr, to catch ROOT error messages
