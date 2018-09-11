@@ -28,11 +28,11 @@ bool MCA_ROOT::OpenFile(const char *basename) {
     cerr_redirect *redirect = new cerr_redirect("Pixie16msg.txt");
     //Try and open the file
     _file = new TFile(Form("%s.root", basename), "RECREATE");
-    _isOpen = _file->IsOpen() && _file->IsWritable();
-    if (Display::StatusPrint(!_isOpen)) {
+    isOpen_ = _file->IsOpen() && _file->IsWritable();
+    if (Display::StatusPrint(!isOpen_)) {
         //Print out the ROOT error message
         redirect->Print();
-        return _isOpen;
+        return isOpen_;
     }
     redirect->Print();
     delete redirect;
@@ -65,7 +65,7 @@ TH1F *MCA_ROOT::GetHistogram(int mod, int ch) {
 bool MCA_ROOT::StoreData(int mod, int ch) {
     Pixie16::word_t histo[ADC_SIZE];
 
-    _pif->ReadHistogram(histo, ADC_SIZE, mod, ch);
+    pif_->ReadHistogram(histo, ADC_SIZE, mod, ch);
 
     TH1F *histogram = GetHistogram(mod, ch);
     if (!histogram) return false;
