@@ -1,7 +1,7 @@
 ///@authors C. R. Thornsberry
 #ifndef PIXIE_SUPPORT_H
 #define PIXIE_SUPPORT_H
-#include "PixieInterface.h"
+#include <AcquisitionInterface.hpp>
 #include "Constants.hpp"
 
 #include <bitset>
@@ -14,12 +14,12 @@ extern bool hasColorTerm;
 
 template<typename T=int>
 struct PixieFunctionParms {
-    PixieInterface *pif;
+    AcquisitionInterface *pif;
     unsigned int mod;
     unsigned int ch;
     T par;
 
-    PixieFunctionParms(PixieInterface *p, T x) : pif(p) { par = x; }
+    PixieFunctionParms(AcquisitionInterface *p, T x) : pif(p) { par = x; }
 };
 
 template<typename T=int>
@@ -32,7 +32,7 @@ public:
 
 template<typename T>
 bool
-forChannel(PixieInterface *pif, int mod, int ch, PixieFunction<T> &f, T par) {
+forChannel(AcquisitionInterface *pif, int mod, int ch, PixieFunction<T> &f, T par) {
     PixieFunctionParms<T> parms(pif, par);
 
     bool hadError = false;
@@ -67,7 +67,7 @@ forChannel(PixieInterface *pif, int mod, int ch, PixieFunction<T> &f, T par) {
 }
 
 template<typename T>
-bool forModule(PixieInterface *pif, int mod, PixieFunction<T> &f, T par) {
+bool forModule(AcquisitionInterface *pif, int mod, PixieFunction<T> &f, T par) {
     PixieFunctionParms<T> parms(pif, par);
     bool hadError = false;
 
