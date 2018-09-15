@@ -34,10 +34,16 @@ AcquisitionConfig::AcquisitionConfig() {
 
     validNodes_.insert("SlotDefinition");
     validNodes_.insert("Pxisys");
+
+    numberOfModules_ = 0;
+
+    ///@TODO : This value is always set to the maximum number of channels in a Pixie16 module (16). We will need to
+    /// modify this in the future so that we can accomodate Pixie4, Pixie32, etc.
+    numberOfChannels_ = Pixie16::maximumNumberOfChannels;
 }
 
-void AcquisitionConfig::ReadConfiguration(const std::string &fileName) {
-    pugi::xml_node root = XmlInterface::get(fileName.c_str())->GetDocument()->child("Configuration");
+void AcquisitionConfig::ReadConfiguration(const std::string &fileName, const bool &shouldVerifyFiles/*=true*/) {
+    pugi::xml_node root = XmlInterface::get(fileName)->GetDocument()->child("Configuration");
 
     configStrings_["global"]["PixieBaseDir"] = root.child("PixieBaseDir").text().as_string("");
     if(Get("global", "PixieBaseDir").empty())
@@ -68,6 +74,9 @@ void AcquisitionConfig::ReadConfiguration(const std::string &fileName) {
             }
         }
     }
+
+    if(shouldVerifyFiles)
+        VerifyFiles();
 }
 
 void AcquisitionConfig::VerifyFiles() {
@@ -127,10 +136,10 @@ void AcquisitionConfig::ParseSlotDefinitionNode(const pugi::xml_node &node) {
 
         auto maximumNumberOfModuleSlotsInCrate = DetermineMaximumNumberOfModules(pxisysPath);
 
-        unsigned int numberOfModulesInCrate = 0;
-        for(const auto &modules : crates.children("Module")) {
-            unsigned int slot = modules.attribute("slot").as_uint(std::numeric_limits<unsigned int>::max());
-            unsigned int number = modules.attribute("number").as_uint(std::numeric_limits<unsigned int>::max());
+        unsigned short numberOfModulesInCrate = 0;
+        for(const auto &module : crates.children("Module")) {
+            auto slot = (unsigned short)module.attribute("slot").as_uint(std::numeric_limits<unsigned short>::max());
+            auto number = (unsigned short)module.attribute("number").as_uint(std::numeric_limits<unsigned short>::max());
 
             if(numberOfModulesInCrate > maximumNumberOfModuleSlotsInCrate)
                 throw std::invalid_argument("AcquisitionConfig::ParseSlotDefinitionNode - Crate "
@@ -141,8 +150,8 @@ void AcquisitionConfig::ParseSlotDefinitionNode(const pugi::xml_node &node) {
 
             numberOfModulesInCrate++;
         }
+
         numberOfModules_ += numberOfModulesInCrate;
-        numberOfChannels_ += numberOfModulesInCrate * Pixie16::maximumNumberOfChannels;
     }
 }
 
@@ -151,11 +160,11 @@ unsigned int AcquisitionConfig::DetermineMaximumNumberOfModules(const std::strin
     smatch m;
 
     if(std::regex_search (name, m, regex("([0-9]+)")))
-        return (unsigned int)stoi(m[0].str()) - 1; // Note : A 14 slot crate holds 13 modules, 8 slot holds 7.
+        return (unsigned int)stoi(m[0].str()) - 2; // Note : A 14 slot crate holds 13 modules, 8 slot holds 7.
 
     //Magic number warning!! The default pxisys.ini file shipped from XIA is for a 14 slot Wiener crate. That crate
-    // has 14 slots. Modules start at slot 2. The maximum number of available modules is 13.
-    return 13;
+    // has 14 slots. Modules start at slot 2. The maximum number of available modules is 13, so 12 if counting from 0.
+    return 12;
 }
 
 std::string AcquisitionConfig::DuplicateEntryMessage(const std::string &methodName, const std::string &duplicateName) {

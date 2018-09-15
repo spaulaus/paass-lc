@@ -27,7 +27,7 @@ public:
     /// @throw invalid_argument if it encounters a node not listed validNodes_ (see constructor documentation)
     /// @throw invalid_argument if a node is empty
     /// @throw invalid_argument if it encounters a duplicate node.
-    void ReadConfiguration(const std::string &fileName);
+    void ReadConfiguration(const std::string &fileName, const bool &shouldVerifyFiles = true);
 
     /// Get the value of a parameter from teh config.
     /// @param[in] moduleType : The type of module that you want to find the configuration for
@@ -56,7 +56,7 @@ public:
     std::vector<short unsigned int> GetSlotMapAsVector(const unsigned int &crateNum) const;
 private:
     unsigned short numberOfModules_; //!< The number of modules defined in the config.
-    unsigned short numberOfChannels_; //!< The number of channels defined in the config.
+    unsigned short numberOfChannels_; //!< The number of channels in a Pixie16 module.
 
     /// Parses the input from configuration file for the ModuleType tag.
     /// @param[in] parent : The ModuleType node that we're going to be parsing.
