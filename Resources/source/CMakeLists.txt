@@ -1,7 +1,7 @@
 # @authors S.V. Paulauskas and K. Smith
 
 #Set the utility sources that we will make a lib out of
-set(PaassResourceSources Messenger.cpp Notebook.cpp RandomInterface.cpp XmlInterface.cpp XmlParser.cpp )
+set(PaassResourceSources Messenger.cpp Notebook.cpp RandomInterface.cpp XmlInterface.cpp XmlParser.cpp CerrDirector.cpp)
 
 if (ROOT_FOUND)
     if(ROOT_HAS_MINUIT2)

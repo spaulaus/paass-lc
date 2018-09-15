@@ -5,6 +5,7 @@
 #include "McaRoot.hpp"
 
 #include "AcquisitionInterface.hpp"
+#include "CerrDirector.hpp"
 #include "Display.h"
 
 #include <TFile.h>
@@ -25,7 +26,7 @@ McaRoot::~McaRoot() {
 bool McaRoot::OpenFile(const char *basename) {
     Display::LeaderPrint(std::string("Creating new empty ROOT histogram ") + std::string(basename) + std::string(".root"));
 
-    auto *redirect = new cerr_redirect("Pixie16msg.txt");
+    auto *redirect = new CerrDirector("Pixie16msg.txt");
 
     file_ = new TFile(Form("%s.root", basename), "RECREATE");
     isOpen_ = file_->IsOpen() && file_->IsWritable();

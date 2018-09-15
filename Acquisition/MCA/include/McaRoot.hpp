@@ -6,12 +6,7 @@
 #define PAASSLC_MCAROOT_HPP
 #include "Mca.hpp"
 
-#include <iostream>
 #include <map>
-
-#include <cstdio>
-
-#include <unistd.h>
 
 class TFile;
 class TH1D;
@@ -52,33 +47,6 @@ public:
 private:
     TFile *file_; //!< The ROOT file that we'll write the histograms into
     std::map<int, TH1D *> histograms_; //!< A map associating IDs with histograms.
-
-    /// A class to handle redirecting stderr to a text file. Saves output in case the user
-    /// would like to print it. Upon destruction stderr is restored to stdout.
-    class cerr_redirect {
-    private:
-        char buf[BUFSIZ];
-
-    public:
-        cerr_redirect(const char *logFile) {
-            for (int i = 0; i < BUFSIZ; i++)
-                buf[i] = '\0';
-            if(!freopen(logFile, "a", stderr))
-                std::cerr << "cerr_redirect::cerr_redirect(logFile) - Couldn't reopen the stream!" << std::endl;
-            setbuf(stderr, buf);
-        };
-
-        /**stderr is pointed to a duplicate of stdout, buffering is then set to no buffering. */
-        ~cerr_redirect() {
-            dup2(fileno(stdout), fileno(stderr));
-            setvbuf(stderr, NULL, _IONBF, BUFSIZ);
-        };
-
-        void Print() {
-            fprintf(stdout, "%s", buf);
-            fflush(stdout);
-        }
-    };
 };
 
 #endif //#ifndef PAASSLC_McaRoot_H
