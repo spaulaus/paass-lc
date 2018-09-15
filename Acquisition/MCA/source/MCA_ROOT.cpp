@@ -61,14 +61,13 @@ TH1D *MCA_ROOT::GetHistogram(const unsigned short &mod, const unsigned short &ch
 }
 
 bool MCA_ROOT::StoreData(const unsigned short &mod, const unsigned short &ch) {
-    Pixie16::word_t histo[ADC_SIZE] = {0};
-
-    pif_->ReadHistogram(histo, ADC_SIZE, mod, ch);
-
     auto histogram = GetHistogram(mod, ch);
 
     if (!histogram)
         return false;
+
+    Pixie16::word_t histo[ADC_SIZE] = {0};
+    pif_->ReadHistogram(histo, ADC_SIZE, mod, ch);
 
     for (unsigned int i = 0; i < ADC_SIZE; i++)
         histogram->SetBinContent(i + 1, histo[i]);
