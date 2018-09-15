@@ -17,71 +17,6 @@
 using namespace std;
 using namespace Display;
 
-// some simple histogram functions
-PixieInterface::Histogram::Histogram() : error(NO_ERROR) {
-    bzero(data, sizeof(data));
-}
-
-PixieInterface::Histogram::Histogram(const PixieInterface::Histogram &x) {
-    memcpy(data, x.data, sizeof(data));
-}
-
-const PixieInterface::Histogram &PixieInterface::Histogram::operator=(const PixieInterface::Histogram &right) {
-    memcpy(data, right.data, sizeof(data));
-    return *this;
-}
-
-PixieInterface::Histogram PixieInterface::Histogram::operator+(const PixieInterface::Histogram &right) {
-    Histogram x(*this);
-
-    for (size_t i = 0; i < HISTO_SIZE; i++) {
-        x.data[i] += right.data[i];
-    }
-
-    return x;
-}
-
-PixieInterface::Histogram PixieInterface::Histogram::operator-(const PixieInterface::Histogram &right) {
-    Histogram x(*this);
-
-    for (size_t i = 0; i < HISTO_SIZE; i++) {
-        if (x.data[i] < right.data[i]) {
-            x.data[i] = 0;
-            error = ERROR_SUBTRACT;
-        } else {
-            x.data[i] -= right.data[i];
-        }
-    }
-
-    return x;
-}
-
-const PixieInterface::Histogram &PixieInterface::Histogram::operator+=(const PixieInterface::Histogram &right) {
-    return (*this = *this + right);
-}
-
-const PixieInterface::Histogram &PixieInterface::Histogram::operator-=(const PixieInterface::Histogram &right) {
-    return (*this = *this - right);
-}
-
-bool PixieInterface::Histogram::Read(PixieInterface &pif, unsigned int mod,
-                                     unsigned int ch) {
-    if (pif.ReadHistogram(data, PixieInterface::HISTO_SIZE, mod, ch))
-        return true;
-    error = ERROR_READ;
-    return false;
-}
-
-bool PixieInterface::Histogram::Write(ofstream &out) {
-    out.write((char *) data, sizeof(data));
-
-    if (!out.good()) {
-        error = ERROR_WRITE;
-        return false;
-    }
-    return true;
-}
-
 PixieInterface::PixieInterface(const char *fn) : AcquisitionInterface(fn) {
     //Overwrite the default path 'pxisys.ini' with the one specified in the scan file.
     PCISysIniFile = config_.Get("global", "CrateConfig").c_str();
@@ -108,15 +43,6 @@ bool PixieInterface::Init(bool offlineMode) {
     doneInit_ = !CheckError(true);
 
     return doneInit_;
-}
-
-bool PixieInterface::Boot(Interface::BootType mode, bool useWorkingSetFile) {
-    ///@TODO This needs to be revised. I'm not sure why this method got created but it doesn't do anything since MCA
-    // is the only boot type defined. Commenting out switch for now and just returning the result of the call.
-    //switch (mode) {
-    //    case Interface::BootType::MCA:
-            return Boot(PixieInterface::DownloadParameters | PixieInterface::ProgramFPGA | PixieInterface::SetDAC, true);
-    //}
 }
 
 bool PixieInterface::Boot(int mode, bool useWorkingSetFile) {

@@ -15,8 +15,7 @@
 
 #define MIN_FIFO_READ 9
 
-// define PIXIE16_REVD_GENERAL if it isn't defined in the header
-//   or else it will evalute to 0 (i.e. the same as PIXIE16_REVA)
+// define PIXIE16_REVD_GENERAL if it isn't defined in the header or else it will evalute to 0 (i.e. the same as PIXIE16_REVA)
 #ifndef PIXIE16_REVD_GENERAL
 #define PIXIE16_REVD_GENERAL 999 // arbitrary large number
 #endif
@@ -60,39 +59,6 @@ public:
 
     typedef Pixie16::word_t stats_t[STAT_SIZE];
 
-    class Histogram {
-    public:
-        enum ErrorTypes {
-            NO_ERROR, ERROR_SUBTRACT, ERROR_READ, ERROR_WRITE
-        };
-
-        Histogram();
-
-        Histogram(const Histogram &x);
-
-        const Histogram &operator=(const Histogram &right);
-
-        Histogram operator+(const Histogram &right);
-
-        Histogram operator-(const Histogram &right);
-
-        const Histogram &operator+=(const Histogram &right);
-
-        const Histogram &operator-=(const Histogram &right);
-
-        ErrorTypes GetError(void) const { return error; };
-
-        void ClearError(void) { error = NO_ERROR; };
-
-        bool Read(PixieInterface &pif, unsigned int mod, unsigned int ch);
-
-        bool Write(std::ofstream &file);
-
-    private:
-        Pixie16::word_t data[HISTO_SIZE];
-        ErrorTypes error;
-    };
-
     PixieInterface(const char *fn);
 
     ~PixieInterface();
@@ -101,8 +67,6 @@ public:
     bool Init(bool offlineMode = false);
 
     bool Boot(int mode = 0x7f, bool useWorkingSetFile = false);
-
-    bool Boot(Interface::BootType mode, bool useWorkingSetFile = false);
 
     bool WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval = nullptr);
 
@@ -170,10 +134,7 @@ public:
 
     short GetSlotNumber(int mod) const { return config_.GetSlotMaps()[0][mod]; }
 
-    enum BootFlags {
-        BootComm = 0x01, BootTrigger = 0x02, BootSignal = 0x04, BootDSP = 0x08, DownloadParameters = 0x10,
-        ProgramFPGA = 0x20, SetDAC = 0x40, BootAll = 0x7f
-    };
+
 
     /** Handy functions for manipulating CSRA/B */
     bool ToggleGain(int mod, int chan);
