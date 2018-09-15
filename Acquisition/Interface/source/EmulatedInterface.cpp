@@ -6,6 +6,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <random>
 
 using namespace std;
 
@@ -42,7 +43,6 @@ bool EmulatedInterface::CheckRunStatus(short mod) {
 bool EmulatedInterface::EndRun(short mod) {
     return true;
 }
-
 bool EmulatedInterface::Init(bool offlineMode) {
     return true;
 }
@@ -52,6 +52,16 @@ bool EmulatedInterface::ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords
 }
 
 bool EmulatedInterface::ReadHistogram(Pixie16::word_t *hist, unsigned long sz, unsigned short mod, unsigned short ch) {
+    static const unsigned int nrolls = 10000;
+    static std::default_random_engine generator;
+    std::normal_distribution<double> distribution(sz*0.5, sz*0.001);
+
+    for (unsigned int i = 0; i < nrolls; ++i) {
+        int number = (int)round(distribution(generator));
+        if (number >= 0.0)
+            ++hist[number];
+    }
+
     return false;
 }
 
