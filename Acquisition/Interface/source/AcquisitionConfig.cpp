@@ -2,7 +2,7 @@
 /// @brief Implementation for AcquisitionConfig class, which reads configuration file defining modules.
 /// @author K. Smith, S. V. Paulauskas
 /// @date August 11, 2018
-#include "AcquisitionConfig.hpp"
+#include <AcquisitionConfig.hpp>
 
 #include "Constants.hpp"
 #include "Display.h"
@@ -218,6 +218,10 @@ string AcquisitionConfig::ConfigFileName(const string &type, const string &fileN
 unsigned short AcquisitionConfig::GetNumberOfModules() const { return numberOfModules_; }
 
 unsigned short AcquisitionConfig::GetNumberOfChannels() const { return numberOfChannels_; }
+
+unsigned int AcquisitionConfig::GetSlotNumber(const unsigned int &crateNumber, const unsigned int &moduleNumber) {
+    return (unsigned int)slotMap_.find(crateNumber)->second.find(moduleNumber)->second;
+}
 
 std::map<unsigned int, std::map<short, short> > AcquisitionConfig::GetSlotMaps() const { return slotMap_; }
 

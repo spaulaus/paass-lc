@@ -54,6 +54,8 @@ public:
     std::map<unsigned int, std::map<short, short> > GetSlotMaps() const;
 
     std::vector<short unsigned int> GetSlotMapAsVector(const unsigned int &crateNum) const;
+
+    unsigned int GetSlotNumber(const unsigned int &crateNumber, const unsigned int &moduleNumber);
 private:
     unsigned short numberOfModules_; //!< The number of modules defined in the config.
     unsigned short numberOfChannels_; //!< The number of channels in a Pixie16 module.
