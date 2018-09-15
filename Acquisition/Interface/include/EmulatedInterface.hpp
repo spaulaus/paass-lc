@@ -14,9 +14,14 @@ public:
 
     bool AcquireTraces(int mod);
     bool AdjustOffsets(unsigned short mod);
-    bool Boot(Interface::BootType mode, bool useWorkingSetFile);
+    bool Boot(int mode, bool useWorkingSetFile);
     unsigned long CheckFIFOWords(unsigned short mod);
     bool CheckRunStatus(short mod = -1);
+    double GetInputCountRate(int mod, int chan);
+    bool GetModuleInfo(const unsigned short &mod, unsigned short *rev, unsigned int *serNum,
+                       unsigned short *adcBits, unsigned short *adcMsps);
+    double GetOutputCountRate(int mod, int chan);
+    bool GetStatistics(unsigned short mod);
     bool EndRun(short mod = -1);
     bool Init(bool offlineMode = false);
 

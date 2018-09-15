@@ -19,7 +19,7 @@ public:
     /// Initializes the API.
     virtual bool Init(bool offlineMode = false) = 0;
 
-    virtual bool Boot(Interface::BootType mode, bool useWorkingSetFile) = 0;
+    virtual bool Boot(int mode, bool useWorkingSetFile) = 0;
 
     virtual bool WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval = nullptr) = 0;
 
@@ -36,6 +36,10 @@ public:
     virtual bool SaveDSPParameters(const char *fn = nullptr) = 0;
 
     virtual bool AcquireTraces(int mod) = 0;
+
+    virtual double GetInputCountRate(int mod, int chan) = 0;
+
+    virtual double GetOutputCountRate(int mod, int chan) = 0;
 
     // # AcquireTraces must be called before calling this #
     virtual bool ReadSglChanTrace(unsigned short *buf, unsigned long sz, unsigned short mod, unsigned short chan) = 0;
@@ -57,12 +61,12 @@ public:
 
     AcquisitionConfig GetConfiguration() const { return config_; }
 
-/*
-    virtual bool GetStatistics(unsigned short mod);
-    virtual unsigned long CheckFIFOWords(unsigned short mod) = 0;
-    virtual bool ReadFIFOWords(word_t *buf, unsigned long nWords, unsigned short mod, bool verbose = false) = 0;
-*/
+    virtual bool GetModuleInfo(const unsigned short &mod, unsigned short *rev, unsigned int *serNum,
+            unsigned short *adcBits, unsigned short *adcMsps) = 0;
 
+    virtual bool GetStatistics(unsigned short mod) = 0;
+    virtual unsigned long CheckFIFOWords(unsigned short mod) = 0;
+    virtual bool ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords, unsigned short mod, bool verbose = false) = 0;
 
 protected:
     int retval_;

@@ -2,7 +2,7 @@
 ///@brief Implementation for the emulated pixie interface for Poll2
 ///@authors S. V. Paulauskas and K. Smith
 ///@date March 24, 2018
-#include "EmulatedInterface.hpp"
+#include <EmulatedInterface.hpp>
 
 #include <iomanip>
 #include <iostream>
@@ -28,7 +28,7 @@ bool EmulatedInterface::AdjustOffsets(unsigned short mod) {
     return false;
 }
 
-bool EmulatedInterface::Boot(Interface::BootType mode, bool useWorkingSetFile) {
+bool EmulatedInterface::Boot(int mode, bool useWorkingSetFile) {
     return true;
 }
 
@@ -61,21 +61,20 @@ bool EmulatedInterface::ReadHistogram(Pixie16::word_t *hist, unsigned long sz, u
         if (number >= 0.0)
             ++hist[number];
     }
-
     return false;
 }
 
 bool EmulatedInterface::ReadSglChanPar(const char *name, double &val, int mod, int chan) {
-    return false;
+    return true;
 }
 
 bool EmulatedInterface::ReadSglChanTrace(unsigned short *buf, unsigned long sz, unsigned short mod,
                                          unsigned short chan) {
-    return false;
+    return true;
 }
 
 bool EmulatedInterface::ReadSglModPar(const char *name, Pixie16::word_t &val, int mod) {
-    return false;
+    return true;
 }
 
 bool EmulatedInterface::RemovePresetRunLength(int mod) {
@@ -87,17 +86,34 @@ bool EmulatedInterface::StartHistogramRun(short mod, unsigned short mode) {
 }
 
 bool EmulatedInterface::StartListModeRun(short mod, unsigned short listMode, unsigned short runMode) {
-    return false;
+    return true;
 }
 
 bool EmulatedInterface::SaveDSPParameters(const char *fn) {
-    return false;
+    return true;
 }
 
 bool EmulatedInterface::WriteSglChanPar(const char *name, double val, int mod, int chan, double *pval) {
-    return false;
+    return true;
 }
 
 bool EmulatedInterface::WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval) {
-    return false;
+    return true;
+}
+
+bool EmulatedInterface::GetModuleInfo(const unsigned short &mod, unsigned short *rev, unsigned int *serNum,
+                                      unsigned short *adcBits, unsigned short *adcMsps) {
+    return true;
+}
+
+bool EmulatedInterface::GetStatistics(unsigned short mod) {
+    return true;
+}
+
+double EmulatedInterface::GetInputCountRate(int mod, int chan) {
+    return 0;
+}
+
+double EmulatedInterface::GetOutputCountRate(int mod, int chan) {
+    return 0;
 }
