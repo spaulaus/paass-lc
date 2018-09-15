@@ -77,8 +77,8 @@ bool MCA::Step() {
     if (!pif_ || !pif_->CheckRunStatus())
         return false;
 
-    for (int mod = 0; mod < pif_->GetConfiguration().GetNumberOfModules(); mod++)
-        for (unsigned int ch = 0; ch < pif_->GetConfiguration().GetNumberOfChannels(); ch++)
+    for (unsigned short mod = 0; mod < pif_->GetConfiguration().GetNumberOfModules(); mod++)
+        for (unsigned short ch = 0; ch < pif_->GetConfiguration().GetNumberOfChannels(); ch++)
             StoreData(mod, ch);
 
     Flush();
@@ -88,4 +88,4 @@ bool MCA::Step() {
     return true;
 }
 
-bool MCA::StoreData(const int &mod, const int &ch) { return true; }
+bool MCA::StoreData(const unsigned short &mod, const unsigned short &ch) { return true; }

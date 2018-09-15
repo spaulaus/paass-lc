@@ -14,7 +14,7 @@
 #include <unistd.h>
 
 class TFile;
-class TH1F;
+class TH1D;
 
 class MCA_ROOT : public MCA {
 public:
@@ -24,19 +24,19 @@ public:
     ///Defaul destructor
     ~MCA_ROOT();
 
-    bool StoreData(int mod, int ch);
-
     void Flush();
+
+    TH1D *GetHistogram(const unsigned short &mod, const unsigned short &ch);
 
     bool OpenFile(const char *basename);
 
-    TH1F *GetHistogram(int mod, int ch);
-
     void Reset();
 
+    bool StoreData(const unsigned short &mod, const unsigned short &ch);
+
 private:
-    TFile *_file;
-    std::map<int, TH1F *> _histograms;
+    TFile *file_;
+    std::map<int, TH1D *> histograms_;
 
     ///A class to handle redirecting stderr
     /**The class redirects stderr to a text file and also saves output in case the user

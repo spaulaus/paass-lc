@@ -63,14 +63,13 @@ public:
     /// @param[in] mod : the module that we want to store data for
     /// @param[in] ch : the channel that we're going to store data for.
     /// @returns true if we were able to successfully store the data for the given module / channel combo.
-    virtual bool StoreData(const int &mod, const int &ch);
+    virtual bool StoreData(const unsigned short &mod, const unsigned short &ch);
 
 protected:
     std::chrono::steady_clock::time_point startTime_;//!< The time that run was called.
     std::chrono::steady_clock::time_point stopTime_;//!< The time that we are going to be checking duration against.
 
-    static const size_t HIS_SIZE = 16384; //!< Default number of bins in histogram.
-    static const size_t ADC_SIZE = 32768; //!< Default number of channels in ADC.
+    static const size_t ADC_SIZE = 65536; //!< Default number of channels in ADC, assume the max Pixie-16 of 16 bit.
     bool isOpen_; //!< Flag indicating if histogram construction was successful.
 
     ///@TODO : This needs cleaned up along with all the constructors.
