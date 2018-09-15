@@ -8,27 +8,19 @@
 #include <chrono>
 
 class AcquisitionInterface;
-class PixieInterface;
-class EmulatedInterface;
 
 ///Abstract MCA class, provides functionality for all the derived MCA classes.
-class MCA {
+class Mca {
 public:
     ///@TODO We still need to figure out the right way that we want to call all this nonsense. Right now it's a bit
     /// of a mess. We'll probably want to remove the AcquisitionInterface constructor and just leave the child
     /// constructors, that probably makes the most sense.
 
     ///Default constructor.
-    MCA(AcquisitionInterface *pif);
-
-    ///Default constructor.
-    MCA(PixieInterface *pif);
-
-    ///Default constructor.
-    MCA(EmulatedInterface *pif);
+    Mca(AcquisitionInterface *pif);
 
     ///Default destructor.
-    virtual ~MCA();
+    virtual ~Mca();
 
     unsigned int CalculateHistogramId(const unsigned int &crate, const unsigned int &module, const unsigned int &channel);
 
@@ -72,7 +64,6 @@ protected:
     static const size_t ADC_SIZE = 65536; //!< Default number of channels in ADC, assume the max Pixie-16 of 16 bit.
     bool isOpen_; //!< Flag indicating if histogram construction was successful.
 
-    ///@TODO : This needs cleaned up along with all the constructors.
     AcquisitionInterface *pif_; //!< A pointer to the Interface that we'll be using to run things.
 };
 #endif //PAASSLC_MCA_H

@@ -1,8 +1,8 @@
-/// @file MCA.cpp
-/// @brief Implementation of the base MCA class.
+/// @file Mca.cpp
+/// @brief Implementation of the base Mca class.
 /// @author K. Miernik, K. Smith, C. R. Thornsberry, and S. V. Paulauskas
 /// @date September 11, 2018
-#include "MCA.h"
+#include "Mca.hpp"
 
 #include "AcquisitionInterface.hpp"
 #include "Display.h"
@@ -12,31 +12,27 @@
 #include <iomanip>
 #include <thread>
 
-MCA::MCA(AcquisitionInterface *pif) : pif_(pif) {}
+Mca::Mca(AcquisitionInterface *pif) : pif_(pif) {}
 
-MCA::MCA(PixieInterface *pif) {}
-
-MCA::MCA(EmulatedInterface *pif) {}
-
-MCA::~MCA() = default;
+Mca::~Mca() = default;
 
 ///@TODO This calculation needs revisited in the event that we have multiple crates.
-unsigned int MCA::CalculateHistogramId(const unsigned int &crate, const unsigned int &module, const unsigned int &channel) {
+unsigned int Mca::CalculateHistogramId(const unsigned int &crate, const unsigned int &module, const unsigned int &channel) {
     return crate * pif_->GetConfiguration().GetNumberOfModules() + module * Pixie16::maximumNumberOfChannels + channel;
 }
 
-void MCA::Flush() {}
+void Mca::Flush() {}
 
-double MCA::GetRunTimeInSeconds() {
+double Mca::GetRunTimeInSeconds() {
     stopTime_ = std::chrono::steady_clock::now();
     return std::chrono::duration_cast<std::chrono::duration<double>>(stopTime_ - startTime_).count();
 }
 
-bool MCA::IsOpen() { return isOpen_; }
+bool Mca::IsOpen() { return isOpen_; }
 
-bool MCA::OpenFile(const char *basename) { return false; }
+bool Mca::OpenFile(const char *basename) { return false; }
 
-void MCA::Run(const float &duration, const bool *stop) {
+void Mca::Run(const float &duration, const bool *stop) {
     //Start the pixie histogram
     pif_->StartHistogramRun();
 
@@ -73,7 +69,7 @@ void MCA::Run(const float &duration, const bool *stop) {
     std::cout.precision(6);
 }
 
-bool MCA::Step() {
+bool Mca::Step() {
     if (!pif_ || !pif_->CheckRunStatus())
         return false;
 
@@ -88,4 +84,4 @@ bool MCA::Step() {
     return true;
 }
 
-bool MCA::StoreData(const unsigned short &mod, const unsigned short &ch) { return true; }
+bool Mca::StoreData(const unsigned short &mod, const unsigned short &ch) { return true; }

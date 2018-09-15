@@ -1,10 +1,10 @@
-/// @file MCA_ROOT.h
+/// @file McaRoot.h
 /// @brief Class to handle outputting MCA data into ROOT files
 /// @author K. Smith, C. R. Thornsberry, S. V. Paulauskas
 /// @date Updated July 25, 2018
-#ifndef PAASSLC_MCA_ROOT_H
-#define PAASSLC_MCA_ROOT_H
-#include "MCA.h"
+#ifndef PAASSLC_MCAROOT_HPP
+#define PAASSLC_MCAROOT_HPP
+#include "Mca.hpp"
 
 #include <iostream>
 #include <map>
@@ -17,13 +17,13 @@ class TFile;
 class TH1D;
 
 /// Class derived from MCA that allows us to write MCA to a root file.
-class MCA_ROOT : public MCA {
+class McaRoot : public Mca {
 public:
     ///Default constructor
-    MCA_ROOT(AcquisitionInterface *pif, const char *basename);
+    McaRoot(AcquisitionInterface *pif, const char *basename);
 
     ///Default destructor
-    ~MCA_ROOT();
+    ~McaRoot();
 
     /// Calls TFile::Write and TFile::Flush.
     void Flush();
@@ -81,4 +81,4 @@ private:
     };
 };
 
-#endif //#ifndef PAASSLC_MCA_ROOT_H
+#endif //#ifndef PAASSLC_McaRoot_H

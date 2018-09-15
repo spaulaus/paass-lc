@@ -1,8 +1,8 @@
-/// @file MCA_ROOT.cpp
+/// @file McaRoot.cpp
 /// @brief Class derived from MCA that writes the MCA spectra to a root file.
 /// @author K. Smith, C. R. Thornsberry, S. V. Paulauskas
 /// @date September 11, 2018
-#include "MCA_ROOT.h"
+#include "McaRoot.hpp"
 
 #include "AcquisitionInterface.hpp"
 #include "Display.h"
@@ -10,11 +10,11 @@
 #include <TFile.h>
 #include <TH1D.h>
 
-MCA_ROOT::MCA_ROOT(AcquisitionInterface *pif, const char *basename) : MCA(pif) {
+McaRoot::McaRoot(AcquisitionInterface *pif, const char *basename) : Mca(pif) {
     OpenFile(basename);
 }
 
-MCA_ROOT::~MCA_ROOT() {
+McaRoot::~McaRoot() {
     if (IsOpen()) {
         file_->Write(nullptr, TObject::kWriteDelete);
         file_->Close();
@@ -22,7 +22,7 @@ MCA_ROOT::~MCA_ROOT() {
     delete file_;
 }
 
-bool MCA_ROOT::OpenFile(const char *basename) {
+bool McaRoot::OpenFile(const char *basename) {
     Display::LeaderPrint(std::string("Creating new empty ROOT histogram ") + std::string(basename) + std::string(".root"));
 
     auto *redirect = new cerr_redirect("Pixie16msg.txt");
@@ -51,7 +51,7 @@ bool MCA_ROOT::OpenFile(const char *basename) {
     return true;
 }
 
-TH1D *MCA_ROOT::GetHistogram(const unsigned short &mod, const unsigned short &ch) {
+TH1D *McaRoot::GetHistogram(const unsigned short &mod, const unsigned short &ch) {
     auto loc = histograms_.find(CalculateHistogramId(0, mod, ch));
 
     if (loc == histograms_.end())
@@ -60,7 +60,7 @@ TH1D *MCA_ROOT::GetHistogram(const unsigned short &mod, const unsigned short &ch
     return loc->second;
 }
 
-bool MCA_ROOT::StoreData(const unsigned short &mod, const unsigned short &ch) {
+bool McaRoot::StoreData(const unsigned short &mod, const unsigned short &ch) {
     auto histogram = GetHistogram(mod, ch);
 
     if (!histogram)
@@ -75,12 +75,12 @@ bool MCA_ROOT::StoreData(const unsigned short &mod, const unsigned short &ch) {
     return true;
 }
 
-void MCA_ROOT::Reset() {
+void McaRoot::Reset() {
     for (const auto &pair : histograms_)
         pair.second->Reset();
 }
 
-void MCA_ROOT::Flush() {
+void McaRoot::Flush() {
     file_->Write(nullptr, TObject::kWriteDelete);
     file_->Flush();
 }
