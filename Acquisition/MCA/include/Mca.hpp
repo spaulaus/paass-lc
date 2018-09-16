@@ -46,7 +46,7 @@ public:
     ///
     /// @param[in] duration Amount of time to run the MCA.
     /// @param[in] stop External boolean flag for stop run command. 
-    virtual void Run(const float &duration, const bool *stop = nullptr);
+    virtual void Run(const float &duration);
 
     /// Checks the Pixie run status, Updates the MCA histograms, sets the stopTime_
     virtual bool Step();

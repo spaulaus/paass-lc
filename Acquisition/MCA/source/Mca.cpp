@@ -2,17 +2,17 @@
 /// @brief Implementation of the base Mca class.
 /// @author K. Miernik, K. Smith, C. R. Thornsberry, and S. V. Paulauskas
 /// @date September 11, 2018
-#include "Mca.hpp"
+#include <Mca.hpp>
 
-#include "AcquisitionInterface.hpp"
-#include "Display.h"
-#include "Utility.h"
+#include <AcquisitionInterface.hpp>
+#include <Display.h>
+#include <Utility.h>
 
 #include <iostream>
 #include <iomanip>
 #include <thread>
 
-Mca::Mca(AcquisitionInterface *pif) : pif_(pif) {}
+Mca::Mca(AcquisitionInterface *pif) : startTime_(std::chrono::steady_clock::now()), pif_(pif) {}
 
 Mca::~Mca() = default;
 
@@ -32,18 +32,15 @@ bool Mca::IsOpen() { return isOpen_; }
 
 bool Mca::OpenFile(const char *basename) { return false; }
 
-void Mca::Run(const float &duration, const bool *stop) {
-    //Start the pixie histogram
+void Mca::Run(const float &duration) {
     pif_->StartHistogramRun();
 
     startTime_ = std::chrono::steady_clock::now();
 
     while (true) {
-        if(GetRunTimeInSeconds() > duration)
+        if(GetRunTimeInSeconds() > duration && duration != 0)
             break;
 
-        if (stop != nullptr && *stop)
-            break;
         if (duration > 0.0 && GetRunTimeInSeconds() >= duration)
             break;
 

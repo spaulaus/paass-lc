@@ -3,9 +3,11 @@
 /// @author S. V. Paulauskas, K. Smith, K. Miernik, C. R. Thornsberry
 /// @date August 09, 2018
 
-#include "McaRoot.hpp"
-#include "EmulatedInterface.hpp"
-#include "PixieInterface.h"
+#include <McaRoot.hpp>
+
+#include <EmulatedInterface.hpp>
+#include <HelperEnumerations.hpp>
+#include <PixieInterface.h>
 
 #include <iostream>
 
@@ -61,7 +63,7 @@ int main(int argc, char *argv[]) {
     /// returning false...
     interface->Init();
     interface->EndRun();
-    interface->Boot(Interface::BootType::MCA, true);
+    interface->Boot(Interface::BootFlags::BootAll, true);
     interface->RemovePresetRunLength(0);
 
     Mca *mca;
