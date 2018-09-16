@@ -9,10 +9,10 @@
 #ifndef POLL2_CORE_H
 #define POLL2_CORE_H
 
-#include <vector>
-
 #include <hribf_buffers.h>
 #include <Constants.hpp>
+
+#include <vector>
 
 #define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
