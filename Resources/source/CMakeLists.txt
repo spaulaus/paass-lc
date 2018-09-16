@@ -3,12 +3,11 @@
 #Set the utility sources that we will make a lib out of
 set(PaassResourceSources Messenger.cpp Notebook.cpp RandomInterface.cpp XmlInterface.cpp XmlParser.cpp CerrDirector.cpp)
 
-if (ROOT_FOUND)
-    if(ROOT_HAS_MINUIT2)
-        add_definitions("-D ROOT_HAS_MINUIT2")
-    endif(ROOT_HAS_MINUIT2)
-    list(APPEND PaassResourceSources RootInterface.cpp)
-endif (ROOT_FOUND)
+if(ROOT_HAS_MINUIT2)
+    add_definitions("-D ROOT_HAS_MINUIT2")
+endif(ROOT_HAS_MINUIT2)
+
+list(APPEND PaassResourceSources RootInterface.cpp)
 
 #Add the sources to the library
 add_library(PaassResourceObjects OBJECT ${PaassResourceSources})

@@ -68,8 +68,7 @@ bool EmulatedInterface::ReadSglChanPar(const char *name, double &val, int mod, i
     return true;
 }
 
-bool EmulatedInterface::ReadSglChanTrace(unsigned short *buf, unsigned long sz, unsigned short mod,
-                                         unsigned short chan) {
+bool EmulatedInterface::ReadSglChanTrace(unsigned short *buf, unsigned long sz, unsigned short mod, unsigned short chan) {
     return true;
 }
 
