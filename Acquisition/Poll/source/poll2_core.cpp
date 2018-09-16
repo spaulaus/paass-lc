@@ -83,69 +83,6 @@ const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread",
 const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh",
                                                            "debug", "quiet", "quit", "help"});
 
-MCA_args::MCA_args(){
-    mca = nullptr;
-    Zero();
-}
-
-MCA_args::MCA_args(bool useRoot_, int totalTime_, std::string basename_){
-    running = false;
-    totalTime = totalTime_;
-    basename = basename_;
-
-    mca = nullptr;
-}
-
-MCA_args::~MCA_args(){
-    if(mca)
-        delete mca;
-}
-
-bool MCA_args::Initialize(AcquisitionInterface *pif__){
-    if(running){ return false; }
-
-    pif__->RemovePresetRunLength(0);
-
-    // Initialize the MCA object.
-    mca = (Mca*)(new McaRoot(pif__, basename.c_str()));
-
-    pif__->StartHistogramRun();
-
-    if(!mca->IsOpen()){
-        pif__->EndRun();
-        return false;
-    }
-
-    return (running = true);
-}
-
-bool MCA_args::Step(){
-    if(!mca){ return false; }
-    return mca->Step();
-}
-
-bool MCA_args::CheckTime(){
-    if(!mca || (totalTime <= 0 || (mca->GetRunTimeInSeconds() >= totalTime))){ return false; }
-    return true;
-}
-
-void MCA_args::Zero(){
-    running = false;
-    useRoot = false;
-    totalTime = 0; // Needs to be zero for checking of MCA arguments
-    basename = "MCA";
-
-    if(mca){
-        delete mca;
-        mca = NULL;
-    }
-}
-
-void MCA_args::Close(AcquisitionInterface *pif){
-    pif->EndRun();
-    Zero();
-}
-
 Poll::Poll() :
 // System flags and variables
         sys_message_head(" POLL: "),
@@ -160,7 +97,10 @@ Poll::Poll() :
         had_error(false), //Set to true when aborting due to an error.
         file_open(false), //Set to true when a file is opened.
         raw_time(0),
-        do_MCA_run(false), // Set to true when the "mca" command is received
+        doMcaRun_(false), // Set to true when the "mca" command is received
+        isMcaRunning_(false),
+        mcaRunLengthInSeconds_(10),
+        mcaBasename_("mca"),
         // Run control variables
         boot_fast(false),
         insert_wall_clock(true),
@@ -503,7 +443,7 @@ void Poll::help(){
     std::cout << "   oform [0|1|2]       - Set the format of the output file (default=0)\n";
     std::cout << "   reboot              - Reboot PIXIE crate\n";
     std::cout << "   stats [time]        - Set the time delay between statistics dumps (default=-1)\n";
-    std::cout << "   mca [root|damm] [time] [filename]     - Use MCA to record data for debugging purposes\n";
+    std::cout << "   mca [time] [filename]                 - Use MCA to record data. time = 0 starts an infinite run\n";
     std::cout << "   dump [filename]                       - Dump pixie settings to file (default='Fallback.set')\n";
     std::cout << "   pread <mod> <chan> <param>            - Read parameters from individual PIXIE channels\n";
     std::cout << "   pmread <mod> <param>                  - Read parameters from PIXIE modules\n";
@@ -555,7 +495,7 @@ void Poll::pmod_help(){
  * \return Returns true if successfully starts a run.
  */
 bool Poll::start_run(const bool &record_/*=true*/, const double &time_/*=-1.0*/){
-    if(do_MCA_run){
+    if(doMcaRun_){
         std::cout << sys_message_head << "Warning! Cannot run acquisition while MCA program is running\n";
         return false;
     }
@@ -584,7 +524,7 @@ bool Poll::start_run(const bool &record_/*=true*/, const double &time_/*=-1.0*/)
  * \return Returns true if successful.
  */
 bool Poll::stop_run() {
-    if(!acq_running && !do_MCA_run){
+    if(!acq_running && !doMcaRun_){
         std::cout << sys_message_head << "Acquisition is not running\n";
         return false;
     }
@@ -597,7 +537,6 @@ bool Poll::stop_run() {
         output << "Run " << output_file.GetRunNumber() << " time";
         Display::LeaderPrint(output.str());
         std::cout << statsHandler->GetTotalTime() << "s\n";
-
     }
 
     record_data = false;
@@ -615,7 +554,7 @@ void Poll::show_status(){
     std::cout << "   File open       - " << StringManipulation::BoolToString(output_file.IsOpen()) << std::endl;
     std::cout << "   Rebooting       - " << StringManipulation::BoolToString(do_reboot) << std::endl;
     std::cout << "   Force Spill     - " << StringManipulation::BoolToString(force_spill) << std::endl;
-    std::cout << "   Do MCA run      - " << StringManipulation::BoolToString(do_MCA_run) << std::endl;
+    std::cout << "   Do MCA run      - " << StringManipulation::BoolToString(doMcaRun_) << std::endl;
     std::cout << "   Run ctrl Exited - " << StringManipulation::BoolToString(run_ctrl_exit) << std::endl;
 
     std::cout << "\n  Poll Options:\n";
@@ -742,7 +681,7 @@ void Poll::CommandControl(){
         }
         else if(cmd == "CTRL_C"){
             std::cout << sys_message_head << "Received SIGINT (ctrl-c) signal.";
-            if (do_MCA_run) {
+            if (doMcaRun_) {
                 std::cout << " Stopping MCA...\n";
                 cmd = "stop";
             }
@@ -780,7 +719,7 @@ void Poll::CommandControl(){
         had_error = false;
         // check for defined commands
         if(cmd == "quit" || cmd == "exit"){
-            if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot quit while MCA program is running\n"; }
+            if(doMcaRun_){ std::cout << sys_message_head << "Warning! Cannot quit while MCA program is running\n"; }
             else if(acq_running){ std::cout << sys_message_head << "Warning! Cannot quit while acquisition running\n"; }
             else{
                 kill_all = true;
@@ -789,7 +728,7 @@ void Poll::CommandControl(){
             }
         }
         else if(cmd == "kill"){
-            if(acq_running || do_MCA_run){
+            if(acq_running || doMcaRun_){
                 std::cout << sys_message_head << "Sending KILL signal\n";
                 do_stop_acq = true;
             }
@@ -848,7 +787,7 @@ void Poll::CommandControl(){
             ofile.close();
         }
         else if(cmd == "pwrite" || cmd == "pmwrite"){ // Write pixie parameters
-            if(acq_running || do_MCA_run){
+            if(acq_running || doMcaRun_){
                 std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
                 continue;
             }
@@ -942,7 +881,7 @@ void Poll::CommandControl(){
             }
         }
         else if (cmd == "save") {
-            if(acq_running || do_MCA_run){
+            if(acq_running || doMcaRun_){
                 std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n";
                 continue;
             }
@@ -963,7 +902,7 @@ void Poll::CommandControl(){
             }
         }
         else if(cmd == "pread" || cmd == "pmread"){ // Read pixie parameters
-            if(acq_running || do_MCA_run){
+            if(acq_running || doMcaRun_){
                 std::cout << sys_message_head << "Warning! Cannot view pixie parameters while acquisition is running\n\n";
                 continue;
             }
@@ -1015,7 +954,7 @@ void Poll::CommandControl(){
             }
         }
         else if(cmd == "adjust_offsets"){ // Run adjust_offsets
-            if(acq_running || do_MCA_run){
+            if(acq_running || doMcaRun_){
                 std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
                 continue;
             }
@@ -1040,7 +979,7 @@ void Poll::CommandControl(){
             }
         }
         else if(cmd == "find_tau"){ // Run find_tau
-            if(acq_running || do_MCA_run){
+            if(acq_running || doMcaRun_){
                 std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
                 continue;
             }
@@ -1065,7 +1004,7 @@ void Poll::CommandControl(){
             }
         }
         else if(cmd == "toggle"){ // Toggle a CHANNEL_CSRA bit
-            if(acq_running || do_MCA_run){
+            if(acq_running || doMcaRun_){
                 std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
                 continue;
             }
@@ -1103,7 +1042,7 @@ void Poll::CommandControl(){
             }
         }
         else if(cmd == "toggle_bit"){ // Toggle any bit of any parameter under 32 bits long
-            if(acq_running || do_MCA_run){
+            if(acq_running || doMcaRun_){
                 std::cout << sys_message_head << "Warning! Cannot edit pixie parameters while acquisition is running\n\n";
                 continue;
             }
@@ -1179,7 +1118,7 @@ void Poll::CommandControl(){
             }
         }
         else if(cmd == "get_traces"){ // Run GetTraces method
-            if(acq_running || do_MCA_run){
+            if(acq_running || doMcaRun_){
                 std::cout << sys_message_head << "Warning! Cannot view live traces while acquisition is running\n\n";
                 continue;
             }
@@ -1250,36 +1189,51 @@ void Poll::CommandControl(){
                 output_file.SetDebugMode();
                 debug_mode = true;
             }
-        }
-        else if(cmd == "mca" || cmd == "MCA"){ // Run MCA program using root
-            if(do_MCA_run){
+        } else if(cmd == "mca" || cmd == "MCA") {
+            if(doMcaRun_){
                 std::cout << sys_message_head << "MCA program is already running\n\n";
                 continue;
             }
-            else if(acq_running){
+
+            if(acq_running){
                 std::cout << sys_message_head << "Warning! Cannot run MCA program while acquisition is running\n\n";
                 continue;
             }
 
-            if (p_args >= 1) {
-                std::string type = arguments.at(0);
+            switch(p_args) {
+                case 0:
+                    mcaRunLengthInSeconds_ = 10;
+                    mcaBasename_ = "mca";
+                    break;
+                case 1:
+                    if(StringManipulation::IsNumeric(arguments.at(0))) {
+                        mcaRunLengthInSeconds_ = stod(arguments.at(0));
+                        mcaBasename_ = "mca";
+                        std::cout << sys_message_head << "Setting up a " << mcaRunLengthInSeconds_ << " MCA run into mca.root\n";
+                    } else {
+                        mcaRunLengthInSeconds_ = 10;
+                        mcaBasename_ = arguments.at(0);
+                        std::cout << sys_message_head << "Setting up an infinite MCA run into " << mcaBasename_ << "\n";
+                    }
+                    break;
+                case 2:
+                    if(StringManipulation::IsNumeric(arguments.at(0))) {
+                        mcaRunLengthInSeconds_ = stod(arguments.at(0));
+                        mcaBasename_ = arguments.at(1);
+                    } else if (StringManipulation::IsNumeric(arguments.at(1))){
+                        mcaRunLengthInSeconds_ = stod(arguments.at(1));
+                        mcaBasename_ = arguments.at(0);
+                    } else {
+                        std::cout << sys_message_head << "mca only accepts a numeric time!!\n";
+                        continue;
+                    }
 
-                if(type == "root"){ mca_args.SetUseRoot(); }
-                else if(type != "damm"){ mca_args.SetTotalTime(atoi(type.c_str())); }
-
-                if(p_args >= 2){
-                    if(mca_args.GetTotalTime() == 0){ mca_args.SetTotalTime(atoi(arguments.at(1).c_str())); }
-                    else{ mca_args.SetBasename(arguments.at(1)); }
-                    if(p_args >= 3){ mca_args.SetBasename(arguments.at(2)); }
-                }
+                    std::cout << sys_message_head << "Setting up a " << mcaRunLengthInSeconds_ << " MCA run into " << mcaBasename_ << "\n";
+                    break;
+                default:
+                    std::cout << sys_message_head << "Too many arguments provided to MCA! Ignoring additional args.\n";
             }
-
-            if(mca_args.GetTotalTime() == 0){
-                mca_args.SetTotalTime(10);
-                std::cout << sys_message_head << "Using default MCA time of 10 seconds\n";
-            }
-
-            do_MCA_run = true;
+            doMcaRun_ = true;
         } else if(cmd == "run"){ // Tell POLL to start acq and start recording data to disk.
                 start_run();
         } else if(cmd == "timedrun"){
@@ -1306,14 +1260,14 @@ void Poll::CommandControl(){
                 shm_mode = true;
             }
         } else if(cmd == "reboot"){ // Tell POLL to attempt a PIXIE crate reboot
-            if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while MCA is running\n"; }
-            else if(acq_running || do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot reboot while acquisition running\n"; }
+            if(doMcaRun_){ std::cout << sys_message_head << "Warning! Cannot reboot while MCA is running\n"; }
+            else if(acq_running || doMcaRun_){ std::cout << sys_message_head << "Warning! Cannot reboot while acquisition running\n"; }
             else{
                 do_reboot = true;
                 poll_term_->pause(do_reboot);
             }
         } else if(cmd == "hup" || cmd == "spill"){ // Force spill
-            if(do_MCA_run){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
+            if(doMcaRun_){ std::cout << sys_message_head << "Command not available for MCA run\n"; }
             else if(!acq_running){ std::cout << sys_message_head << "Acquisition is not running\n"; }
             else{ force_spill = true; }
         } else if(cmd == "fdir"){ // Change the output file directory
@@ -1426,7 +1380,7 @@ void Poll::RunControl(){
     time_t currentTime;
     while(true){
         if(kill_all){ // Supersedes all other commands
-            if(acq_running || mca_args.IsRunning()){ do_stop_acq = true; } // Safety catch
+            if(acq_running || isMcaRunning_){ do_stop_acq = true; } // Safety catch
             else{ break; }
         }
 
@@ -1441,40 +1395,50 @@ void Poll::RunControl(){
             }
         }
 
-        if(do_MCA_run){ // Do an MCA run, if the acq is not running.
-            if(acq_running){ do_stop_acq = true; } // Safety catch.
-            else{
-                if(!mca_args.IsRunning()){ // Start the pixie histogram run.
-                    if(mca_args.GetTotalTime() > 0.0){ std::cout << sys_message_head << "Performing MCA data run for " << mca_args.GetTotalTime() << " s\n"; }
-                    else{ std::cout << sys_message_head << "Performing infinite MCA data run. Type \"stop\" to quit\n"; }
+        if(doMcaRun_){
+            if(acq_running)
+                do_stop_acq = true;
+            else {
+                if(!isMcaRunning_) {
+                    if(mcaRunLengthInSeconds_ > 0.0)
+                        std::cout << sys_message_head << "Performing MCA data run for " << mcaRunLengthInSeconds_ << " s\n";
+                    else
+                        std::cout << sys_message_head << "Performing infinite MCA data run. Type \"stop\" to quit\n";
 
-                    if(!mca_args.Initialize(pif_)){
-                        std::cout << Display::ErrorStr("Run TERMINATED") << std::endl;
-                        do_MCA_run = false;
+                    try {
+                        mca_ = new McaRoot(pif_, mcaBasename_.c_str());
+                        pif_->RemovePresetRunLength(0);
+                        pif_->StartHistogramRun();
+                    } catch (std::invalid_argument &invalidArgument) {
+                        std::cout << sys_message_head << "Poll::RunControl::doMcaRun - Caught invalid argument while "
+                                                         "initializing the MCA\n" << invalidArgument.what() << "\n";
+                        doMcaRun_ = false;
                         had_error = true;
                         continue;
                     }
+                    isMcaRunning_ = true;
                 }
 
-                if(!mca_args.CheckTime() || do_stop_acq){ // End the run.
+                if( (mcaRunLengthInSeconds_ != 0 && mca_->GetRunTimeInSeconds() >= mcaRunLengthInSeconds_) || do_stop_acq) {
                     pif_->EndRun();
                     std::cout << sys_message_head << "Ending MCA run.\n";
-                    std::cout << sys_message_head << "Ran for " << mca_args.GetMCA()->GetRunTimeInSeconds() << " s.\n";
-                    mca_args.Close(pif_);
+                    std::cout << sys_message_head << "Ran for " << mca_->GetRunTimeInSeconds() << " s.\n";
+                    delete mca_;
                     do_stop_acq = false;
-                    do_MCA_run = false;
-                }
-                else{
+                    doMcaRun_ = false;
+                    isMcaRunning_ = false;
+                } else{
                     sleep(1); // Sleep for a small amount of time.
-                    if(!mca_args.Step()){ // Update the histograms.
+                    if(!mca_->Step()){ // Update the histograms.
                         std::cout << Display::ErrorStr("Run TERMINATED") << std::endl;
-                        mca_args.Close(pif_);
-                        do_MCA_run = false;
+                        delete mca_;
+                        doMcaRun_ = false;
+                        isMcaRunning_ = false;
                         had_error = true;
                     }
                 }
             }
-        }
+        }//if(doMcaRun_)
 
         //Start acquistion
         if (do_start_acq) {
@@ -1591,26 +1555,27 @@ void Poll::RunControl(){
         UpdateStatus();
 
         //Sleep the run control if idle to reduce CPU utilization.
-        if (!acq_running && !do_MCA_run) sleep(1);
+        if (!acq_running && !doMcaRun_) sleep(1);
     }
 
     run_ctrl_exit = true;
     std::cout << "Run Control exited\n";
 }
+
 void Poll::UpdateStatus() {
     //Build status string
     std::stringstream status;
     if (had_error) status << Display::ErrorStr("[ERROR]");
     else if (acq_running && record_data) status << Display::OkayStr("[ACQ]");
     else if (acq_running && !record_data) status << Display::WarningStr("[ACQ]");
-    else if (do_MCA_run) status << Display::OkayStr("[MCA]");
+    else if (doMcaRun_) status << Display::OkayStr("[MCA]");
     else status << Display::InfoStr("[IDLE]");
 
     if (file_open) status << " Run " << output_file.GetRunNumber();
 
-    if(do_MCA_run){
-        status << " " << (int)mca_args.GetMCA()->GetRunTimeInSeconds() << "s";
-        status << " of " << mca_args.GetTotalTime() << "s";
+    if(doMcaRun_){
+        status << " " << (int)mca_->GetRunTimeInSeconds() << "s";
+        status << " of " << mcaRunLengthInSeconds_ << "s";
     }
     else{
         //Add run time to status

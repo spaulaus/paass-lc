@@ -30,52 +30,6 @@
 
 typedef Pixie16::word_t eventdata_t[maxEventSize];
 
-class Mca;
-class AcquisitionInterface;
-
-class MCA_args{
-private:
-    bool running;
-    bool useRoot;
-    int totalTime;
-    std::string basename;
-
-    Mca *mca;
-
-public:
-    MCA_args();
-
-    MCA_args(bool useRoot_, int totalTime_, std::string basename_);
-
-    ~MCA_args();
-
-    bool IsRunning(){ return running; }
-
-    bool UseRoot(){ return useRoot; }
-
-    int GetTotalTime(){ return totalTime; }
-
-    std::string GetBasename(){ return basename; }
-
-    Mca *GetMCA(){ return mca; }
-
-    void SetUseRoot(bool state_=true){ useRoot = state_; }
-
-    void SetTotalTime(int totalTime_){ totalTime = totalTime_; }
-
-    void SetBasename(std::string basename_){ basename = basename_; }
-
-    bool Initialize(AcquisitionInterface *pif_);
-
-    bool Step();
-
-    bool CheckTime();
-
-    void Zero();
-
-    void Close(AcquisitionInterface *pif_);
-};
-
 struct UDP_Packet {
     int Sequence; /// Sequence number for reliable transport
     int DataSize; /// Number of useable bytes in Data
@@ -93,11 +47,12 @@ struct data_pack{
 };
 
 // Forward class declarations
+class Mca;
+class AcquisitionInterface;
 class StatsHandler;
 class Client;
 class Server;
 class Terminal;
-class AcquisitionInterface;
 
 class Poll{
 private:
@@ -130,8 +85,11 @@ private:
     time_t raw_time;
 
     // System MCA flags
-    bool do_MCA_run; /// Set to true when the "mca" command is received
-    MCA_args mca_args; /// Structure to hold arguments for MCA program
+    bool doMcaRun_; /// Set to true when the "mca" command is received
+    bool isMcaRunning_; //!< True when the MCA is running.
+    double mcaRunLengthInSeconds_; //!< The user set run length of the MCA in seconds.
+    std::string mcaBasename_; //!< The name provided for the MCA. If empty we'll use a default name of mca.
+    Mca *mca_; //!< A pointer that we'll use to run the MCA.
 
     // Run control variables
     bool boot_fast; //
