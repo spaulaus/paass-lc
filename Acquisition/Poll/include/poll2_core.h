@@ -14,28 +14,8 @@
 
 #include <vector>
 
-#define maxEventSize 4095 // (0x1FFE0000 >> 17)
-
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
-
-typedef Pixie16::word_t eventdata_t[maxEventSize];
-
-struct UDP_Packet {
-    int Sequence; /// Sequence number for reliable transport
-    int DataSize; /// Number of useable bytes in Data
-    unsigned char Data[MAX_ORPH_DATA]; /// The data to be transmitted
-};
-
-struct data_pack{
-    int Sequence; /// Sequence number for reliable transport
-    int DataSize; /// Number of useable bytes in Data
-    int TotalEvents; /// Total number of events
-    unsigned short Events; /// Number of events in this packet
-    unsigned short Cont; /// Continuation flag for large events
-    unsigned char Data[4*(4050 + 4)]; /// The data to be transmitted
-    int BufLen; /// Length of original Pixie buffer
-};
 
 // Forward class declarations
 class Mca;
@@ -70,35 +50,13 @@ public:
 
     void SetDebugMode(bool input_=true){ debug_mode = input_; }
 
-    void SetShmMode(bool input_=true){ shm_mode = input_; }
-
-    void SetNcards(const size_t &n_cards_){ n_cards = n_cards_; }
-
-    void SetThreshWords(const int &thresholdPercentage);
+    void SetThreshWords(const double &thresholdPercentage);
 
     void SetTerminal(Terminal *term){ poll_term_ = term; };
 
-    bool GetBootFast(){ return boot_fast; }
-
-    bool GetWallClock(){ return insert_wall_clock; }
-
-    bool GetQuietMode(){ return is_quiet; }
-
     bool GetSendAlarm(){ return send_alarm; }
 
-    bool GetShowRates(){ return show_module_rates; }
-
-    bool GetZeroClocks(){ return zero_clocks; }
-
-    bool GetDebugMode(){ return debug_mode; }
-
-    bool GetShmMode(){ return shm_mode; }
-
-    size_t GetNcards(){ return n_cards; }
-
-    size_t GetThreshWords(){ return threshWords; }
-
-    ///\brief Prints the information about each module.
+    /// @brief Prints the information about each module.
     void PrintModuleInfo();
 
     /// Main control loop for handling user input.
@@ -119,10 +77,7 @@ private:
     double startTime; //!<Time when the acquisition was started.
     double lastSpillTime; //!<Time when the last spill finished.
 
-    struct tm *time_info; //!< Contains time information used for timing.
-
     Client *client; //!< UDP client for network access
-    Server *server; //!< UDP server to listen for pacman commands
 
     AcquisitionInterface *pif_; //!< The main pixie interface pointer
 
@@ -173,12 +128,11 @@ private:
     StatsHandler *statsHandler; //!< Pointer to instance the statistics handler.
     static const int statsInterval_ = 3; //!<The amount time between scaler reads in seconds.
 
-    const static std::vector<std::string> runControlCommands_; //!< List of commands known to run control.
-    const static std::vector<std::string> paramControlCommands_; //!< List of commands for manipulating parameters.
-    const static std::vector<std::string> pollStatusCommands_; //!< list of commands that affects poll's status.
-    std::vector<std::string> commands_; //!< full list of all commands known to the sytem.
+    static const std::vector<std::string> runControlCommands_; //!< List of commands known to run control.
+    static const std::vector<std::string> paramControlCommands_; //!< List of commands for manipulating parameters.
+    static const std::vector<std::string> pollStatusCommands_; //!< list of commands that affects poll's status.
 
-    data_pack AcqBuf; //!< Data packet for class shared-memory broadcast
+    std::vector<std::string> commands_; //!< full list of all commands known to the system.
 
     /// @brief Print help dialogue for POLL options.
     void help();
@@ -215,9 +169,6 @@ private:
     /// Acquire raw traces from a pixie module.
     void get_traces(int mod_, int chan_, int thresh_=0);
 
-    /// Method responsible for handling tab complete.
-    std::vector<std::string> TabComplete(const std::string &value_, const std::vector<std::string> &valid_);
-
     ///Routine to read Pixie FIFOs
     bool ReadFIFO();
 
@@ -230,13 +181,10 @@ private:
     /// Set IN_SYNCH and SYNCH_WAIT parameters on all modules.
     bool synch_mods();
 
-    /// Return the current output filename.
-    std::string get_filename();
-
     /// @brief Safely close current data file if one is open. The scalers are cleared when this is called.
     /// @param[in] continueRun Flag indicating whether we are continuing the same run, but opening a new continuation file.
     /// @return True if the file was closed successfully.
-    bool CloseOutputFile(const bool continueRun = false);
+    bool CloseOutputFile(const bool &continueRun = false);
 
     /// @brief Opens a new file if no file is currently open. The new file is
     /// determined from the output directory, run number and prefix. The run
@@ -254,9 +202,6 @@ private:
 
     /// Broadcast a data spill onto the network.
     void broadcast_data(Pixie16::word_t *data, unsigned int nWords);
-
-    /// Broadcast a data spill onto the network in the classic pacman format.
-    void broadcast_pac_data();
 
     /// @brief This method splits the arguments for pread and pwrite on a colon delimeter.
     /// This allows the user to proivde a range for the function for example,

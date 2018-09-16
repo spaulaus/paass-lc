@@ -42,14 +42,8 @@
 // Adjusted to help alleviate the issue with data corruption
 #define POLL_TRIES 100
 
-// Length of shm packet header (in bytes)
-#define PKT_HEAD_LEN 8
-
 // 2 GB. Maximum allowable .ldf file size in bytes
 #define MAX_FILE_SIZE 2147483648ll
-
-// Maximum shm packet size (in bytes)
-#define MAX_PKT_DATA (MAX_ORPH_DATA - PKT_HEAD_LEN)
 
 std::vector<std::string> chan_params = {"TRIGGER_RISETIME", "TRIGGER_FLATTOP", "TRIGGER_THRESHOLD", "ENERGY_RISETIME",
                                         "ENERGY_FLATTOP", "TAU", "TRACE_LENGTH", "TRACE_DELAY", "VOFFSET", "XDT",
@@ -71,24 +65,22 @@ const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", "p
 const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", "debug", "quiet", "quit", "help"});
 
 Poll::Poll() :
-// System flags and variables
         sys_message_head(" POLL: "),
-        kill_all(false), // Set to true when the program is exiting
-        do_start_acq(false), // Set to true when the command is given to start a run
-        do_stop_acq(false), // Set to true when the command is given to stop a run
-        record_data(false), // Set to true if data is to be recorded to disk
-        do_reboot(false), // Set to true when the user tells POLL to reboot PIXIE
-        force_spill(false), // Force poll2 to dump the current data spill
-        acq_running(false), // Set to true when run_command is recieving data from PIXIE
-        run_ctrl_exit(false), // Set to true when run_command exits
-        had_error(false), //Set to true when aborting due to an error.
-        file_open(false), //Set to true when a file is opened.
+        kill_all(false),
+        do_start_acq(false),
+        do_stop_acq(false),
+        record_data(false),
+        do_reboot(false),
+        force_spill(false),
+        acq_running(false),
+        run_ctrl_exit(false),
+        had_error(false),
+        file_open(false),
         raw_time(0),
-        doMcaRun_(false), // Set to true when the "mca" command is received
+        doMcaRun_(false),
         isMcaRunning_(false),
         mcaRunLengthInSeconds_(10),
         mcaBasename_("mca"),
-        // Run control variables
         boot_fast(false),
         insert_wall_clock(true),
         is_quiet(false),
@@ -99,12 +91,11 @@ Poll::Poll() :
         shm_mode(false),
         init_(false),
         runTime(-1.0),
-        // Options relating to output data file
-        output_directory("./"), // Set with 'fdir' command
+        output_directory("./"),
         filename_prefix("run"),
-        output_title("PIXIE data file"), // Set with 'title' command
-        next_run_num(1), // Set with 'runnum' command
-        output_format(0), // Set with 'oform' command
+        output_title("PIXIE data file"),
+        next_run_num(1),
+        output_format(0),
         current_file_num(0)
 {
     // Check the scheduler (kernel priority)
@@ -131,7 +122,7 @@ void Poll::PrintModuleInfo() {
     for (int mod=0; mod<pif_->GetConfiguration().GetNumberOfModules(); mod++) {
         unsigned short revision, adcBits, adcMsps;
         unsigned int serialNumber;
-        if (pif_->GetModuleInfo(mod, &revision, &serialNumber, &adcBits, &adcMsps)) {
+        if (pif_->GetModuleInfo((unsigned short)mod, &revision, &serialNumber, &adcBits, &adcMsps)) {
             std::cout << "Module " << std::right << std::setw(2) << mod << ": " <<
                       "Serial Number " << std::right << std::setw(4) << serialNumber << ", " <<
                       "Rev " << std::hex << std::uppercase << revision << std::dec << " " <<
@@ -140,8 +131,8 @@ void Poll::PrintModuleInfo() {
     }
 }
 
-void Poll::SetThreshWords(const int &thresholdPercentage) {
-    threshWords = EXTERNAL_FIFO_LENGTH * thresholdPercentage / 100.0;
+void Poll::SetThreshWords(const double &thresholdPercentage) {
+    threshWords = size_t(EXTERNAL_FIFO_LENGTH * thresholdPercentage / 100.);
     std::cout << "Using FIFO threshold of " << thresholdPercentage << "% (" << threshWords << "/"
               << EXTERNAL_FIFO_LENGTH << " words).\n";
 }
@@ -209,10 +200,10 @@ bool Poll::Close() {
 
     //Delete the array of partial event vectors.
     delete[] partialEvents;
-    partialEvents = NULL;
+    partialEvents = nullptr;
 
     delete statsHandler;
-    statsHandler = NULL;
+    statsHandler = nullptr;
 
     // We are no longer initialized.
     init_ = false;
@@ -220,7 +211,7 @@ bool Poll::Close() {
     return true;
 }
 
-bool Poll::CloseOutputFile(const bool continueRun /*=false*/) {
+bool Poll::CloseOutputFile(const bool &continueRun /*=false*/) {
     Display::LeaderPrint("Closing output file");
 
     if(!output_file.IsOpen()) {
@@ -380,7 +371,7 @@ void Poll::broadcast_data(Pixie16::word_t *data, unsigned int nWords) {
 void Poll::help() {
     std::cout << "  Help:\n";
     std::cout << "   run                 - Start data acquisition and start recording data to disk\n";
-    std::cout << "   stop                - Stop data acqusition and stop recording data to disk\n";
+    std::cout << "   stop                - Stop data acquisition and stop recording data to disk\n";
     std::cout << "   startacq (startvme) - Start data acquisition\n";
     std::cout << "   stopacq (stopvme)   - Stop data acquisition\n";
     std::cout << "   timedrun <seconds>  - Run for the specified number of seconds\n";
@@ -423,15 +414,15 @@ void Poll::save_help() {
 /* Print help dialogue for reading/writing pixie channel parameters. */
 void Poll::pchan_help() {
     std::cout << "  Valid Pixie16 channel parameters:\n";
-    for(unsigned int i = 0; i < chan_params.size(); i++)
-        std::cout << "   " << chan_params[i] << "\n";
+    for(const auto &val : chan_params)
+        std::cout << "   " << val << "\n";
 }
 
 /* Print help dialogue for reading/writing pixie module parameters. */
 void Poll::pmod_help() {
     std::cout << "  Valid Pixie16 module parameters:\n";
-    for(unsigned int i = 0; i < mod_params.size(); i++)
-        std::cout << "   " << mod_params[i] << "\n";
+    for(const auto &val : mod_params)
+        std::cout << "   " << val << "\n";
 }
 
 bool Poll::start_run(const bool &record_/*=true*/, const double &time_/*=-1.0*/) {
@@ -512,8 +503,8 @@ void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/) {
     std::cout << sys_message_head << "Searching for traces. Please wait...\n";
     poll_term_->flush();
 
-    unsigned short *trace_data = new unsigned short[trace_size];
-    unsigned short *module_data = new unsigned short[module_size];
+    auto *trace_data = new unsigned short[trace_size];
+    auto *module_data = new unsigned short[module_size];
     memset(trace_data, 0, sizeof(unsigned short)*trace_size);
     memset(module_data, 0, sizeof(unsigned short)*module_size);
 
@@ -573,14 +564,14 @@ void Poll::get_traces(int mod_, int chan_, int thresh_/*=0*/) {
 }
 
 bool Poll::SplitParameterArgs(const std::string &arg, int &start, int &stop) {
-    //If a character is found that is nonnumeric or is not the delimeter we stop.
+    //If a character is found that is nonnumerical or is not the delimeter we stop.
     if (arg.find_first_not_of("-0123456789:") != std::string::npos)
         return false;
 
     size_t delimeterPos = arg.find(':');
     try {
         start = std::stoi(arg.substr(0, delimeterPos));
-        //If the delimeter was found we can seperate the stop otherwise set start = stop.
+        //If the delimiter was found we can separate the stop otherwise set start = stop.
         if (delimeterPos != std::string::npos) {
             stop = std::stoi(arg.substr(delimeterPos + 1));
             if (start < 0 || stop < 0 || start > stop)
@@ -594,7 +585,8 @@ bool Poll::SplitParameterArgs(const std::string &arg, int &start, int &stop) {
 }
 
 void Poll::CommandControl() {
-    std::string cmd = "", arg;
+    auto cmd = std::string("");
+    std::string arg;
 
     while(true) {
         if(kill_all) { // Check if poll has been killed externally (pacman)
@@ -624,10 +616,10 @@ void Poll::CommandControl() {
             continue;
         }
 
-        if (cmd.find("\t") != std::string::npos) { // Completing a command.
+        if (cmd.find('\t') != std::string::npos) { // Completing a command.
             poll_term_->TabComplete(cmd, commands_);
             continue;
-        } else if (arg.find("\t") != std::string::npos) { // Completing the argument.
+        } else if (arg.find('\t') != std::string::npos) { // Completing the argument.
             if(cmd == "pread" || cmd == "pwrite")
                 poll_term_->TabComplete(arg, chan_params);
             else if(cmd == "pmread" || cmd == "pmwrite")
@@ -638,7 +630,7 @@ void Poll::CommandControl() {
         }
         poll_term_->flush();
 
-        if(cmd == "")
+        if(cmd.empty())
             continue;
 
         std::vector<std::string> arguments;
@@ -676,7 +668,7 @@ void Poll::CommandControl() {
                     std::cout << sys_message_head << " Invalid FIFO threshold specification" << std::endl;
                     continue;
                 }
-                SetThreshWords(EXTERNAL_FIFO_LENGTH * atof(arguments.at(0).c_str()) / 100.0);
+                SetThreshWords(std::stod(arguments.at(0)));
             }
             show_thresh();
         } else if(cmd == "dump") { // Dump pixie parameters to file
@@ -701,12 +693,12 @@ void Poll::CommandControl() {
             ParameterModuleDumper modReader(&ofile);
 
             // Channel dependent settings
-            for(unsigned int param = 0; param < chan_params.size(); param++)
-                forChannel<std::string>(pif_, -1, -1, chanReader, chan_params[param]);
+            for(auto &val : chan_params)
+                forChannel<std::string>(pif_, -1, -1, chanReader, val);
 
             // Channel independent settings
-            for(unsigned int param = 0; param < mod_params.size(); param++)
-                forModule(pif_, -1, modReader, mod_params[param]);
+            for(auto &val : mod_params)
+                forModule(pif_, -1, modReader, val);
 
             if(p_args >= 1)
                 std::cout << sys_message_head << "Successfully wrote output parameter file '" << arg << "'\n";
@@ -911,8 +903,9 @@ void Poll::CommandControl() {
                     std::cout << sys_message_head << " Invalid channel specification" << std::endl;
                     continue;
                 }
-                int mod = atoi(arguments.at(0).c_str());
-                int ch = atoi(arguments.at(1).c_str());
+
+                int mod = std::stoi(arguments.at(0));
+                int ch = std::stoi(arguments.at(1));
 
                 TauFinder finder;
                 forChannel(pif_, mod, ch, finder, 0);
@@ -977,7 +970,7 @@ void Poll::CommandControl() {
 
                 flipper.SetBit(arguments.at(3));
 
-                if(forChannel(pif_, atoi(arguments.at(0).c_str()), atoi(arguments.at(1).c_str()), flipper, arguments.at(2)))
+                if(forChannel(pif_, std::stoi(arguments.at(0)), std::stoi(arguments.at(1)), flipper, arguments.at(2)))
                     pif_->SaveDSPParameters();
             } else{
                 std::cout << sys_message_head << "Invalid number of parameters to toggle_any\n";
@@ -1020,7 +1013,8 @@ void Poll::CommandControl() {
                     continue;
                 }
                 std::vector<std::string> empty_vector;
-                flipper.Test((unsigned int)atoi(arguments.at(0).c_str()), std::strtoul(arguments.at(1).c_str(), NULL, 0), empty_vector);
+                flipper.Test((unsigned int)std::stoi(arguments.at(0)),
+                        (unsigned int)std::stoi(arguments.at(1), nullptr, 0), empty_vector);
             } else{
                 std::cout << sys_message_head << "Invalid number of parameters to bit_test\n";
                 std::cout << sys_message_head << " -SYNTAX- bit_test <num_bits> <number>\n";
@@ -1040,8 +1034,8 @@ void Poll::CommandControl() {
                     continue;
                 }
 
-                int mod = atoi(arguments.at(0).c_str());
-                int chan = atoi(arguments.at(1).c_str());
+                int mod = std::stoi(arguments.at(0));
+                int chan = std::stoi(arguments.at(1));
 
                 if(mod < 0 || chan < 0) {
                     std::cout << sys_message_head << "Error! Must select one module and one channel to trigger on!\n";
@@ -1060,7 +1054,7 @@ void Poll::CommandControl() {
                         std::cout << sys_message_head << "Invalid threshold specified" << std::endl;
                         continue;
                     } else{
-                        trace_threshold = atoi(arguments.at(2).c_str());
+                        trace_threshold = std::stoi(arguments.at(2));
                         if(trace_threshold < 0) {
                             std::cout << sys_message_head << "Cannot set negative threshold!\n";
                             trace_threshold = 0;
@@ -1140,7 +1134,7 @@ void Poll::CommandControl() {
                 start_run();
         } else if(cmd == "timedrun") {
             if(!arg.empty()) {
-                double runSeconds = strtod(arg.c_str(), NULL);
+                double runSeconds = strtod(arg.c_str(), nullptr);
                 if(StringManipulation::IsNumeric(arg) && runSeconds > 0.0)
                     start_run(true, runSeconds);
                 else
@@ -1178,7 +1172,7 @@ void Poll::CommandControl() {
             else
                 force_spill = true;
         } else if(cmd == "fdir") { // Change the output file directory
-            if (arg == "")
+            if (arg.empty())
                 std::cout << sys_message_head << "Using output directory '" << output_directory << "'\n";
             else if (file_open)
                 std::cout << sys_message_head << Display::WarningStr("Warning:") << " Directory cannot be changed while a file is open!\n";
@@ -1201,7 +1195,7 @@ void Poll::CommandControl() {
                 std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
             }
         } else if (cmd == "prefix") {
-            if (arg == "")
+            if (arg.empty())
                 std::cout << sys_message_head << "Using output filename prefix '" << filename_prefix << "'.\n";
             else if (file_open)
                 std::cout << sys_message_head << Display::WarningStr("Warning:") << " Prefix cannot be changed while a file is open!\n";
@@ -1219,7 +1213,7 @@ void Poll::CommandControl() {
                 std::cout << sys_message_head << "Next file will be '" << output_file.GetNextFileName(next_run_num,filename_prefix, output_directory) << "'.\n";
             }
         } else if(cmd == "title") { // Change the title of the output file
-            if (arg == "")
+            if (arg.empty())
                 std::cout << sys_message_head << "Using output file title '" << output_title << "'.\n";
             else if (file_open)
                 std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run title cannot be changed while a file is open!\n";
@@ -1237,7 +1231,7 @@ void Poll::CommandControl() {
                 std::cout << sys_message_head << "Set run title to '" << output_title << "'.\n";
             }
         } else if(cmd == "runnum") { // Change the run number to the specified value
-            if (arg == "") {
+            if (arg.empty()) {
                 if (output_file.IsOpen())
                     std::cout << sys_message_head << "Current output file run number '" << output_file.GetRunNumber()
                               << "'.\n";
@@ -1247,19 +1241,19 @@ void Poll::CommandControl() {
             } else if (file_open) {
                 std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run number cannot be changed while a file is open!\n";
             } else {
-                next_run_num = atoi(arg.c_str());
+                next_run_num = (unsigned int)std::stoi(arg);
                 std::string filename = output_file.GetNextFileName(next_run_num,filename_prefix, output_directory);
-                if (next_run_num != (unsigned int)atoi(arg.c_str())) {
-                    std::cout << sys_message_head << Display::WarningStr("Wanring") << ": Run file existed for run " << atoi(arg.c_str()) << ".\n";
+                if (next_run_num != (unsigned int)std::stoi(arg)) {
+                    std::cout << sys_message_head << Display::WarningStr("Wanring") << ": Run file existed for run " << std::stoi(arg) << ".\n";
                 }
                 std::cout << sys_message_head << "Set run number to '" << next_run_num << "'.\n";
                 std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
             }
         } else if(cmd == "oform") { // Change the output file format
-            if(arg != "") {
-                int format = atoi(arg.c_str());
+            if(arg.empty()) {
+                int format = std::stoi(arg);
                 if(format == 0 || format == 1) {
-                    output_format = atoi(arg.c_str());
+                    output_format = (unsigned int)std::stoi(arg);
                     std::cout << sys_message_head << "Set output file format to '" << output_format << "'\n";
 
                     if(output_format == 1)
@@ -1282,8 +1276,8 @@ void Poll::CommandControl() {
 }
 
 void Poll::RunControl() {
-    time_t acqStartTime;
-    time_t currentTime;
+    time_t acqStartTime = {0};
+    time_t currentTime = {0};
     while(true) {
         if(kill_all) { // Supersedes all other commands
             if(acq_running || isMcaRunning_)
@@ -1414,8 +1408,8 @@ void Poll::RunControl() {
                 for(size_t mod = 0; mod < n_cards; mod++) {
                     //If the run status is 1 then the run has not finished in the module.
                     // We need to read it out.
-                    if(pif_->CheckRunStatus(mod) == 1) {
-                        if (!is_quiet) std::cout << "Module " << mod << " still has " << pif_->CheckFIFOWords(mod) << " words in the FIFO.\n";
+                    if(pif_->CheckRunStatus((short)mod) == 1) {
+                        if (!is_quiet) std::cout << "Module " << mod << " still has " << pif_->CheckFIFOWords((short)mod) << " words in the FIFO.\n";
                         //We set force_spill to true in case the remaining words is small.
                         force_spill = true;
                         //We sleep to allow the module to finish.
@@ -1434,7 +1428,7 @@ void Poll::RunControl() {
                     }
 
                     Display::LeaderPrint(leader.str());
-                    if(!pif_->CheckRunStatus(mod))
+                    if(!pif_->CheckRunStatus((short)mod))
                         std::cout << Display::OkayStr() << std::endl;
                     else {
                         std::cout << Display::ErrorStr() << std::endl;
@@ -1533,7 +1527,7 @@ void Poll::ReadScalers() {
     }
 }
 bool Poll::ReadFIFO() {
-    static Pixie16::word_t *fifoData = new Pixie16::word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
+    static auto *fifoData = new Pixie16::word_t[(EXTERNAL_FIFO_LENGTH + 2) * n_cards];
 
     if (!acq_running)
         return false;
@@ -1547,7 +1541,7 @@ bool Poll::ReadFIFO() {
     for (unsigned int timeout = 0; timeout < POLL_TRIES; timeout++) {
         //Check the FIFO size for every module
         for (unsigned short mod=0; mod < n_cards; mod++)
-            nWords[mod] = pif_->CheckFIFOWords(mod);
+            nWords[mod] = (unsigned int)pif_->CheckFIFOWords(mod);
 
         //Find the maximum module
         maxWords = std::max_element(nWords.begin(), nWords.end());
@@ -1665,7 +1659,7 @@ bool Poll::ReadFIFO() {
             //We now check the outcome of the data parsing.
             //If we have too many words as an event was not completely pulled form the FIFO
             if (parseWords > dataWords + nWords[mod]) {
-                Pixie16::word_t missingWords = parseWords - dataWords - nWords[mod];
+                auto missingWords = Pixie16::word_t(parseWords - dataWords - nWords[mod]);
                 Pixie16::word_t partialSize = eventSize - missingWords;
                 if (debug_mode)
                     std::cout << "Partial event " << partialSize << "/" << eventSize << " words!\n";
@@ -1763,8 +1757,8 @@ bool Poll::ReadFIFO() {
             std::cout << "Writing/Broadcasting " << dataWords << " words.\n";
         //We have read the FIFO now we write the data
         if (record_data)
-            write_data(fifoData, dataWords);
-        broadcast_data(fifoData, dataWords);
+            write_data(fifoData, (unsigned int)dataWords);
+        broadcast_data(fifoData, (unsigned int)dataWords);
 
     } //If we had exceeded the threshold or forced a flush
 
