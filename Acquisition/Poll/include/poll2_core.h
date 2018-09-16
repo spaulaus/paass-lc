@@ -6,7 +6,7 @@
   * and data acqusition systems. Command input and the command
   * line interface of poll2 are handled by the external library
   * CTerminal. Pixie16 data acquisition is handled by interfacing
-  * with the PixieInterface library.
+  * with the AcquisitionInterface library.
   *
   * \author Cory R. Thornsberry
   *
@@ -20,19 +20,18 @@
 
 #include <vector>
 
-#include "PixieInterface.h"
-#include "hribf_buffers.h"
-#define maxEventSize 4095 // (0x1FFE0000 >> 17)
+#include <hribf_buffers.h>
+#include <Constants.hpp>
 
-#define POLL2_CORE_VERSION "1.4.14"
-#define POLL2_CORE_DATE "Aug. 17th, 2016"
+#define maxEventSize 4095 // (0x1FFE0000 >> 17)
 
 // Maximum length of UDP data packet (in bytes)
 #define MAX_ORPH_DATA 1464
 
 typedef Pixie16::word_t eventdata_t[maxEventSize];
 
-class MCA;
+class Mca;
+class AcquisitionInterface;
 
 class MCA_args{
 private:
@@ -41,7 +40,7 @@ private:
     int totalTime;
     std::string basename;
 
-    MCA *mca;
+    Mca *mca;
 
 public:
     MCA_args();
@@ -58,7 +57,7 @@ public:
 
     std::string GetBasename(){ return basename; }
 
-    MCA *GetMCA(){ return mca; }
+    Mca *GetMCA(){ return mca; }
 
     void SetUseRoot(bool state_=true){ useRoot = state_; }
 
@@ -66,7 +65,7 @@ public:
 
     void SetBasename(std::string basename_){ basename = basename_; }
 
-    bool Initialize(PixieInterface *pif_);
+    bool Initialize(AcquisitionInterface *pif_);
 
     bool Step();
 
@@ -74,7 +73,7 @@ public:
 
     void Zero();
 
-    void Close(PixieInterface *pif_);
+    void Close(AcquisitionInterface *pif_);
 };
 
 struct UDP_Packet {
@@ -98,6 +97,7 @@ class StatsHandler;
 class Client;
 class Server;
 class Terminal;
+class AcquisitionInterface;
 
 class Poll{
 private:
@@ -113,7 +113,7 @@ private:
     Client *client; /// UDP client for network access
     Server *server; /// UDP server to listen for pacman commands
 
-    PixieInterface *pif; /// The main pixie interface pointer
+    AcquisitionInterface *pif_; /// The main pixie interface pointer
 
     // System flags and variables
     std::string sys_message_head; /// Command line message header
@@ -142,7 +142,7 @@ private:
     bool zero_clocks; //
     bool debug_mode; //
     bool shm_mode; /// New style shared-memory mode.
-    bool init; //
+    bool init_; //!< True if we have successfully made it through the Initialization method.
     double runTime; /// Time to run the acquisition, in seconds.
 
     // Options relating to output data file
@@ -158,9 +158,6 @@ private:
 
     size_t n_cards;
     size_t threshWords;
-
-    typedef std::pair<unsigned int, unsigned int> chanid_t;
-    std::map<chanid_t, PixieInterface::Histogram> histoMap;
 
     StatsHandler *statsHandler;
     static const int statsInterval_ = 3; ///<The amount time between scaler reads in seconds.
@@ -247,7 +244,7 @@ public:
     ~Poll();
 
     /// Initialize the poll object.
-    bool Initialize();
+    void Initialize(const char* configurationFile, const bool &useAcquisitionInterface = true);
 
     // Set methods.
     void SetBootFast(bool input_=true){ boot_fast = input_; }
@@ -268,7 +265,7 @@ public:
 
     void SetNcards(const size_t &n_cards_){ n_cards = n_cards_; }
 
-    void SetThreshWords(const size_t &thresh_){ threshWords = thresh_; }
+    void SetThreshWords(const int &thresholdPercentage);
 
     ///Set the terminal pointer.
     void SetTerminal(Terminal *term){ poll_term_ = term; };

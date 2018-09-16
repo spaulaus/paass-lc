@@ -2,7 +2,7 @@
 
 set(POLL2_SOURCES poll2.cpp poll2_core.cpp poll2_stats.cpp)
 add_executable(poll2 ${POLL2_SOURCES})
-target_link_libraries(poll2 PixieInterface PixieSupport Utility MCA_LIBRARY ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(poll2 PixieInterface Utility McaLibrary ${CMAKE_THREAD_LIBS_INIT})
 install(TARGETS poll2 DESTINATION bin)
 
 set(LISTENER_SOURCES listener.cpp)
