@@ -52,7 +52,7 @@ bool forChannel(PixieInterface &pif, int mod, int ch,
         for (parms.mod = 0; parms.mod < Pixie16::maximumNumberOfModulesPerCrate; parms.mod++) {
             if (ch < 0) {
                 for (parms.ch = 0;
-                     parms.ch < pif.GetNumberOfChannels(); parms.ch++) {
+                     parms.ch < pif.GetConfiguration().GetNumberOfChannels(); parms.ch++) {
                     if (!f(parms))
                         hadError = true;
                 }
@@ -65,7 +65,7 @@ bool forChannel(PixieInterface &pif, int mod, int ch,
     } else {
         parms.mod = mod;
         if (ch < 0) {
-            for (parms.ch = 0; parms.ch < pif.GetNumberOfChannels(); parms.ch++) {
+            for (parms.ch = 0; parms.ch < pif.GetConfiguration().GetNumberOfChannels(); parms.ch++) {
                 if (!f(parms))
                     hadError = true;
             }
@@ -84,7 +84,7 @@ bool forModule(PixieInterface &pif, int mod, PixieFunction<T> &f, T par) {
     bool hadError = false;
 
     if (mod < 0) {
-        for (parms.mod = 0; parms.mod < pif.GetNumberOfModules(); parms.mod++) {
+        for (parms.mod = 0; parms.mod < pif.GetConfiguration().GetNumberOfModules(); parms.mod++) {
             if (!f(parms))
                 hadError = true;
         }

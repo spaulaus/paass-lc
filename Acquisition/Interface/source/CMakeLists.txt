@@ -8,7 +8,6 @@ endif (PAASS_BUILD_XIA_INTERFACE)
 add_library(PixieInterface STATIC ${Interface_SOURCES})
 
 #Order is important, XIA before PLX
-target_link_libraries(PixieInterface PaassCoreStatic ${XIA_LIBRARIES}
-        ${PLX_LIBRARIES})
+target_link_libraries(PixieInterface PaassCoreStatic Pugixml ${XIA_LIBRARIES} ${PLX_LIBRARIES})
 
 add_library(Utility STATIC Utility.cpp)

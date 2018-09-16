@@ -27,11 +27,8 @@ int main(int argc, char **argv) {
              << endl;
         return EXIT_SUCCESS;
     }
-    pif.ReadSlotConfig();
     pif.Init();
-    pif.Boot(PixieInterface::DownloadParameters |
-             PixieInterface::ProgramFPGA |
-             PixieInterface::SetDAC, true);
+    pif.Boot(Interface::BootFlags::DownloadParameters | Interface::BootFlags::ProgramFPGA | Interface::BootFlags::SetDAC, true);
 
     LeaderPrint("Copying parameters");
 
@@ -39,7 +36,7 @@ int main(int argc, char **argv) {
     unsigned short sourceMod = atoi(argv[1]);
     unsigned short sourceChan;
     unsigned short destMod;
-    unsigned int totChannels = pif.GetNumberOfChannels() * pif.GetNumberOfModules();
+    unsigned int totChannels = pif.GetConfiguration().GetNumberOfChannels() * pif.GetConfiguration().GetNumberOfModules();
     unsigned short *destMask = new unsigned short[totChannels];
     bool success = true;
 
@@ -54,19 +51,19 @@ int main(int argc, char **argv) {
     }
     if (argc == 3) {
         // copy channel by channel between two modules
-        for (unsigned int i = 0; i < pif.GetNumberOfChannels(); i++) {
-            destMask[pif.GetNumberOfChannels() * destMod + i] = 1;
+        for (unsigned int i = 0; i < pif.GetConfiguration().GetNumberOfChannels(); i++) {
+            destMask[pif.GetConfiguration().GetNumberOfChannels() * destMod + i] = 1;
             if (Pixie16CopyDSPParameters(bitMask, sourceMod, i, destMask) < 0)
                 success = false;
             // and reset the destMask bit for the next iteration
-            destMask[pif.GetNumberOfChannels() * destMod + i] = 0;
+            destMask[pif.GetConfiguration().GetNumberOfChannels() * destMod + i] = 0;
         }
     } else {
         if (argc == 5) {
-            destMask[pif.GetNumberOfChannels() * destMod + atoi(argv[4])] = 1;
+            destMask[pif.GetConfiguration().GetNumberOfChannels() * destMod + atoi(argv[4])] = 1;
         } else if (argc == 4) {
-            for (unsigned int i = 0; i < pif.GetNumberOfChannels(); i++) {
-                destMask[pif.GetNumberOfChannels() * destMod + i] = 1;
+            for (unsigned int i = 0; i < pif.GetConfiguration().GetNumberOfChannels(); i++) {
+                destMask[pif.GetConfiguration().GetNumberOfChannels() * destMod + i] = 1;
             }
         } else {
             // this shouldn't happen
