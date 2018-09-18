@@ -1,20 +1,26 @@
 ///@file EmulatedInterface.cpp
-///@brief Implementation for the emulated pixie interface for Poll2
+///@brief Implementation for the emulated pixie interface for Poll2, we'll use a combination of the XIA offline API
+// and custom work. The XIA API does not allow us to actually generate / display data.
 ///@authors S. V. Paulauskas and K. Smith
 ///@date March 24, 2018
 #include <EmulatedInterface.hpp>
 
+#include <Display.h>
+
+#include <pixie16app_export.h>
+
 #include <iomanip>
 #include <iostream>
 #include <random>
+#include <sstream>
 
 using namespace std;
 
-EmulatedInterface::EmulatedInterface() : AcquisitionInterface("") {
+EmulatedInterface::EmulatedInterface() : PixieInterface("") {
     //Does nothing fun right now
 }
 
-EmulatedInterface::EmulatedInterface(const char *cfgFile/* = ""*/) : AcquisitionInterface(cfgFile) {
+EmulatedInterface::EmulatedInterface(const char *cfgFile/* = ""*/) : PixieInterface(cfgFile) {
     //Does nothing fun right now.
 }
 
@@ -28,10 +34,6 @@ bool EmulatedInterface::AdjustOffsets(unsigned short mod) {
     return false;
 }
 
-bool EmulatedInterface::Boot(int mode, bool useWorkingSetFile) {
-    return true;
-}
-
 unsigned long EmulatedInterface::CheckFIFOWords(unsigned short mod) {
     return 0;
 }
@@ -43,12 +45,15 @@ bool EmulatedInterface::CheckRunStatus(short mod) {
 bool EmulatedInterface::EndRun(short mod) {
     return true;
 }
-bool EmulatedInterface::Init(bool offlineMode) {
+
+bool EmulatedInterface::Init() {
+    Display::LeaderPrint("Initializing Pixie");
+    retval_ = Pixie16InitSystem(config_.GetNumberOfModules(), &(config_.GetSlotMapAsVector(0)[0]), true);
     return true;
 }
 
 bool EmulatedInterface::ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords, unsigned short mod, bool verbose) {
-    return false;
+    return true;
 }
 
 bool EmulatedInterface::ReadHistogram(Pixie16::word_t *hist, unsigned long sz, unsigned short mod, unsigned short ch) {
@@ -97,11 +102,6 @@ bool EmulatedInterface::WriteSglChanPar(const char *name, double val, int mod, i
 }
 
 bool EmulatedInterface::WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval) {
-    return true;
-}
-
-bool EmulatedInterface::GetModuleInfo(const unsigned short &mod, unsigned short *rev, unsigned int *serNum,
-                                      unsigned short *adcBits, unsigned short *adcMsps) {
     return true;
 }
 

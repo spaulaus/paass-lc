@@ -36,10 +36,10 @@ PixieInterface::~PixieInterface() {
 }
 
 
-bool PixieInterface::Init(bool offlineMode) {
+bool PixieInterface::Init() {
     LeaderPrint("Initializing Pixie");
 
-    retval_ = Pixie16InitSystem(config_.GetNumberOfModules(), &(config_.GetSlotMapAsVector(0)[0]), offlineMode);
+    retval_ = Pixie16InitSystem(config_.GetNumberOfModules(), &(config_.GetSlotMapAsVector(0)[0]), false);
     doneInit_ = !CheckError(true);
 
     return doneInit_;

@@ -3,9 +3,9 @@
 #ifndef __EMULATEDINTERFACE_HPP_
 #define __EMULATEDINTERFACE_HPP_
 
-#include "AcquisitionInterface.hpp"
+#include <PixieInterface.h>
 
-class EmulatedInterface : public AcquisitionInterface {
+class EmulatedInterface : public PixieInterface {
 public:
     EmulatedInterface();
     EmulatedInterface(const char *cfgFile = "");
@@ -14,16 +14,16 @@ public:
 
     bool AcquireTraces(int mod);
     bool AdjustOffsets(unsigned short mod);
-    bool Boot(int mode, bool useWorkingSetFile);
     unsigned long CheckFIFOWords(unsigned short mod);
     bool CheckRunStatus(short mod = -1);
     double GetInputCountRate(int mod, int chan);
-    bool GetModuleInfo(const unsigned short &mod, unsigned short *rev, unsigned int *serNum,
-                       unsigned short *adcBits, unsigned short *adcMsps);
+
     double GetOutputCountRate(int mod, int chan);
     bool GetStatistics(unsigned short mod);
     bool EndRun(short mod = -1);
-    bool Init(bool offlineMode = false);
+
+    /// Overrides Pixie16::Init so that we always initialize the XIA API in Offline mode.
+    bool Init() override;
 
     void PrintSglChanPar(const char *name, int mod, int chan, double *prev = nullptr) {};
     void PrintSglModPar(const char *name, int mod, Pixie16::word_t *prev = nullptr) {};

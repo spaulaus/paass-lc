@@ -1,11 +1,12 @@
-#include "AcquisitionInterface.hpp"
+/// @file AcquisitionInterface.cpp
+/// @brief
+/// @author S. V. Paulauskas, K. Smith
+/// @date September 17, 2018
+#include <AcquisitionInterface.hpp>
 
-#include <fstream>
-#include <iomanip>
+#include <Display.h>
+
 #include <iostream>
-#include <sstream>
-
-#include "Display.h"
 
 using namespace std;
 
@@ -20,3 +21,5 @@ AcquisitionInterface::AcquisitionInterface(const char *cfgFile) : lock_("PixieIn
         throw invalidArgument;
     }
 }
+
+bool AcquisitionInterface::Boot(int mode, bool useWorkingSetFile) {}

@@ -64,7 +64,7 @@ public:
     ~PixieInterface();
 
     // wrappers to the pixie-16 app functions
-    bool Init(bool offlineMode = false);
+    virtual bool Init();
 
     bool Boot(int mode = 0x7f, bool useWorkingSetFile = false);
 
@@ -152,7 +152,7 @@ public:
     bool SetProtonCatcherMode(int mod, int chan, CatcherModes mode);
 #endif
 
-private:
+protected:
     bool ToggleChannelBit(int mod, int chan, const char *parameter, int bit);
 
     static const size_t TRACE_LENGTH = RANDOMINDICES_LENGTH;
@@ -164,7 +164,7 @@ private:
     bool doneInit_;
 
     // checks retval and outputs default OK/ERROR message
-    bool CheckError(bool exitOnError = false) const;
+    virtual bool CheckError(bool exitOnError = false) const;
 
     stats_t statistics_;
 

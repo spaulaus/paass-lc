@@ -15,11 +15,10 @@ public:
 
     virtual ~AcquisitionInterface() {};
 
-    /// @TODO Remove the offlineMode here, this should be separated into a Setter / Getter.
     /// Initializes the API.
-    virtual bool Init(bool offlineMode = false) = 0;
+    virtual bool Init() = 0;
 
-    virtual bool Boot(int mode, bool useWorkingSetFile) = 0;
+    virtual bool Boot(int mode, bool useWorkingSetFile);
 
     virtual bool WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval = nullptr) = 0;
 
@@ -74,8 +73,6 @@ protected:
     AcquisitionConfig config_;
 private:
     Lock lock_;  // class to prevent simultaneous access to pixies
-
-    static const size_t CONFIG_LINE_LENGTH = 80;
 };
 
 #endif // __ACQUISTIONINTERFACE_HPP_
