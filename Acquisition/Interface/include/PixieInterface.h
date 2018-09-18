@@ -134,8 +134,6 @@ public:
 
     short GetSlotNumber(int mod) const { return config_.GetSlotMaps()[0][mod]; }
 
-
-
     /** Handy functions for manipulating CSRA/B */
     bool ToggleGain(int mod, int chan);
 

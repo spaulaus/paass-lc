@@ -775,8 +775,6 @@ void Poll::CommandControl() {
                     }
 
                     unsigned int value;
-                    //Use stod to add hex capability. The decimal and negative values are
-                    // caught above and rejected.
                     try {
                         value = (unsigned int) std::stod(valueStr);
                     } catch (const std::invalid_argument &ia) {
