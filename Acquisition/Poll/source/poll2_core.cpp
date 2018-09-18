@@ -1247,27 +1247,6 @@ void Poll::CommandControl() {
                 std::cout << sys_message_head << "Set run number to '" << next_run_num << "'.\n";
                 std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
             }
-        } else if(cmd == "oform") { // Change the output file format
-            if(arg.empty()) {
-                int format = std::stoi(arg);
-                if(format == 0 || format == 1) {
-                    output_format = (unsigned int)std::stoi(arg);
-                    std::cout << sys_message_head << "Set output file format to '" << output_format << "'\n";
-
-                    if(output_format == 1)
-                        std::cout << "  Warning! This output format is experimental and is not recommended for data taking\n";
-
-                    output_file.SetFileFormat(output_format);
-                } else{
-                    std::cout << sys_message_head << "Unknown output file format ID '" << format << "'\n";
-                    std::cout << "  Available file formats include:\n";
-                    std::cout << "   0 - .pld (PIXIE) file format (experimental)\n";
-                    std::cout << "   1 - .root file format (slow, not recommended)\n";
-                }
-            } else{ std::cout << sys_message_head << "Using output file format '" << output_format << "'\n"; }
-
-            if(output_file.IsOpen())
-                std::cout << sys_message_head << "New output format used for new files only! Current file is unchanged.\n";
         } else
             std::cout << sys_message_head << "Unknown command '" << cmd << "'\n";
     }
