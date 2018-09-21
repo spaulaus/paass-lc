@@ -42,8 +42,10 @@ private:
     unsigned int numberOfTriggersInFifo_;
     std::map<std::string, double> parameterValues_;
 
-    std::string GenerateParameterKey(const char* &name, const int &crate, const int &mod, const int&chan);
+    template <typename T>
+    bool FillBuffer(T *buf, const unsigned long &bufSize, const std::vector<unsigned int> &filler);
 
+    std::string GenerateParameterKey(const char* &name, const int &crate, const int &mod, const int&chan);
     double GetParameterValue(const std::string &key);
     void SetParameterValue(const std::string &key, const double &value);
 };

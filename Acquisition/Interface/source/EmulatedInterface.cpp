@@ -54,28 +54,12 @@ bool EmulatedInterface::EndRun(short mod) {
 bool EmulatedInterface::Init() {
     Display::LeaderPrint("Initializing Pixie");
     retval_ = Pixie16InitSystem(config_.GetNumberOfModules(), &(config_.GetSlotMapAsVector(0)[0]), true);
-    numberOfTriggersInFifo_ = 4;
+    numberOfTriggersInFifo_ = 3;
     return true;
 }
 
 bool EmulatedInterface::ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords, unsigned short mod, bool verbose) {
-    unsigned long offset = 0;
-    unsigned long counter = 1;
-    for(unsigned long i = 0; i < nWords; i++) {
-        if(i >= unittest_encoded_data::R30474_250::rawHeader.size() * counter) {
-            offset = unittest_encoded_data::R30474_250::rawHeader.size() * counter;
-            counter++;
-        }
-
-        try {
-            buf[i] = unittest_encoded_data::R30474_250::rawHeader.at(i - offset);
-        } catch (std::out_of_range &outOfRange) {
-            std::cout << "EmulatedInterface::ReadFIFOWords - Attempted to access index " << i - offset << "\n";
-            return false;
-        }
-    }
-
-    return true;
+    return FillBuffer(buf, nWords, unittest_encoded_data::R30474_250::rawHeader);
 }
 
 bool EmulatedInterface::ReadHistogram(Pixie16::word_t *hist, unsigned long sz, unsigned short mod, unsigned short ch) {
@@ -97,22 +81,7 @@ bool EmulatedInterface::ReadSglChanPar(const char *name, double &val, int mod, i
 }
 
 bool EmulatedInterface::ReadSglChanTrace(unsigned short *buf, unsigned long sz, unsigned short mod, unsigned short chan) {
-    double offset = 0;
-    double counter = 1;
-    for(unsigned int i = 0; i < sz; i++) {
-        if(i >= unittest_trace_variables::trace.size() * counter) {
-            offset = unittest_trace_variables::trace.size() * counter;
-            counter++;
-        }
-
-        try {
-            buf[i] = (unsigned short) unittest_trace_variables::trace.at(i - offset);
-        } catch (std::out_of_range &outOfRange) {
-            std::cout << "EmulatedInterface::ReadSglChanTrace - Attempted to access index " << i - offset << "\n";
-            return false;
-        }
-    }
-    return true;
+    return FillBuffer(buf, sz, unittest_trace_variables::trace);
 }
 
 bool EmulatedInterface::ReadSglModPar(const char *name, Pixie16::word_t &val, int mod) {
@@ -182,4 +151,24 @@ void EmulatedInterface::SetParameterValue(const std::string &key, const double &
         parameterValues_.emplace(std::make_pair(key, 8008135));
 
     parameterValues_.find(key)->second = value;
+}
+
+template<typename T>
+bool EmulatedInterface::FillBuffer(T *buf, const unsigned long &bufSize, const std::vector<unsigned int> &filler) {
+    double offset = 0;
+    double counter = 1;
+    for(unsigned int i = 0; i < bufSize; i++) {
+        if(i >= filler.size() * counter) {
+            offset = filler.size() * counter;
+            counter++;
+        }
+
+        try {
+            buf[i] = (T)filler.at((unsigned int)(i - offset));
+        } catch (std::out_of_range &outOfRange) {
+            std::cout << "EmulatedInterface::FillBuffer - Attempted to access out of range index " << i - offset << "\n";
+            return false;
+        }
+    }
+    return true;
 }
