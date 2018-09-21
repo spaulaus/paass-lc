@@ -350,23 +350,18 @@ bool GetTraces::operator()(PixieFunctionParms<int> &par) {
     return status;
 }
 
-bool ParameterChannelWriter::operator()(
-        PixieFunctionParms<std::pair<std::string, double>> &par) {
+bool ParameterChannelWriter::operator()(PixieFunctionParms<std::pair<std::string, double>> &par) {
     double previousValue;
-    if (par.pif->WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod,
-                                 par.ch, &previousValue)) {
-        par.pif->PrintSglChanPar(par.par.first.c_str(), par.mod, par.ch,
-                                 &previousValue);
+    if (par.pif->WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod, par.ch, &previousValue)) {
+        par.pif->PrintSglChanPar(par.par.first.c_str(), par.mod, par.ch, &previousValue);
         return true;
     }
     return false;
 }
 
-bool ParameterModuleWriter::operator()(
-        PixieFunctionParms<std::pair<std::string, unsigned int>> &par) {
+bool ParameterModuleWriter::operator()(PixieFunctionParms<std::pair<std::string, unsigned int>> &par) {
     unsigned int previousValue;
-    if (par.pif->WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod,
-                                &previousValue)) {
+    if (par.pif->WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod, &previousValue)) {
         par.pif->PrintSglModPar(par.par.first.c_str(), par.mod, &previousValue);
         return true;
     }
@@ -385,8 +380,7 @@ bool ParameterModuleReader::operator()(PixieFunctionParms<std::string> &par) {
 
 bool ParameterChannelDumper::operator()(PixieFunctionParms<std::string> &par) {
     double value;
-    par.pif->ReadSglChanPar(par.par.c_str(), value, (int) par.mod,
-                            (int) par.ch);
+    par.pif->ReadSglChanPar(par.par.c_str(), value, (int) par.mod, (int) par.ch);
     *file << (int) par.mod << "\t" << par.ch << "\t" << par.par << "\t" << value
           << std::endl;
     return true;
@@ -410,7 +404,6 @@ bool OffsetAdjuster::operator()(PixieFunctionParms<int> &par) {
 
 /// @TODO Restore this functionality!
 bool TauFinder::operator()(PixieFunctionParms<> &par) {
-// TODO Restore this!
 /*
 	double tau[16];
 

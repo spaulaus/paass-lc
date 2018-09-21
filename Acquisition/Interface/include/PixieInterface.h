@@ -2,10 +2,11 @@
 ///@author David Miller, Jan 2010
 #ifndef __PIXIEINTERFACE_H_
 #define __PIXIEINTERFACE_H_
-#include "AcquisitionInterface.hpp"
-#include "HelperEnumerations.hpp"
 
-#include "pixie16app_defs.h"
+#include <AcquisitionInterface.hpp>
+#include <HelperEnumerations.hpp>
+
+#include <pixie16app_defs.h>
 
 #include <fstream>
 #include <queue>
@@ -68,15 +69,15 @@ public:
 
     bool Boot(int mode = 0x7f, bool useWorkingSetFile = false);
 
-    bool WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval = nullptr);
+    virtual bool WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval = nullptr);
 
-    bool ReadSglModPar(const char *name, Pixie16::word_t &val, int mod);
+    virtual bool ReadSglModPar(const char *name, Pixie16::word_t &val, int mod);
 
-    void PrintSglModPar(const char *name, int mod, Pixie16::word_t *prev = nullptr);
+    virtual void PrintSglModPar(const char *name, int mod, Pixie16::word_t *prev = nullptr);
 
-    bool WriteSglChanPar(const char *name, double val, int mod, int chan, double *pval = nullptr);
+    virtual bool WriteSglChanPar(const char *name, double val, int mod, int chan, double *pval = nullptr);
 
-    bool ReadSglChanPar(const char *name, double &val, int mod, int chan);
+    virtual bool ReadSglChanPar(const char *name, double &val, int mod, int chan);
 
     void PrintSglChanPar(const char *name, int mod, int chan, double *prev = nullptr);
 

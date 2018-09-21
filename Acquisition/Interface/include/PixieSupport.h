@@ -2,7 +2,7 @@
 #ifndef PIXIE_SUPPORT_H
 #define PIXIE_SUPPORT_H
 #include <AcquisitionInterface.hpp>
-#include "Constants.hpp"
+#include <Constants.hpp>
 
 #include <bitset>
 #include <fstream>

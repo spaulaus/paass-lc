@@ -55,8 +55,8 @@ std::vector<std::string> mod_params = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FOR
                                        "TrigConfig2","TrigConfig3"};
 
 const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop", "startacq", "startvme", "stopacq", "stopvme",
-                                                           "timedrun", "acq", "shm", "spill", "hup", "prefix", "fdir",
-                                                           "title", "runnum", "oform", "close", "reboot", "stats", "mca"});
+                                                           "timedrun", "shm", "spill", "hup", "prefix", "fdir",
+                                                           "title", "runnum", "close", "reboot", "stats", "mca"});
 
 const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", "pmread", "pwrite", "pmwrite",
                                                              "adjust_offsets", "find_tau", "toggle", "toggle_bit",
@@ -381,7 +381,6 @@ void Poll::help() {
     std::cout << "   fdir [path]         - Set the output file directory (default='./')\n";
     std::cout << "   title [runTitle]    - Set the title of the current run (default='PIXIE Data File)\n";
     std::cout << "   runnum [number]     - Set the number of the current run (default=0)\n";
-    std::cout << "   oform [0|1|2]       - Set the format of the output file (default=0)\n";
     std::cout << "   reboot              - Reboot PIXIE crate\n";
     std::cout << "   stats [time]        - Set the time delay between statistics dumps (default=-1)\n";
     std::cout << "   mca [time] [filename]                 - Use MCA to record data. time = 0 starts an infinite run\n";
@@ -1326,7 +1325,7 @@ void Poll::RunControl() {
                 if(record_data) {
                     //Close a file if open
                     if(output_file.IsOpen()) {
-                        std::cout << Display::WarningStr() << " Unexpected output file open!\n";
+                        std::cout << Display::WarningStr() << " Unexpected output file open! I'm closing it!\n";
                         CloseOutputFile();
                     }
 
@@ -1561,7 +1560,7 @@ bool Poll::ReadFIFO() {
             }
 
             //We inject two words describing the size of the FIFO spill and the module.
-            //We inject the size after it has been computedos we skip it for now and only add the module number.
+            //We inject the size after it has been computed so we skip it for now and only add the module number.
             dataWords++;
             fifoData[dataWords++] = mod;
 

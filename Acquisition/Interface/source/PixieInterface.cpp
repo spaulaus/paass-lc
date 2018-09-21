@@ -137,7 +137,7 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile) {
     bool hadError = false;
     bool updated = false;
 
-    Pixie16::word_t val;
+    unsigned int val;
 
     for (int i = 0; i < config_.GetNumberOfModules(); i++) {
         if (!ReadSglModPar("SlotID", val, i))
@@ -233,9 +233,9 @@ void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan, double
         cout << "  MOD " << setw(2) << mod << "  CHAN " << setw(2) << chan
              << "  " << setw(15) << name << " ";
         if (prev) {
-            cout << setprecision(6) << *prev << " -> ";
+            cout << setprecision(8) << *prev << " -> ";
         }
-        cout << setprecision(6) << val << endl;
+        cout << setprecision(8) << val << endl;
     }
 }
 
