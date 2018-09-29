@@ -1,4 +1,12 @@
-///@authors D. Miller, C. R. Thornsberry, K. Smith
+/// @file PixieInterface.cpp
+/// @brief
+/// @author S. V. Paulauskas, D. Miller, C. R. Thornsberry, K. Smith
+/// @date January 2010
+#include <PixieInterface.h>
+
+#include <pixie16app_export.h>
+#include <Display.h>
+
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -8,11 +16,6 @@
 #include <cstring>
 
 #include <sys/time.h>
-
-#include "pixie16app_export.h"
-
-#include "Display.h"
-#include "PixieInterface.h"
 
 using namespace std;
 using namespace Display;
@@ -35,14 +38,22 @@ PixieInterface::~PixieInterface() {
     CheckError();
 }
 
+bool PixieInterface::AcquireTraces(int mod) {
+    retval_ = Pixie16AcquireADCTrace(mod);
 
-bool PixieInterface::Init() {
-    LeaderPrint("Initializing Pixie");
+    if (retval_ < 0) {
+        cout << ErrorStr("Error acquiring ADC traces from module ") << mod << endl;
+        return false;
+    }
 
-    retval_ = Pixie16InitSystem(config_.GetNumberOfModules(), &(config_.GetSlotMapAsVector(0)[0]), false);
-    doneInit_ = !CheckError(true);
+    return true;
+}
 
-    return doneInit_;
+bool PixieInterface::AdjustOffsets(unsigned short mod) {
+    LeaderPrint("Adjusting Offsets");
+    retval_ = Pixie16AdjustOffsets(mod);
+
+    return !CheckError();
 }
 
 bool PixieInterface::Boot(int mode, bool useWorkingSetFile) {
@@ -159,69 +170,98 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile) {
     return goodBoot && !hadError;
 }
 
-bool PixieInterface::WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval) {
-    strncpy(tmpName_, name, nameSize_);
+///@TODO This needs to throw not exit
+bool PixieInterface::CheckError(bool exitOnError) const {
+    if (StatusPrint(retval_ < 0) && exitOnError)
+        exit(EXIT_FAILURE); // or do something else
 
-    if (!pval)
-        Pixie16ReadSglModPar(tmpName_, pval, mod);
-    retval_ = Pixie16WriteSglModPar(tmpName_, val, mod);
+    return (retval_ < 0);
+}
+
+bool PixieInterface::CheckRunStatus(short mod) {
+    bool error = false;
+    if (mod >= 0)
+        error = Pixie16CheckRunStatus(mod);
+    else {
+        for (mod = 0; mod < config_.GetNumberOfModules(); mod++) {
+            if (!Pixie16CheckRunStatus(mod)) {
+                error = true;
+                break;
+            }
+        }
+    }
+
+    if (error)
+        cout << WarningStr("Error checking run status in module ") << mod;
+
+    return error;
+}
+
+bool PixieInterface::EndRun(short mod) {
+    bool b = true;
+
+    LeaderPrint("Ending run");
+
+    if (mod >= 0)
+        b = Pixie16EndRun(mod);
+    else {
+        for (mod = 0; mod < config_.GetNumberOfModules(); mod++)
+            if (!EndRun(mod)) b = false;
+    }
+
+    if (!b)
+        cout << ErrorStr() << endl << WarningStr("Failed to end run in module ") << mod << endl;
+    else
+        cout << OkayStr() << endl;
+
+    return b;
+}
+
+double PixieInterface::GetInputCountRate(int mod, int chan) {
+    return Pixie16ComputeInputCountRate(statistics_, mod, chan);
+}
+
+double PixieInterface::GetLiveTime(int mod, int chan) {
+    return Pixie16ComputeLiveTime(statistics_, mod, chan);
+}
+
+bool PixieInterface::GetModuleInfo(const unsigned short &mod, unsigned short *rev, unsigned int *serNum,
+                                   unsigned short *adcBits, unsigned short *adcMsps) {
+    //Return false if error code provided.
+    return (Pixie16ReadModuleInfo(mod, rev, serNum, adcBits, adcMsps) == 0);
+}
+
+double PixieInterface::GetOutputCountRate(int mod, int chan) {
+    return Pixie16ComputeOutputCountRate(statistics_, mod, chan);
+}
+
+double PixieInterface::GetProcessedEvents(int mod) {
+    return Pixie16ComputeProcessedEvents(statistics_, mod);
+}
+
+double PixieInterface::GetRealTime(int mod) {
+    return Pixie16ComputeRealTime(statistics_, mod);
+}
+
+bool PixieInterface::GetStatistics(unsigned short mod) {
+    retval_ = Pixie16ReadStatisticsFromModule(statistics_, mod);
+
     if (retval_ < 0) {
-        cout << "Error writing module parameter " << WarningStr(name) << " for module " << mod << endl;
+        cout << WarningStr("Error reading statistics from module ") << mod
+             << endl;
         return false;
     }
+
     return true;
 }
 
-bool PixieInterface::ReadSglModPar(const char *name, Pixie16::word_t &val, int mod) {
-    strncpy(tmpName_, name, nameSize_);
+bool PixieInterface::Init() {
+    LeaderPrint("Initializing Pixie");
 
-    retval_ = Pixie16ReadSglModPar(tmpName_, &val, mod);
-    if (retval_ < 0) {
-        cout << "Error reading module parameter " << WarningStr(name) << " for module " << mod << endl;
-        return false;
-    }
-    return true;
-}
+    retval_ = Pixie16InitSystem(config_.GetNumberOfModules(), &(config_.GetSlotMapAsVector(0)[0]), false);
+    doneInit_ = !CheckError(true);
 
-void PixieInterface::PrintSglModPar(const char *name, int mod, Pixie16::word_t *prev) {
-    Pixie16::word_t val;
-
-    strncpy(tmpName_, name, nameSize_);
-
-    if (ReadSglModPar(tmpName_, val, mod)) {
-        cout.unsetf(ios_base::floatfield);
-        cout << "  MOD " << setw(2) << mod << "  " << setw(15) << name << "  ";
-        if (prev)
-            cout << setprecision(6) << *prev << " -> ";
-        cout << setprecision(6) << val << endl;
-    }
-}
-
-bool
-PixieInterface::WriteSglChanPar(const char *name, double val, int mod, int chan, double *pval) {
-    strncpy(tmpName_, name, nameSize_);
-
-    if (!pval)
-        Pixie16ReadSglChanPar(tmpName_, pval, mod, chan);
-    retval_ = Pixie16WriteSglChanPar(tmpName_, val, mod, chan);
-    if (retval_ < 0) {
-        cout << "Error writing channel parameter " << WarningStr(name) << " for module " << mod << ", channel "
-             << chan << endl;
-        return false;
-    }
-    return true;
-}
-
-bool PixieInterface::ReadSglChanPar(const char *name, double &pval, int mod, int chan) {
-    strncpy(tmpName_, name, nameSize_);
-
-    retval_ = Pixie16ReadSglChanPar(tmpName_, &pval, mod, chan);
-    if (retval_ < 0) {
-        cout << "Error reading channel parameter " << WarningStr(name)
-             << " for module " << mod << ", channel " << chan << endl;
-        return false;
-    }
-    return true;
+    return doneInit_;
 }
 
 void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan, double *prev) {
@@ -239,26 +279,46 @@ void PixieInterface::PrintSglChanPar(const char *name, int mod, int chan, double
     }
 }
 
-bool PixieInterface::SaveDSPParameters(const char *fn) {
-    if (fn == NULL)
-        fn = &config_.Get("global", "DspWorkingSetFile")[0];
-    strncpy(tmpName_, fn, nameSize_);
+void PixieInterface::PrintSglModPar(const char *name, int mod, Pixie16::word_t *prev) {
+    Pixie16::word_t val;
 
-    LeaderPrint("Writing DSP parameters");
+    strncpy(tmpName_, name, nameSize_);
 
-    retval_ = Pixie16SaveDSPParametersToFile(tmpName_);
-    return !CheckError();
+    if (ReadSglModPar(tmpName_, val, mod)) {
+        cout.unsetf(ios_base::floatfield);
+        cout << "  MOD " << setw(2) << mod << "  " << setw(15) << name << "  ";
+        if (prev)
+            cout << setprecision(6) << *prev << " -> ";
+        cout << setprecision(6) << val << endl;
+    }
 }
 
-bool PixieInterface::AcquireTraces(int mod) {
-    retval_ = Pixie16AcquireADCTrace(mod);
-
-    if (retval_ < 0) {
-        cout << ErrorStr("Error acquiring ADC traces from module ") << mod
-             << endl;
+bool PixieInterface::ReadHistogram(Pixie16::word_t *hist, unsigned long sz,
+                                   unsigned short mod, unsigned short ch) {
+    if (sz > MAX_HISTOGRAM_LENGTH) {
+        cout << ErrorStr("Histogram length is too large.") << endl;
         return false;
     }
 
+    retval_ = Pixie16ReadHistogramFromModule(hist, sz, mod, ch);
+
+    if (retval_ < 0) {
+        cout << ErrorStr("Failed to get histogram data from module ") << mod
+             << endl;
+        return false;
+    }
+    return true;
+}
+
+bool PixieInterface::ReadSglChanPar(const char *name, double &pval, int mod, int chan) {
+    strncpy(tmpName_, name, nameSize_);
+
+    retval_ = Pixie16ReadSglChanPar(tmpName_, &pval, mod, chan);
+    if (retval_ < 0) {
+        cout << "Error reading channel parameter " << WarningStr(name)
+             << " for module " << mod << ", channel " << chan << endl;
+        return false;
+    }
     return true;
 }
 
@@ -278,36 +338,41 @@ bool PixieInterface::ReadSglChanTrace(unsigned short *buf, unsigned long sz, uns
     return true;
 }
 
-bool PixieInterface::GetStatistics(unsigned short mod) {
-    retval_ = Pixie16ReadStatisticsFromModule(statistics_, mod);
+bool PixieInterface::ReadSglModPar(const char *name, Pixie16::word_t &val, int mod) {
+    strncpy(tmpName_, name, nameSize_);
 
+    retval_ = Pixie16ReadSglModPar(tmpName_, &val, mod);
     if (retval_ < 0) {
-        cout << WarningStr("Error reading statistics from module ") << mod
-             << endl;
+        cout << "Error reading module parameter " << WarningStr(name) << " for module " << mod << endl;
         return false;
     }
-
     return true;
 }
 
-double PixieInterface::GetInputCountRate(int mod, int chan) {
-    return Pixie16ComputeInputCountRate(statistics_, mod, chan);
+bool PixieInterface::RemovePresetRunLength(int mod) {
+    strncpy(tmpName_, "HOST_RT_PRESET", nameSize_);
+
+    unsigned long bigVal = Decimal2IEEEFloating(99999);
+
+    LeaderPrint("Removing preset run length");
+
+    if (!WriteSglModPar(tmpName_, bigVal, mod)) {
+        cout << ErrorStr() << endl;
+        return false;
+    }
+    cout << OkayStr() << endl;
+    return true;
 }
 
-double PixieInterface::GetOutputCountRate(int mod, int chan) {
-    return Pixie16ComputeOutputCountRate(statistics_, mod, chan);
-}
+bool PixieInterface::SaveDSPParameters(const char *fn) {
+    if (fn == NULL)
+        fn = &config_.Get("global", "DspWorkingSetFile")[0];
+    strncpy(tmpName_, fn, nameSize_);
 
-double PixieInterface::GetLiveTime(int mod, int chan) {
-    return Pixie16ComputeLiveTime(statistics_, mod, chan);
-}
+    LeaderPrint("Writing DSP parameters");
 
-double PixieInterface::GetRealTime(int mod) {
-    return Pixie16ComputeRealTime(statistics_, mod);
-}
-
-double PixieInterface::GetProcessedEvents(int mod) {
-    return Pixie16ComputeProcessedEvents(statistics_, mod);
+    retval_ = Pixie16SaveDSPParametersToFile(tmpName_);
+    return !CheckError();
 }
 
 bool PixieInterface::StartHistogramRun(short mod, unsigned short mode) {
@@ -326,30 +391,60 @@ bool PixieInterface::StartListModeRun(short mod, unsigned short listMode, unsign
     return !CheckError();
 }
 
-bool PixieInterface::CheckRunStatus(short mod) {
-    bool error = false;
-    if (mod >= 0) error = Pixie16CheckRunStatus(mod);
-    else {
-        for (mod = 0; mod < config_.GetNumberOfModules(); mod++) {
-            if (!Pixie16CheckRunStatus(mod)) {
-                error = true;
-                break;
-            }
-        }
-    }
+bool PixieInterface::ToggleChannelBit(int mod, int chan, const char *parameter, int bit) {
+    double dval;
 
-    if (error) {
-        cout << WarningStr("Error checking run status in module ") << mod;
-    }
+    ReadSglChanPar(parameter, dval, mod, chan);
+    unsigned int ival = (int) dval;
+    ival ^= (1 << bit);
+    dval = ival;
 
-    return error;
+    return WriteSglChanPar(parameter, dval, mod, chan);
+}
+
+bool PixieInterface::ToggleGain(int mod, int chan) {
+    return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_ENARELAY);
+}
+
+bool PixieInterface::ToggleGood(int mod, int chan) {
+    return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_GOOD);
+}
+
+bool PixieInterface::TogglePolarity(int mod, int chan) {
+    return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_POLARITY);
+}
+
+bool PixieInterface::WriteSglChanPar(const char *name, double val, int mod, int chan, double *pval) {
+    strncpy(tmpName_, name, nameSize_);
+
+    if (!pval)
+        Pixie16ReadSglChanPar(tmpName_, pval, mod, chan);
+    retval_ = Pixie16WriteSglChanPar(tmpName_, val, mod, chan);
+    if (retval_ < 0) {
+        cout << "Error writing channel parameter " << WarningStr(name) << " for module " << mod << ", channel "
+             << chan << endl;
+        return false;
+    }
+    return true;
+}
+
+bool PixieInterface::WriteSglModPar(const char *name, Pixie16::word_t val, int mod, Pixie16::word_t *pval) {
+    strncpy(tmpName_, name, nameSize_);
+
+    if (!pval)
+        Pixie16ReadSglModPar(tmpName_, pval, mod);
+    retval_ = Pixie16WriteSglModPar(tmpName_, val, mod);
+    if (retval_ < 0) {
+        cout << "Error writing module parameter " << WarningStr(name) << " for module " << mod << endl;
+        return false;
+    }
+    return true;
 }
 
 // only Rev. D has the external FIFO
 #ifdef PIF_FIFO
 
 unsigned long PixieInterface::CheckFIFOWords(unsigned short mod) {
-    // word_t nWords;
     unsigned int nWords;
 
     retval_ = Pixie16CheckExternalFIFOStatus(&nWords, mod);
@@ -369,6 +464,7 @@ bool PixieInterface::ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords, u
         std::cout << "mod " << mod << " nWords " << nWords;
         std::cout << " extraWords[mod].size " << extraWords_[mod].size();
     }
+
     if (nWords < MIN_FIFO_READ + extraWords_[mod].size()) {
         if (nWords > extraWords_[mod].size()) {
             Pixie16::word_t minibuf[MIN_FIFO_READ];
@@ -387,6 +483,7 @@ bool PixieInterface::ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords, u
             for (int i = 0; i < MIN_FIFO_READ; i++) extraWords_[mod].push(minibuf[i]);
         }
     }
+
     if (verbose) std::cout << " " << extraWords_[mod].size();
 
     size_t wordsAdded;
@@ -394,6 +491,7 @@ bool PixieInterface::ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords, u
         *buf++ = extraWords_[mod].front();
         extraWords_[mod].pop();
     }
+
     if (verbose) std::cout << " " << extraWords_[mod].size();
 
     if (nWords <= wordsAdded) {
@@ -418,79 +516,7 @@ bool PixieInterface::ReadFIFOWords(Pixie16::word_t *buf, unsigned long nWords, u
 
     return true;
 }
-
 #endif // Rev. D FIFO access
-
-bool PixieInterface::EndRun(short mod) {
-    bool b = true;
-
-    LeaderPrint("Ending run");
-
-    if (mod >= 0)
-        b = Pixie16EndRun(mod);
-    else {
-        for (mod = 0; mod < config_.GetNumberOfModules(); mod++)
-            if (!EndRun(mod)) b = false;
-    }
-
-    if (!b)
-        cout << ErrorStr() << endl << WarningStr("Failed to end run in module ") << mod << endl;
-    else
-        cout << OkayStr() << endl;
-
-    return b;
-}
-
-bool PixieInterface::RemovePresetRunLength(int mod) {
-    strncpy(tmpName_, "HOST_RT_PRESET", nameSize_);
-
-    unsigned long bigVal = Decimal2IEEEFloating(99999);
-
-    LeaderPrint("Removing preset run length");
-
-    if (!WriteSglModPar(tmpName_, bigVal, mod)) {
-        cout << ErrorStr() << endl;
-        return false;
-    }
-    cout << OkayStr() << endl;
-    return true;
-}
-
-bool PixieInterface::ReadHistogram(Pixie16::word_t *hist, unsigned long sz,
-                                   unsigned short mod, unsigned short ch) {
-    if (sz > MAX_HISTOGRAM_LENGTH) {
-        cout << ErrorStr("Histogram length is too large.") << endl;
-        return false;
-    }
-
-    retval_ = Pixie16ReadHistogramFromModule(hist, sz, mod, ch);
-
-    if (retval_ < 0) {
-        cout << ErrorStr("Failed to get histogram data from module ") << mod
-             << endl;
-        return false;
-    }
-    return true;
-}
-
-bool PixieInterface::AdjustOffsets(unsigned short mod) {
-    LeaderPrint("Adjusting Offsets");
-    retval_ = Pixie16AdjustOffsets(mod);
-
-    return !CheckError();
-}
-
-bool PixieInterface::ToggleGain(int mod, int chan) {
-    return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_ENARELAY);
-}
-
-bool PixieInterface::ToggleGood(int mod, int chan) {
-    return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_GOOD);
-}
-
-bool PixieInterface::TogglePolarity(int mod, int chan) {
-    return ToggleChannelBit(mod, chan, "CHANNEL_CSRA", CCSRA_POLARITY);
-}
 
 #ifdef PIF_CATCHER
 bool PixieInterface::ToggleCatcherBit(int mod, int chan)
@@ -553,29 +579,3 @@ void PixieInterface::CatcherMessage(void)
   threwMessage = true;
 }
 #endif
-
-// ### PRIVATE FUNCTIONS BELOW ### //
-bool PixieInterface::ToggleChannelBit(int mod, int chan, const char *parameter, int bit) {
-    double dval;
-
-    ReadSglChanPar(parameter, dval, mod, chan);
-    unsigned int ival = (int) dval;
-    ival ^= (1 << bit);
-    dval = ival;
-
-    return WriteSglChanPar(parameter, dval, mod, chan);
-}
-
-///@TODO This needs to throw not exit
-bool PixieInterface::CheckError(bool exitOnError) const {
-    if (StatusPrint(retval_ < 0) && exitOnError)
-        exit(EXIT_FAILURE); // or do something else
-
-    return (retval_ < 0);
-}
-
-bool PixieInterface::GetModuleInfo(const unsigned short &mod, unsigned short *rev, unsigned int *serNum,
-                                   unsigned short *adcBits, unsigned short *adcMsps) {
-    //Return false if error code provided.
-    return (Pixie16ReadModuleInfo(mod, rev, serNum, adcBits, adcMsps) == 0);
-}

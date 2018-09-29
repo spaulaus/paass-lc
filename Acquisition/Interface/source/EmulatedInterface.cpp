@@ -1,8 +1,8 @@
-///@file EmulatedInterface.cpp
-///@brief Implementation for the emulated pixie interface for Poll2, we'll use a combination of the XIA offline API
+/// @file EmulatedInterface.cpp
+/// @brief Implementation for the emulated pixie interface for Poll2, we'll use a combination of the XIA offline API
 /// and custom work. The XIA API does not allow us to actually generate / display data.
-///@authors S. V. Paulauskas and K. Smith
-///@date March 24, 2018
+/// @authors S. V. Paulauskas and K. Smith
+/// @date March 24, 2018
 #include <EmulatedInterface.hpp>
 
 #include <Display.h>
@@ -36,7 +36,7 @@ bool EmulatedInterface::AdjustOffsets(unsigned short mod) {
     const char * name = "VOFFSET";
     for (unsigned int i = 0; i < config_.GetNumberOfChannels(); i++)
         SetParameterValue(GenerateParameterKey(name, 0, mod, i), 8008135);
-    return false;
+    return true;
 }
 
 unsigned long EmulatedInterface::CheckFIFOWords(unsigned short mod) {
@@ -48,6 +48,49 @@ bool EmulatedInterface::CheckRunStatus(short mod) {
 }
 
 bool EmulatedInterface::EndRun(short mod) {
+    return true;
+}
+
+template<typename T>
+bool EmulatedInterface::FillBuffer(T *buf, const unsigned long &bufSize, const std::vector<unsigned int> &filler) {
+    double offset = 0;
+    double counter = 1;
+    for(unsigned int i = 0; i < bufSize; i++) {
+        if(i >= filler.size() * counter) {
+            offset = filler.size() * counter;
+            counter++;
+        }
+
+        try {
+            buf[i] = (T)filler.at((unsigned int)(i - offset));
+        } catch (std::out_of_range &outOfRange) {
+            std::cout << "EmulatedInterface::FillBuffer - Attempted to access out of range index " << i - offset << "\n";
+            return false;
+        }
+    }
+    return true;
+}
+
+std::string EmulatedInterface::GenerateParameterKey(const char *name, const int &crate, const int &mod, const int &chan) {
+    return string(name) + "-" + std::to_string(crate) + "-" + std::to_string(mod) + "-" + std::to_string(chan);
+}
+
+double EmulatedInterface::GetInputCountRate(int mod, int chan) {
+    return 100;
+}
+
+double EmulatedInterface::GetOutputCountRate(int mod, int chan) {
+    return 100;
+}
+
+double EmulatedInterface::GetParameterValue(const std::string &key) {
+    if(parameterValues_.find(key) == parameterValues_.end())
+        SetParameterValue(key, 8008135);
+
+    return parameterValues_.find(key)->second;
+}
+
+bool EmulatedInterface::GetStatistics(unsigned short mod) {
     return true;
 }
 
@@ -72,7 +115,7 @@ bool EmulatedInterface::ReadHistogram(Pixie16::word_t *hist, unsigned long sz, u
         if (number >= 0.0)
             ++hist[number];
     }
-    return false;
+    return true;
 }
 
 bool EmulatedInterface::ReadSglChanPar(const char *name, double &val, int mod, int chan) {
@@ -94,6 +137,18 @@ bool EmulatedInterface::RemovePresetRunLength(int mod) {
     return true;
 }
 
+bool EmulatedInterface::SaveDSPParameters(const char *fn) {
+    std::cout << "EmulatedInterface::SaveDSPParameters - DSP Parameters saved successfully." << std::endl;
+    return true;
+}
+
+void EmulatedInterface::SetParameterValue(const std::string &key, const double &value) {
+    if(parameterValues_.find(key) == parameterValues_.end())
+        parameterValues_.emplace(std::make_pair(key, 8008135));
+
+    parameterValues_.find(key)->second = value;
+}
+
 bool EmulatedInterface::StartHistogramRun(short mod, unsigned short mode) {
     Display::LeaderPrint("Starting an MCA run!");
     return true;
@@ -101,11 +156,6 @@ bool EmulatedInterface::StartHistogramRun(short mod, unsigned short mode) {
 
 bool EmulatedInterface::StartListModeRun(short mod, unsigned short listMode, unsigned short runMode) {
     Display::LeaderPrint("Starting list mode run!");
-    return true;
-}
-
-bool EmulatedInterface::SaveDSPParameters(const char *fn) {
-    std::cout << "EmulatedInterface::SaveDSPParameters - DSP Parameters saved successfully." << std::endl;
     return true;
 }
 
@@ -120,55 +170,5 @@ bool EmulatedInterface::WriteSglModPar(const char *name, Pixie16::word_t val, in
     if(pval)
         *pval = (unsigned int)GetParameterValue(GenerateParameterKey(name, 0, mod, 0));
     SetParameterValue(GenerateParameterKey(name, 0, mod, 0), val);
-    return true;
-}
-
-bool EmulatedInterface::GetStatistics(unsigned short mod) {
-    return true;
-}
-
-double EmulatedInterface::GetInputCountRate(int mod, int chan) {
-    return 100;
-}
-
-double EmulatedInterface::GetOutputCountRate(int mod, int chan) {
-    return 100;
-}
-
-std::string EmulatedInterface::GenerateParameterKey(const char *&name, const int &crate, const int &mod, const int &chan) {
-    return string(name) + "-" + std::to_string(crate) + "-" + std::to_string(mod) + "-" + std::to_string(chan);
-}
-
-double EmulatedInterface::GetParameterValue(const std::string &key) {
-    if(parameterValues_.find(key) == parameterValues_.end())
-        SetParameterValue(key, 8008135);
-
-    return parameterValues_.find(key)->second;
-}
-
-void EmulatedInterface::SetParameterValue(const std::string &key, const double &value) {
-    if(parameterValues_.find(key) == parameterValues_.end())
-        parameterValues_.emplace(std::make_pair(key, 8008135));
-
-    parameterValues_.find(key)->second = value;
-}
-
-template<typename T>
-bool EmulatedInterface::FillBuffer(T *buf, const unsigned long &bufSize, const std::vector<unsigned int> &filler) {
-    double offset = 0;
-    double counter = 1;
-    for(unsigned int i = 0; i < bufSize; i++) {
-        if(i >= filler.size() * counter) {
-            offset = filler.size() * counter;
-            counter++;
-        }
-
-        try {
-            buf[i] = (T)filler.at((unsigned int)(i - offset));
-        } catch (std::out_of_range &outOfRange) {
-            std::cout << "EmulatedInterface::FillBuffer - Attempted to access out of range index " << i - offset << "\n";
-            return false;
-        }
-    }
     return true;
 }
