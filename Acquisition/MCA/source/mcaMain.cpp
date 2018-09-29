@@ -14,7 +14,7 @@
 #include <getopt.h>
 
 int main(int argc, char *argv[]) {
-    int runLengthInSeconds = 0;
+    int runLengthInSeconds = 10;
     const char *basename = "mca";
     const char *configurationFile = "./pixie-config.xml";
     bool usePixieInterface = true;
