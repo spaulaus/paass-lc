@@ -24,7 +24,7 @@ McaRoot::~McaRoot() {
 }
 
 bool McaRoot::OpenFile(const char *basename) {
-    Display::LeaderPrint(std::string("Creating new empty ROOT histogram ") + std::string(basename) + std::string(".root"));
+    Display::LeaderPrint(std::string("\nCreating new empty ROOT histogram ") + std::string(basename) + std::string(".root"));
 
     auto *redirect = new CerrDirector("Pixie16msg.txt");
 
@@ -42,8 +42,7 @@ bool McaRoot::OpenFile(const char *basename) {
     for (unsigned int card = 0; card < pif_->GetConfiguration().GetNumberOfModules(); card++) {
         for (unsigned int ch = 0; ch < pif_->GetConfiguration().GetNumberOfChannels(); ch++) {
             auto id = CalculateHistogramId(0, card, ch);
-            histograms_[id] =
-                    new TH1D(Form("h%d", id), Form("Mod %d Ch %d", card, ch), ADC_SIZE, 0, ADC_SIZE);
+            histograms_[id] = new TH1D(Form("h%d", id), Form("Mod %d Ch %d", card, ch), ADC_SIZE, 0, ADC_SIZE);
         }
     }
 
