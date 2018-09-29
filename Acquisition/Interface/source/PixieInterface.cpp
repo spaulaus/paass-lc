@@ -153,7 +153,7 @@ bool PixieInterface::Boot(int mode, bool useWorkingSetFile) {
     for (int i = 0; i < config_.GetNumberOfModules(); i++) {
         if (!ReadSglModPar("SlotID", val, i))
             hadError = true;
-        if (val != config_.GetSlotMaps()[0][i]) {
+        if (val != (unsigned int)config_.GetSlotMaps()[0][i]) {
             updated = true;
             if (!WriteSglModPar("SlotID", config_.GetSlotMaps()[0][i], i))
                 hadError = true;
