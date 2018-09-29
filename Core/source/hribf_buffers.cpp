@@ -572,19 +572,6 @@ void HEAD_buffer::PrintDelimited(const char &delimiter_/*='\t'*/) {
     std::cout << run_num;
 }
 
-/// Write a ldf data buffer header (2 words).
-bool DATA_buffer::open_(std::ofstream *file_) {
-    if (!file_ || !file_->is_open() || !file_->good()) { return false; }
-
-    if (debug_mode) { std::cout << "debug: writing 2 word DATA header\n"; }
-    file_->write((char *) &bufftype, 4); // write buffer header type
-    file_->write((char *) &buffsize, 4); // write buffer size
-    buff_pos = 2;
-
-    return true;
-}
-
-/// 
 bool DATA_buffer::read_next_buffer(std::ifstream *f_, bool force_/*=false*/) {
     if (!f_ || !f_->good() || f_->eof()) { return false; }
 
@@ -641,149 +628,6 @@ DATA_buffer::DATA_buffer() : BufferType(DATA,
     missing_chunks = 0;
     buff_pos = 0;
     this->Reset();
-}
-
-/// Close a ldf data buffer by padding with 0xFFFFFFFF.
-bool DATA_buffer::Close(std::ofstream *file_) {
-    if (!file_ || !file_->is_open() || !file_->good()) { return false; }
-
-    if (buff_pos < ACTUAL_BUFF_SIZE) {
-        if (debug_mode)
-            std::cout << "debug: closing buffer with "
-                      << ACTUAL_BUFF_SIZE - buff_pos << " 0xFFFFFFFF words\n";
-        for (unsigned int i = buff_pos; i < ACTUAL_BUFF_SIZE; i++) {
-            file_->write((char *) &buffend, 4);
-        }
-    }
-    buff_pos = 0;
-
-    return true;
-}
-
-/// Write a ldf data buffer to disk.
-bool DATA_buffer::Write(std::ofstream *file_, char *data_, unsigned int nWords_,
-                        int &buffs_written) {
-    if (!file_ || !file_->is_open() || !file_->good() || !data_ ||
-        nWords_ == 0) {
-        if (debug_mode) {
-            std::cout
-                    << "debug: !file_ || !file_->is_open() || !data_ || nWords_ == 0\n";
-        }
-        return false;
-    }
-
-    buffs_written = 0;
-
-    // If this is a new buffer, write a buffer header.
-    // We are currently at the start of a new buffer. No need to close.
-    if (buff_pos == 0)
-        open_(file_);
-
-    unsigned int spillpos = 0;
-    unsigned int chunkPayload;
-
-    unsigned int oldBuffPos = buff_pos;
-    unsigned int chunkSizeB;
-    unsigned int totalNumChunks = 0;
-    unsigned int currentNumChunk = 0;
-
-    char *arrptr = data_;
-
-    // Calculate the total number of spill chunks.
-    while (spillpos < nWords_) {
-        if (oldBuffPos + 4 > LDF_DATA_LENGTH)
-            oldBuffPos = 2;
-
-        if (nWords_ - spillpos + 4 > LDF_DATA_LENGTH - oldBuffPos)
-            chunkPayload = LDF_DATA_LENGTH - oldBuffPos - 4;
-        else
-            chunkPayload = nWords_ - spillpos;
-
-        spillpos += chunkPayload;
-        oldBuffPos += chunkPayload + 4;
-
-        totalNumChunks++;
-
-        if (oldBuffPos >= LDF_DATA_LENGTH)
-            oldBuffPos = 2;
-    }
-
-    // Account for the spill footer.
-    totalNumChunks++;
-
-    // Reset the spill position.
-    spillpos = 0;
-
-    // Write the spill.
-    while (spillpos < nWords_) {
-        if (buff_pos + 4 > LDF_DATA_LENGTH) {
-            buffs_written++;
-            Close(file_);
-            open_(file_);
-        }
-
-        if (nWords_ - spillpos + 4 > LDF_DATA_LENGTH - buff_pos)
-            chunkPayload = LDF_DATA_LENGTH - buff_pos - 4;
-        else
-            chunkPayload = nWords_ - spillpos;
-
-        spillpos += chunkPayload;
-        chunkSizeB = 4 * (chunkPayload + 3);
-
-        if (debug_mode)
-            std::cout << "debug: writing " << 1 + chunkSizeB / 4
-                      << " word spill chunk " << currentNumChunk << " of "
-                      << totalNumChunks << ".\n";
-
-        file_->write((char *) &chunkSizeB, 4);
-        file_->write((char *) &totalNumChunks, 4);
-        file_->write((char *) &currentNumChunk, 4);
-        file_->write((char *) arrptr, 4 * chunkPayload);
-        file_->write((char *) &buffend, 4);
-
-        currentNumChunk++;
-
-        buff_pos += chunkPayload + 4;
-        arrptr += 4 * chunkPayload;
-
-        if (buff_pos > LDF_DATA_LENGTH)
-            std::cout << "WARNING: Current ldf buffer overfilled by "
-                      << buff_pos - LDF_DATA_LENGTH << " words!\n";
-
-        if (buff_pos >= LDF_DATA_LENGTH) {
-            buffs_written++;
-            Close(file_);
-            open_(file_);
-        }
-    }
-
-    if (buff_pos > LDF_DATA_LENGTH)
-        std::cout << "WARNING: Final ldf buffer overfilled by "
-                  << buff_pos - LDF_DATA_LENGTH << " words!\n";
-
-    // Check if we can fit the spill footer into the current buffer.
-    if (buff_pos + 6 >
-        LDF_DATA_LENGTH) { // Close the current buffer and open a new one.
-        buffs_written++;
-        Close(file_);
-        open_(file_);
-    }
-
-    if (debug_mode)
-        std::cout << "debug: writing final spill chunk " << currentNumChunk
-                  << " of " << 1 + end_spill_size / 4 << " words.\n";
-
-    file_->write((char *) &end_spill_size, 4);
-    file_->write((char *) &totalNumChunks, 4);
-    file_->write((char *) &currentNumChunk, 4);
-    file_->write((char *) &pacman_word1, 4);
-    file_->write((char *) &pacman_word2, 4);
-    file_->write((char *) &buffend, 4);
-
-    // Update the buffer position.
-    buff_pos += 6;
-
-    return true;
 }
 
 /// Read a ldf data spill from a file.
@@ -1058,9 +902,7 @@ std::string PollOutputFile::get_filename() {
         output = fname_prefix + "_0" + run_num_str;
     } else { output = fname_prefix + "_" + run_num_str; }
 
-    if (output_format == 0) { output += ".ldf"; }
-    else if (output_format == 1) { output += ".pld"; }
-    else { output += ".root"; } // PLACEHOLDER!!!
+    output += ".pld";
     return output;
 }
 
@@ -1103,57 +945,10 @@ bool PollOutputFile::get_full_filename(std::string &output) {
     return true;
 }
 
-/** Overwrite the fourth word of the file with the total number of buffers and close the file.
-  * Returns false if no output file is open or if the number of 4 byte words in the file is not 
-  * evenly divisible by the number of words in a buffer.
-  */
-bool PollOutputFile::overwrite_dir(int total_buffers_/*=-1*/) {
-    if (!output_file.is_open() || !output_file.good()) { return false; }
-
-    // Set the buffer count in the "DIR " buffer
-    if (total_buffers_ == -1) { // Set with the internal buffer count
-        unsigned int size = output_file.tellp(); // Get the length of the file (in bytes)
-        output_file.seekp(12); // Set position to just after the third word
-
-        // Calculate the number of buffers in this file
-        unsigned int total_num_buffer = size / (4 * ACTUAL_BUFF_SIZE);
-        unsigned int overflow = size % (4 * ACTUAL_BUFF_SIZE);
-        output_file.write((char *) &total_num_buffer, 4);
-
-        if (debug_mode) {
-            std::cout << "debug: file size is " << size << " bytes ("
-                      << size / 4 << " 4 byte words)\n";
-            std::cout << "debug: file contains " << total_num_buffer
-                      << " buffers of " << ACTUAL_BUFF_SIZE << " words\n";
-            if (overflow != 0) {
-                std::cout << "debug: file has an overflow of " << overflow
-                          << " 4 byte words!\n";
-            }
-            std::cout << "debug: set .ldf directory buffer number to "
-                      << total_num_buffer << std::endl;
-        }
-
-        if (overflow != 0) {
-            output_file.close();
-            return false;
-        }
-    } else { // Set with an external buffer count
-        output_file.write((char *) &total_buffers_, 4);
-        if (debug_mode) {
-            std::cout << "debug: set .ldf directory buffer number to "
-                      << total_buffers_ << std::endl;
-        }
-    }
-
-    output_file.close();
-    return true;
-}
-
 /// Initialize the output file with initial parameters
 void PollOutputFile::initialize() {
     max_spill_size = 0;
     current_file_num = 0;
-    output_format = 0;
     number_spills = 0;
     fname_prefix = "poll_data";
     current_filename = "unknown";
@@ -1197,19 +992,7 @@ void PollOutputFile::SetDebugMode(bool debug_/*=true*/) {
     debug_mode = debug_;
     pldHead.SetDebugMode(debug_);
     pldData.SetDebugMode(debug_);
-    dirBuff.SetDebugMode(debug_);
-    headBuff.SetDebugMode(debug_);
-    dataBuff.SetDebugMode(debug_);
     eofBuff.SetDebugMode(debug_);
-}
-
-/// Set the output file data format.
-bool PollOutputFile::SetFileFormat(unsigned int format_) {
-    if (format_ <= 2) {
-        output_format = format_;
-        return true;
-    }
-    return false;
 }
 
 /// Set the output filename prefix.
@@ -1228,19 +1011,10 @@ int PollOutputFile::Write(char *data_, unsigned int nWords_) {
 
     // Write data to disk
     int buffs_written;
-    if (output_format == 0) {
-        if (!dataBuff.Write(&output_file, data_, nWords_,
-                            buffs_written)) { return -1; }
-    } else if (output_format == 1) {
-        if (!pldData.Write(&output_file, data_, nWords_)) { return -1; }
-        buffs_written = 1;
-    } else {
-        if (debug_mode) {
-            std::cout
-                    << "debug: invalid output format for PollOutputFile::Write!\n";
-        }
-        return -1;
-    }
+
+    if (!pldData.Write(&output_file, data_, nWords_)) { return -1; }
+    buffs_written = 1;
+
     number_spills++;
 
     return buffs_written;
@@ -1346,33 +1120,17 @@ bool PollOutputFile::OpenNewFile(std::string title_, unsigned int &run_num_, std
     current_filename = filename;
     get_full_filename(current_full_filename);
 
-    if (output_format == 0) {
-        dirBuff.SetRunNumber(run_num_);
-        dirBuff.Write(&output_file); // Every .ldf file gets a DIR header
+    pldHead.SetTitle(title_);
+    pldHead.SetRunNumber(run_num_);
+    pldHead.SetStartDateTime();
 
-        headBuff.SetTitle(title_);
-        headBuff.SetDateTime();
-        headBuff.SetRunNumber(run_num_);
-        headBuff.Write(&output_file); // Every .ldf file gets a HEAD file header
-    } else if (output_format == 1) {
-        pldHead.SetTitle(title_);
-        pldHead.SetRunNumber(run_num_);
-        pldHead.SetStartDateTime();
-
-        // Write a blank header for now and overwrite it later
-        unsigned int temp = 0;
-        for (unsigned int i = 0; i < pldHead.GetBufferLength() / 4; i++) {
-            output_file.write((char *) &temp, 4);
-        }
-        temp = -1;
-        output_file.write((char *) &temp, 4); // Close the buffer
-    } else {
-        if (debug_mode) {
-            std::cout
-                    << "debug: invalid output format for PollOutputFile::OpenNewFile!\n";
-        }
-        return false;
+    // Write a blank header for now and overwrite it later
+    unsigned int temp = 0;
+    for (unsigned int i = 0; i < pldHead.GetBufferLength() / 4; i++) {
+        output_file.write((char *) &temp, 4);
     }
+    temp = -1;
+    output_file.write((char *) &temp, 4); // Close the buffer
 
     return true;
 }
@@ -1386,8 +1144,7 @@ PollOutputFile::GetNextFileName(unsigned int &run_num_, std::string prefix,
     filename << output_directory << prefix << "_" << std::setfill('0')
              << std::setw(3) << run_num_;
 
-    if (output_format == 0) { filename << ".ldf"; }
-    else if (output_format == 1) { filename << ".pld"; }
+    filename << ".pld";
 
     std::ifstream dummy_file(filename.str().c_str());
     unsigned int suffix = 0;
@@ -1403,8 +1160,7 @@ PollOutputFile::GetNextFileName(unsigned int &run_num_, std::string prefix,
                      << std::setw(3) << ++run_num_;
         }
 
-        if (output_format == 0) { filename << ".ldf"; }
-        else if (output_format == 1) { filename << ".pld"; }
+        filename << ".pld";
 
         dummy_file.open(filename.str().c_str());
     }
@@ -1413,39 +1169,23 @@ PollOutputFile::GetNextFileName(unsigned int &run_num_, std::string prefix,
 }
 
 unsigned int PollOutputFile::GetRunNumber() {
-    if (output_format == 0) return dirBuff.GetRunNumber();
-    else if (output_format == 1) return pldHead.GetRunNumber();
-    else if (debug_mode)
-        std::cout
-                << "debug: invalid output format for PollOutputFile::GetRunNumber!\n";
-    return 0;
+    return pldHead.GetRunNumber();
 }
 
 /// Write the footer and close the file.
 void PollOutputFile::CloseFile(float total_run_time_/*=0.0*/) {
     if (!output_file.is_open() || !output_file.good()) { return; }
 
-    if (output_format == 0) {
-        dataBuff.Close(&output_file); // Pad the final data buffer with 0xFFFFFFFF
+    unsigned int temp = ENDFILE; // Write an EOF buffer
+    output_file.write((char *) &temp, 4);
 
-        eofBuff.Write(&output_file); // First EOF buffer signals end of run
-        eofBuff.Write(&output_file); // Second EOF buffer signals physical end of file
+    temp = ENDBUFF; // Signal the end of the file
+    output_file.write((char *) &temp, 4);
 
-        overwrite_dir(); // Overwrite the total buffer number word and close the file
-    } else if (output_format == 1) {
-        unsigned int temp = ENDFILE; // Write an EOF buffer
-        output_file.write((char *) &temp, 4);
-
-        temp = ENDBUFF; // Signal the end of the file
-        output_file.write((char *) &temp, 4);
-
-        // Overwrite the blank pld header at the beginning of the file and close it
-        output_file.seekp(0);
-        pldHead.SetEndDateTime();
-        pldHead.SetMaxSpillSize(max_spill_size);
-        pldHead.Write(&output_file);
-        output_file.close();
-    } else if (debug_mode) {
-        std::cout << "debug: invalid output format for PollOutputFile::CloseFile!\n";
-    }
+    // Overwrite the blank pld header at the beginning of the file and close it
+    output_file.seekp(0);
+    pldHead.SetEndDateTime();
+    pldHead.SetMaxSpillSize(max_spill_size);
+    pldHead.Write(&output_file);
+    output_file.close();
 }

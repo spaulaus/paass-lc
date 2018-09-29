@@ -24,9 +24,6 @@
 #include <fstream>
 #include <vector>
 
-#define HRIBF_BUFFERS_VERSION "1.3.00"
-#define HRIBF_BUFFERS_DATE "Sept. 19th, 2016"
-
 #define ACTUAL_BUFF_SIZE 8194 /// HRIBF .ldf file format
 
 class Client;
@@ -292,10 +289,6 @@ public:
     /// Return the number of missing or dropped spill chunks.
     unsigned int GetNumMissing() { return missing_chunks; }
 
-    /// Write a data spill to file
-    virtual bool Write(std::ofstream *file_, char *data_, unsigned int nWords_,
-                       int &buffs_written);
-
     /// Read a data spill from a file
     virtual bool Read(std::ifstream *file_, char *data_, unsigned int &nBytes_,
                       unsigned int max_bytes_, bool &full_spill,
@@ -348,11 +341,6 @@ private:
 
     /// Get the full path of the current file
     bool get_full_filename(std::string &output);
-
-    /** Overwrite the fourth word of the file with the total number of buffers and close the file
-      * Returns false if no output file is open or if the number of 4 byte words in the file is not
-      * evenly divisible by the number of words in a buffer */
-    bool overwrite_dir(int total_buffers_ = -1);
 
     /// Initialize the output file with initial parameters
     void initialize();

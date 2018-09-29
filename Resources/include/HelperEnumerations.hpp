@@ -39,5 +39,16 @@ namespace DataProcessing {
     };
 }
 
+namespace Interface {
+    enum class BootType {
+        MCA
+    };
+
+    enum BootFlags {
+        BootComm = 0x01, BootTrigger = 0x02, BootSignal = 0x04, BootDSP = 0x08, DownloadParameters = 0x10,
+        ProgramFPGA = 0x20, SetDAC = 0x40, BootAll = 0x7f
+    };
+}
+
 
 #endif //PIXIESUITE_HELPERENUMERATIONS_HPP

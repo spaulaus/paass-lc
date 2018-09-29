@@ -87,6 +87,9 @@ namespace unittest_encoded_data {
         /// Just the header, including the first two words inserted by poll2
         std::vector<unsigned int> header{4, 0, word0_header, word1, word2_energyOnly, word3_headerOnly};
 
+        /// Raw header without the the first two words inserted by poll2
+        std::vector<unsigned int> rawHeader{word0_header, word1, word2_energyOnly, word3_headerOnly};
+
         /// This header has the CFD fractional time.
         std::vector<unsigned int> headerWithCfd{4, 0, word0_header, word1, word2_energyWithCfd, word3_headerOnly};
 

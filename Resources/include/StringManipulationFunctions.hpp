@@ -103,6 +103,19 @@ namespace StringManipulation {
     inline bool IsNumeric(const std::string &input){
         return std::regex_match(input, std::regex( ( "((\\+|-)?[[:digit:]]+)(\\.(([[:digit:]]+)?))?" ) ) );
     }
+
+    /// Removes spaces from the provided string. We modify the string directly so nothing to return.
+    /// @param[in] input : The string that we want to remove spaces from.
+    inline void RemoveSpaces(std::string &input) {
+        input.erase(std::remove(input.begin(), input.end(), ' '), input.end());
+        input.erase(std::remove(input.begin(), input.end(), '\n'), input.end());
+    }
+
+    /// Converts all letters in a string to lower case. We modify the string directly so nothing to return.
+    /// @param[in] input : The string that we want to convert.
+    inline void ToLower(std::string &input) {
+        std::transform(input.begin(), input.end(), input.begin(), ::tolower);
+    }
 }
 
 #endif //PAASS_STRINGMANIPULATIONFUNCTIONS_HPP

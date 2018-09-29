@@ -27,13 +27,12 @@ int main(int argc, char **argv) {
     int mod = atoi(argv[1]);
     int ch = atoi(argv[2]);
 
-    PixieInterface pif("pixie.cfg");
+    PixieInterface pif("pixie-cfg.xml");
 
-    pif.GetSlots();
     pif.Init();
-    pif.Boot(PixieInterface::DownloadParameters |
-             PixieInterface::ProgramFPGA |
-             PixieInterface::SetDAC, true);
+    pif.Boot(Interface::BootFlags::DownloadParameters |
+             Interface::BootFlags::ProgramFPGA |
+             Interface::BootFlags::SetDAC, true);
 
     RejectionSetter setter;
 
@@ -46,7 +45,7 @@ int main(int argc, char **argv) {
 bool RejectionSetter::operator()(PixieFunctionParms<> &par) {
 #ifdef PIF_REVD
     if ( par.pif.SetProtonCatcherMode(par.mod, par.ch,
-                      PixieInterface::PC_REJECT) ) {
+                      Interface::BootFlags::PC_REJECT) ) {
       par.pif.PrintSglChanPar("CHANNEL_CSRA", par.mod, par.ch);
       return true;
     } else {
