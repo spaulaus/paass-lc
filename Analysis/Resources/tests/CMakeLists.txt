@@ -27,10 +27,8 @@ target_link_libraries(unittest-XiaCfd UnitTest++)
 install(TARGETS unittest-XiaCfd DESTINATION bin/unittests)
 add_test(XiaCfd unittest-XiaCfd)
 
-if (ROOT_FOUND)
-    add_executable(unittest-RootFitter unittest-RootFitter.cpp ../source/RootFitter.cpp
-            ../source/VandleTimingFunction.cpp ../source/TimingConfiguration.cpp)
-    target_link_libraries(unittest-RootFitter ${ROOT_LIBRARIES} UnitTest++)
-    install(TARGETS unittest-RootFitter DESTINATION bin/unittests)
-    add_test(RootFitter unittest-RootFitter)
-endif (ROOT_FOUND)
+add_executable(unittest-RootFitter unittest-RootFitter.cpp ../source/RootFitter.cpp
+        ../source/VandleTimingFunction.cpp ../source/TimingConfiguration.cpp)
+target_link_libraries(unittest-RootFitter ${ROOT_LIBRARIES} UnitTest++)
+install(TARGETS unittest-RootFitter DESTINATION bin/unittests)
+add_test(RootFitter unittest-RootFitter)
