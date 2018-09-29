@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.1)
 
-project(PAASS)
+project(PAASS-LC)
 
 #Set the C++ standard to c++11.
 set(CMAKE_CXX_STANDARD 11)
@@ -57,30 +57,32 @@ option(PAASS_BUILD_ANALYSIS "Build analysis related programs" ON)
 option(PAASS_BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(PAASS_BUILD_TESTS "Builds programs designed to test the package. Including UnitTest++ test." OFF)
-option(PAASS_BUILD_XIA_INTERFACE "Builds the interface for XIA Pixie16 modules" ON)
 
 #------------------------------------------------------------------------------
 
-#Find packages needed for the software.
-#Load additional find_package scripts.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/Cmake/modules/")
 
-#Find thread library for poll2 and scanLib
 find_package(Threads REQUIRED)
 
-#Find the PLX Library
-find_package(PLX)
+if(PAASS_BUILD_ACQ)
+    #Find the PLX Library
+    find_package(PLX REQUIRED)
+    link_directories(${PLX_LIBRARY_DIR})
 
-#Find the Pixie Firmware
-find_package(XIA)
+    #Find the Pixie Firmware
+    find_package(XIA REQUIRED)
+    include_directories(${XIA_INCLUDE_DIR})
+    link_directories(${XIA_LIBRARY_DIR})
 
-#Find curses library used for pretty much everything at this point.
+    # Create pixie.cfg and copy slot_def.set as well as copy default.set to current.set
+    XIA_CONFIG()
+endif ()
+
 find_package(Curses REQUIRED)
 add_definitions("-D USE_NCURSES")
 mark_as_advanced(FORCE CURSES_HAVE_CURSES_H CURSES_CURSES_H_PATH CURSES_FORM_LIBRARY)
 
-#Find the UnitTest++ Package. This package can be obtained from
-#https://github.com/unittest-cpp/unittest-cpp.git
+# https://github.com/unittest-cpp/unittest-cpp.git
 if (PAASS_BUILD_TESTS)
     find_package(UnitTest++ REQUIRED)
     link_directories(${UNITTEST++_LIBRARY_DIR})
@@ -88,36 +90,15 @@ if (PAASS_BUILD_TESTS)
     enable_testing()
 endif (PAASS_BUILD_TESTS)
 
-if (PAASS_BUILD_XIA_INTERFACE)
-    if (NOT PAASS_BUILD_XIA_INTERFACE_ATTEMPTED AND NOT (PLX_FOUND AND XIA_FOUND))
-        set(PAASS_BUILD_XIA_INTERFACE OFF CACHE BOOL "Build and install Acquisition" FORCE)
-    else (PLX_FOUND OR XIA_FOUND)
-        #Find the PLX Library
-        find_package(PLX REQUIRED)
-        link_directories(${PLX_LIBRARY_DIR})
-
-        #Find the Pixie Firmware
-        find_package(XIA REQUIRED)
-        include_directories(${XIA_INCLUDE_DIR})
-        link_directories(${XIA_LIBRARY_DIR})
-
-        #Create pixie.cfg and copy slot_def.set as well as default.set to current.set
-        XIA_CONFIG()
-    endif ()
-    set(PAASS_BUILD_XIA_INTERFACE_ATTEMPTED ON CACHE INTERNAL "Build Suite Attempted")
-endif (PAASS_BUILD_XIA_INTERFACE)
-
-#Find ROOT if USE_ROOT was set.
-find_package(ROOT COMPONENTS TreePlayer)
-if(ROOT_FOUND)
-    mark_as_advanced(FORCE GENREFLEX_EXECUTABLE ROOTCINT_EXECUTABLE ROOT_CONFIG_EXECUTABLE)
-    include_directories(${ROOT_INCLUDE_DIR})
-    link_directories(${ROOT_LIBRARY_DIR})
-    add_definitions("-D USE_ROOT")
-endif(ROOT_FOUND)
+find_package(ROOT REQUIRED COMPONENTS TreePlayer)
+mark_as_advanced(FORCE GENREFLEX_EXECUTABLE ROOTCINT_EXECUTABLE ROOT_CONFIG_EXECUTABLE)
+include_directories(${ROOT_INCLUDE_DIR})
+link_directories(${ROOT_LIBRARY_DIR})
+add_definitions("-D USE_ROOT")
 
 #------------------------------------------------------------------------------
 #Put all the include directories that we might need at this point. Third party includes must come before the Resources.
+# TODO : We will need to update all these to be target_include calls paired with the right executable.
 include_directories(ThirdParty/include Resources/include Core/include)
 
 add_subdirectory(ThirdParty)

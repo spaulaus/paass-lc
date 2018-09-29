@@ -2,12 +2,6 @@ notifications:
   email:
     on_success: change
     on_failure: always
-notifications:
-  slack:
-    rooms:
-      - secure: "Tr/GBydbLM8bE8jBxuQKtIDltGeHqDZokkZmXCRgKxmZz4HnWBl1/RXvdO1VzD5v/uTDOubmaBGr+IC7SCfe3Snm+VYbuZquho2RZUvwhWUZgiiF/0kK7Ie9MEspyJrZt7kLuIe2JH2bC5Vn2mFUSU7vMfxTcUn6xXxAU8g4REdXYLtmKM9c9j1dliistdVi5/Y2e+RKSsclxfxt4JD5c3PvRGeKY6yGredyIiSj2jozxjYUjYC5YBo85YGN5TFMk5tKzk5Xi/BAvD9+quEce7A8VngXmHfdHRtYan7ijfcTiyTVLfI2t3mmYVXXW0Xx2iZGhZ+2bb/XWQRGmbCRlpOBpF0VQJmpAsD3+WnfJvLptwlRZ560OkuNPcdIOyaR7GdRvI1CW3zcFg8HTGc+gVaTXb7bRmvD6b02MQRzRhyQJM6xRRQ6e9T3tlurJW2x+P/v6dO0e7B1OeaJinM1Qi2P2hL/4pzgmf0R4Y8gDdg79tTWxoaSAEhYkOktnJOXDN3noxxebqta3rVfL7u4p8nYe/WCzQJbEWBdAwbQt38lZBJweWI96p2p1AZv5jcR0xhNYioSoeg4TAjuGCCjIQE5eP/fvwAX50k2tpHkn64RlKYmblt10lDJEIny3qNuyjZMFQ/2jzXozfC3xnPu/8cyqtEGVml73FMuUF7EkDo="
-    on_success: change
-    on_failure: always
 env:
   global:
     - MAKEFLAGS="-j 8"
@@ -16,61 +10,76 @@ sudo: required
 
 matrix:
   include:
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-            - gsl-bin
-            - libgsl0-dev
-            - libncurses5-dev
-            - libroot*
-      env:
-        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF -DPAASS_BUILD_SETUP=ON"
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-6
-            - gsl-bin
-            - libgsl0-dev
-            - libncurses5-dev
-      env:
-        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_SETUP=ON"
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-6
-            - gsl-bin
-            - libgsl0-dev
-            - libncurses5-dev
-            - libroot*
-      env:
-        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-        - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF -DPAASS_BUILD_SETUP=ON"
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-4.9
+        - gsl-bin
+        - libgsl0-dev
+        - libncurses5-dev
+        - libroot*
+    env:
+    - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+    - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF -DPAASS_BUILD_SETUP=ON"
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-5
+        - gsl-bin
+        - libgsl0-dev
+        - libncurses5-dev
+        - libroot*
+    env:
+    - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+    - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF -DPAASS_BUILD_SETUP=ON"
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-6
+        - gsl-bin
+        - libgsl0-dev
+        - libncurses5-dev
+        - libroot*
+    env:
+    - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+    - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF -DPAASS_BUILD_SETUP=ON"
+  - os: linux
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - g++-7
+        - gsl-bin
+        - libgsl0-dev
+        - libncurses5-dev
+        - libroot*
+    env:
+    - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    - BUILD_OPTIONS="-DPAASS_BUILD_TESTS=ON -DPAASS_BUILD_UTKSCAN=ON -DPAASS_BUILD_ROOT_SCANNER=OFF -DPAASS_BUILD_SETUP=ON"
 
 before_install:
   - sudo apt-get -qq update --install-suggests
   - eval "${MATRIX_EVAL}"
   - export ORIG_DIR=$PWD
   - git clone https://github.com/unittest-cpp/unittest-cpp.git && cd unittest-cpp/builds/
-  - cmake ../ && sudo make install && cd ../../
+  - cmake ../ && sudo make install && cd $ORIG_DIR
   - mkdir -p /opt/plx/ && cd /opt/plx
   - git clone https://github.com/spaulaus/plx-api.git && ln -s plx-api current && cd plx-api
   - export PLX_SDK_DIR=$PWD && make all && cd $ORIG_DIR
   - git clone https://github.com/spaulaus/xia-api.git && cd xia-api
-  - mkdir build && cd build && cmake ../ -DCMAKE_INSTALL_PREFIX=/opt && make install && cd ../../
+  - mkdir build && cd build && cmake ../ -DCMAKE_INSTALL_PREFIX=/opt && make install && cd $ORIG_DIR
   - ln -s /opt/xia/api /opt/xia/current
 
 script:
   - mkdir paass-build && cd paass-build
-  - cmake ../ ${BUILD_OPTIONS} && make && ctest -j8
+  - cmake ../ ${BUILD_OPTIONS} && make -j8 && ctest -j8
