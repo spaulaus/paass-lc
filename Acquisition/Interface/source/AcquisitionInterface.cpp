@@ -24,7 +24,6 @@ AcquisitionInterface::AcquisitionInterface(const char *cfgFile) : lock_("PixieIn
     }
 }
 
-
 bool AcquisitionInterface::Boot(int mode, bool useWorkingSetFile) {
     return false;
 }
@@ -107,7 +106,7 @@ bool AcquisitionInterface::RemovePresetRunLength(int mod) {
 }
 
 AcquisitionConfig AcquisitionInterface::GetConfiguration() const {
-    return AcquisitionConfig();
+    return config_;
 }
 
 bool AcquisitionInterface::GetModuleInfo(const unsigned short &mod, unsigned short *rev, unsigned int *serNum,
