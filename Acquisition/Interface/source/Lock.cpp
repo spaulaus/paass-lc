@@ -51,7 +51,7 @@ Lock::Lock(string name) {
         pid_t pid;
 
         auto numberOfFilledItems = fscanf(lockFile, "%10d", &pid);
-        if(numberOfFilledItems < 1)
+        if (numberOfFilledItems < 1)
             cerr << "Lock::Lock - We couldn't convert " << lockFile << " to a PID" << endl;
 
         cout << ErrorStr() << endl;

@@ -26,8 +26,7 @@ int main(int argc, char *argv[]) {
     int mod = atoi(argv[1]);
     int ch = atoi(argv[2]);
 
-    PixieInterface pif("pixie.cfg");
-    pif.GetSlots();
+    PixieInterface pif("pixie-cfg.xml");
     pif.Init();
     pif.Boot(0, true);
 
@@ -41,7 +40,7 @@ int main(int argc, char *argv[]) {
 }
 
 bool StatsReader::operator()(PixieFunctionParms<> &par) {
-    static unsigned int modDataRead = par.pif.GetNumberCards();
+    static unsigned int modDataRead = par.pif.GetConfiguration().GetNumberOfModules();
 
     if (modDataRead != par.mod)
         par.pif.GetStatistics(par.mod);

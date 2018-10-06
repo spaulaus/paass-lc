@@ -7,6 +7,7 @@
 #include <iostream>
 #include <stdlib.h>
 
+#include <PixieInterface.h>
 #include "PixieSupport.h"
 
 int main(int argc, char *argv[]) {
@@ -20,12 +21,10 @@ int main(int argc, char *argv[]) {
     int mod = atoi(argv[1]);
     unsigned int value = (unsigned int) std::strtoul(argv[3], NULL, 0);
 
-    PixieInterface pif("pixie.cfg");
-
-    pif.GetSlots();
+    PixieInterface pif("pixie-cfg.xml");
     pif.Init();
-    pif.Boot(PixieInterface::DownloadParameters | PixieInterface::ProgramFPGA |
-             PixieInterface::SetDAC, true);
+    pif.Boot(Interface::BootFlags::DownloadParameters | Interface::BootFlags::ProgramFPGA |
+             Interface::BootFlags::SetDAC, true);
 
     std::string temp_str(argv[2]);
     ParameterModuleWriter writer;

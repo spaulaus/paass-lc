@@ -18,13 +18,11 @@ int main(int argc, char *argv[]) {
     const unsigned int energy = 55;
     const string firmware = "30474";
     const unsigned int frequency = 250;
-    const unsigned int ldfFormatCode = 0;
     const unsigned int moduleNumber = 0;
     const unsigned int numberOfDataWords = 4;
     const unsigned int numberOfDataBuffers = 2;
     const string outputName = "dataGeneratorTest";
     const string outputPath = "/tmp/";
-    const unsigned int pldFormatCode = 1;
     const unsigned int slotNumber = moduleNumber + 2;
     unsigned int runNumber = 0;
     const string runTitle = "Constant Data with Energy = 55, Mod=Chan=Crate=0";
@@ -34,12 +32,7 @@ int main(int argc, char *argv[]) {
     XiaData data;
 
     PollOutputFile pld;
-    pld.SetFileFormat(pldFormatCode);
     pld.OpenNewFile(runTitle, runNumber, outputName, outputPath);
-
-    PollOutputFile ldf;
-    ldf.SetFileFormat(ldfFormatCode);
-    ldf.OpenNewFile(runTitle, runNumber, outputName, outputPath);
 
     for(unsigned int i = 0; i < numberOfDataBuffers; i++) {
         data.SetEnergy(energy);
@@ -65,8 +58,6 @@ int main(int argc, char *argv[]) {
                                                    reinterpret_cast<char*>(&encodedData[5])};
 
         pld.Write(dataArray[0], totalNumberOfWords);
-        ldf.Write(dataArray[0], totalNumberOfWords);
     }
     pld.CloseFile();
-    ldf.CloseFile();
 }

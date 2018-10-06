@@ -19,7 +19,7 @@
 
 #include "PixieInterface.h"
 
-#include "MCA_ROOT.h"
+#include <McaRoot.hpp>
 
 // Minimum RISETIME value given by r = 2^(N-1) * (32 ns)
 // where r is the RISETIME and N is the FILTER_RANGE.
@@ -222,16 +222,15 @@ int main(int argc, char *argv[]) {
                   << (par1.numSteps * par2.numSteps * runTime) / 60.0 << "m\n";
 
     std::cout << "\n";
-    PixieInterface pif("pixie.cfg");
-    pif.GetSlots();
+    PixieInterface pif("pixie-cfg.xml");
 
     pif.Init();
 
     //cxx, end any ongoing runs
     pif.EndRun();
-    pif.Boot(PixieInterface::DownloadParameters |
-             PixieInterface::ProgramFPGA |
-             PixieInterface::SetDAC, true);
+    pif.Boot(Interface::BootFlags::DownloadParameters |
+             Interface::BootFlags::ProgramFPGA |
+             Interface::BootFlags::SetDAC, true);
 
     pif.RemovePresetRunLength(0);
 
@@ -253,7 +252,7 @@ int main(int argc, char *argv[]) {
     TGraphErrors *gr = new TGraphErrors();
     TGraph2DErrors *gr2d = new TGraph2DErrors();
 
-    MCA_ROOT *mca = new MCA_ROOT(&pif, "MCA");
+    McaRoot *mca = new McaRoot(&pif, "MCA");
 
     double readback;
     for (int step = 0; step <= par1.numSteps; ++step) {

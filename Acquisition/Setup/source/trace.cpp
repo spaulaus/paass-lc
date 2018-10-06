@@ -25,9 +25,7 @@ class TraceGrabber : public PixieFunction<> {
 int main(int argc, char **argv) {
     int mod = -1, ch = -1;
 
-    PixieInterface pif("pixie.cfg");
-
-    pif.GetSlots();
+    PixieInterface pif("pixie-cfg.xml");
     pif.Init();
 
     if (argc > 1) {
@@ -39,9 +37,9 @@ int main(int argc, char **argv) {
 
     usleep(200);
 
-    pif.Boot(PixieInterface::DownloadParameters |
-             PixieInterface::ProgramFPGA |
-             PixieInterface::SetDAC, true);
+    pif.Boot(Interface::BootFlags::DownloadParameters |
+             Interface::BootFlags::ProgramFPGA |
+             Interface::BootFlags::SetDAC, true);
 
     TraceGrabber grabber;
     forChannel(pif, mod, ch, grabber);
@@ -50,7 +48,7 @@ int main(int argc, char **argv) {
 }
 
 bool TraceGrabber::operator()(PixieFunctionParms<> &par) {
-    static unsigned int modRead = par.pif.GetNumberCards();
+    static unsigned int modRead = par.pif.GetConfiguration().GetNumberOfModules();
 
     const size_t size = PixieInterface::GetTraceLength();
     unsigned short *trace = new unsigned short[size];
