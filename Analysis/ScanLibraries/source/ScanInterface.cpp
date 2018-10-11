@@ -786,7 +786,6 @@ void ScanInterface::CmdControl() {
         } else if (cmd == "version" || cmd == "v") {
             cout << "  " << progName << "	  v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
             cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n";
-            cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n";
             cout << "  CTerminal	 v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
         } else if (cmd == "help" || cmd == "h") {
             cout << "  Help:\n";
@@ -960,7 +959,6 @@ bool ScanInterface::Setup(int argc, char *argv[], Unpacker *unpacker/*=NULL*/) {
                 case 'v' :
                     cout << "  " << progName << "	  v" << SCAN_VERSION << " (" << SCAN_DATE << ")\n";
                     cout << "  Poll2 Socket  v" << POLL2_SOCKET_VERSION << " (" << POLL2_SOCKET_DATE << ")\n";
-                    cout << "  HRIBF Buffers v" << HRIBF_BUFFERS_VERSION << " (" << HRIBF_BUFFERS_DATE << ")\n";
                     cout << "  CTerminal	 v" << CTERMINAL_VERSION << " (" << CTERMINAL_DATE << ")\n";
                     return false;
                 default :

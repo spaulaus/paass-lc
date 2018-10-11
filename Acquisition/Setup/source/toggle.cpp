@@ -7,6 +7,7 @@
 #include <string>
 #include <string.h>
 
+#include <PixieInterface.h>
 #include "PixieSupport.h"
 
 int main(int argc, char **argv) {
@@ -22,12 +23,11 @@ int main(int argc, char **argv) {
     int mod = atoi(argv[1]);
     int ch = atoi(argv[2]);
 
-    PixieInterface pif("pixie.cfg");
+    PixieInterface pif("pixie-cfg.xml");
 
-    pif.GetSlots();
     pif.Init();
-    pif.Boot(PixieInterface::DownloadParameters | PixieInterface::ProgramFPGA |
-             PixieInterface::SetDAC, true);
+    pif.Boot(Interface::BootFlags::DownloadParameters | Interface::BootFlags::ProgramFPGA |
+             Interface::BootFlags::SetDAC, true);
 
     flipper.SetBit(argv[3]);
 

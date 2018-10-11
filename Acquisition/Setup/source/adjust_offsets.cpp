@@ -3,10 +3,12 @@
 /*	adjust_offsets.cpp                                              */
 /*		last updated: April 19th, 2015 CRT                          */
 /********************************************************************/
-
-#include <iostream>
+#include <PixieInterface.h>
 
 #include "PixieSupport.h"
+
+
+#include <iostream>
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -17,12 +19,10 @@ int main(int argc, char *argv[]) {
 
     int mod = atoi(argv[1]);
 
-    PixieInterface pif("pixie.cfg");
+    PixieInterface pif("pixie-cfg.xml");
 
-    pif.GetSlots();
     pif.Init();
-    pif.Boot(PixieInterface::DownloadParameters | PixieInterface::ProgramFPGA |
-             PixieInterface::SetDAC, true);
+    pif.Boot(Interface::BootFlags::DownloadParameters | Interface::BootFlags::ProgramFPGA | Interface::BootFlags::SetDAC, true);
 
     OffsetAdjuster adjuster;
     if (forModule(&pif, mod, adjuster, 0)) { pif.SaveDSPParameters(); }

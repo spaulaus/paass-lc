@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Configuration file that is properly formatted.
+-->
+<Configuration>
+    <PixieBaseDir>/opt/xia/</PixieBaseDir>
+
+    <DspSetFile>
+        <!-- ERROR: No DspSetFile found! Please specify one to use! -->
+        ./default.set
+    </DspSetFile>
+
+    <DspWorkingSetFile>./current.set</DspWorkingSetFile>
+
+    <Firmware>
+        <ModuleType>
+            <BitResolution>12</BitResolution>
+            <SamplingFrequency>250</SamplingFrequency>
+            <Revision>f</Revision>
+        </ModuleType>
+        <ModuleBaseDir>/home/vincent/programs/xia/firmware/revf/2016-02-02-12b250m-vandle</ModuleBaseDir>
+        <SpFpgaFile>firmware/fippixie16_revfvandle_12b250m_r34302.bin</SpFpgaFile>
+        <ComFpgaFile>firmware/syspixie16_revfvandle_adc250mhz_r34301.bin</ComFpgaFile>
+        <DspConfFile>dsp/Pixie16DSP_revfvandle_12b250m_r34300.ldr</DspConfFile>
+        <DspVarFile>dsp/Pixie16DSP_revfvandle_12b250m_r34300.var</DspVarFile>
+    </Firmware>
+
+    <SlotDefinition>
+        <Crate number="0">
+            <Pxisys>
+                share/pxisys/pxisys_14w.ini
+            </Pxisys>
+
+            <Module number="0" slot="2"> </Module>
+            <Module number="1" slot="3"> </Module>
+            <Module number="2" slot="4"> </Module>
+            <Module number="3" slot="5"> </Module>
+            <Module number="4" slot="6"> </Module>
+            <Module number="5" slot="7"> </Module>
+            <Module number="6" slot="8"> </Module>
+            <Module number="7" slot="9"> </Module>
+            <Module number="8" slot="10"> </Module>
+            <Module number="9" slot="11"> </Module>
+            <Module number="10" slot="12"> </Module>
+            <Module number="11" slot="13"> </Module>
+            <Module number="12" slot="14"> </Module>
+            <Module number="13" slot="15"> </Module>
+        </Crate>
+    </SlotDefinition>
+</Configuration>

@@ -29,11 +29,10 @@ int main(int argc, char **argv) {
 
     PixieInterface pif("pixie.cfg");
 
-    pif.GetSlots();
     pif.Init();
-    pif.Boot(PixieInterface::DownloadParameters |
-             PixieInterface::ProgramFPGA |
-             PixieInterface::SetDAC, true);
+    pif.Boot(Interface::BootFlags::DownloadParameters |
+             Interface::BootFlags::ProgramFPGA |
+             Interface::BootFlags::SetDAC, true);
 
     StandardSetter setter;
 

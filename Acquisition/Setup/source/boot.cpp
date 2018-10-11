@@ -8,13 +8,11 @@
 #include "PixieInterface.h"
 
 int main(int argc, char *argv[]) {
-    PixieInterface pif("pixie.cfg");
-
-    pif.GetSlots();
+    PixieInterface pif("pixie-cfg.xml");
     pif.Init();
-    if (!pif.Boot(PixieInterface::BootAll, true)) {
+    if (!pif.Boot(Interface::BootFlags::BootAll, true)) {
         sleep(1);
-        pif.Boot(PixieInterface::BootAll, true);
+        pif.Boot(Interface::BootFlags::BootAll, true);
     }
 
     return EXIT_SUCCESS;
