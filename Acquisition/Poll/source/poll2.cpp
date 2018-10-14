@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     int retval = 0;
 
     // Read the FIFO when it is this full
-    int fifoThresholdReadPercentage = 50;
+    double fifoThresholdReadPercentage = 50.;
     std::string alarmArgument = "";
     bool usePixieInterface = true;
     const char* configurationFile = "./pixie-cfg.xml";
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
                 poll.SetQuietMode(false);
                 break;
             case 't' :
-                fifoThresholdReadPercentage = std::stoi(optarg);
+                fifoThresholdReadPercentage = std::stod(optarg);
                 if (fifoThresholdReadPercentage <= 0) {
                     std::cerr << Display::ErrorStr() << " Failed to set threshold level to ("
                               << fifoThresholdReadPercentage << ")!\n";
