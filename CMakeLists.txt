@@ -1,10 +1,11 @@
 # @authors S.V. Paulauskas, K. Smith, and C. Thronsberry
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.9)
 
 project(PAASS-LC)
 
 #Set the C++ standard to c++11.
+# @TODO : After we move to GCC v. 6.1+ we will no longer need this statement.
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
@@ -12,12 +13,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_MACOSX_RPATH TRUE)
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-    #Make compiler messages nice with colored tags.
-    if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "4.9")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=auto")
+    if (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "4.9.2")
+        message(FATAL_ERROR "GCC version 4.9+ required for regex support. We recommend GCC 7+.")
     endif ()
-
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -fPIC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -fPIC -fdiagnostics-color=auto")
 endif ()
 
 #if user does not specify prefix we assign it to the install directory
