@@ -235,7 +235,7 @@ function(XIA_CONFIG)
             endif (NUM_MATCHES EQUAL 0)
         endif (NUM_MATCHES EQUAL 1)
 
-        file(APPEND ${CONFIGURATION_FILE} "\t<Module>\n")
+        file(APPEND ${CONFIGURATION_FILE} "\t<Firmware>\n")
         file(APPEND ${CONFIGURATION_FILE} "\t\t<ModuleType>\n\t\t\t${MODULE_TYPE}\n\t\t</ModuleType>\n")
         file(APPEND ${CONFIGURATION_FILE} "\t\t<ModuleBaseDir>${FIRMWARE_DIR}</ModuleBaseDir>\n")
 
@@ -271,7 +271,7 @@ function(XIA_CONFIG)
             #Append the config file
             file(APPEND ${CONFIGURATION_FILE} "\t\t<${KEY}>${FILE_MATCHES}</${KEY}>\n")
         endforeach (CONFIG_STEP RANGE 0 3)
-        file(APPEND ${CONFIGURATION_FILE} "\t</Module>\n\n")
+        file(APPEND ${CONFIGURATION_FILE} "\t</Firmware>\n\n")
     endforeach (FIRMWARE_DIR ${XIA_ROOT_DIRS})
 
     file(APPEND ${CONFIGURATION_FILE} "\t<SlotDefinition>\n")
