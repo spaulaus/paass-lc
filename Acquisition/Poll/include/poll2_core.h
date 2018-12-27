@@ -143,7 +143,6 @@ private:
     bool zero_clocks; //
     bool debug_mode; //
     bool shm_mode; /// New style shared-memory mode.
-    bool pac_mode; /// Pacman shared-memory mode.
     bool init; //
     double runTime; /// Time to run the acquisition, in seconds.
 
@@ -157,10 +156,6 @@ private:
     // The main output data file and related variables
     int current_file_num;
     PollOutputFile output_file;
-
-    ///Pacman related variables
-    unsigned int udp_sequence; ///< The number of UDP packets transmitted.
-    unsigned int total_spill_chunks; ///< Total number of poll data spill chunks sent over the network
 
     size_t n_cards;
     size_t threshWords;
@@ -272,8 +267,6 @@ public:
 
     void SetShmMode(bool input_=true){ shm_mode = input_; }
 
-    void SetPacmanMode(bool input_=true){ pac_mode = input_; }
-
     void SetNcards(const size_t &n_cards_){ n_cards = n_cards_; }
 
     void SetThreshWords(const size_t &thresh_){ threshWords = thresh_; }
@@ -297,8 +290,6 @@ public:
     bool GetDebugMode(){ return debug_mode; }
 
     bool GetShmMode(){ return shm_mode; }
-
-    bool GetPacmanMode(){ return pac_mode; }
 
     size_t GetNcards(){ return n_cards; }
 
