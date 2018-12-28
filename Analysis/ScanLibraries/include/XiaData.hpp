@@ -27,7 +27,7 @@ public:
     /// channel (i.e. the ID and Time are identical)
     ///@param[in] rhs : The right hand side of the comparison
     ///@return True if the two XiaData classes are equal.
-    bool operator==(const XiaData &rhs) const { return GetId() == rhs.GetId() && GetTimeSansCfd() == rhs.GetTimeSansCfd()
+    bool operator==(const XiaData &rhs) const { return GetId() == rhs.GetId() && GetFilterTime() == rhs.GetFilterTime()
                                                        && energy_ == rhs.GetEnergy(); }
 
     ///@brief The conjugate of the equality operator
@@ -39,7 +39,7 @@ public:
     /// class is less than the time of the comparison class.
     ///@param[in] rhs : The right hand side for the comparison
     ///@return True if this instance arrived earlier than the right hand side.
-    bool operator<(const XiaData &rhs) const { return GetTimeSansCfd() < rhs.GetTimeSansCfd(); }
+    bool operator<(const XiaData &rhs) const { return GetFilterTime() < rhs.GetFilterTime(); }
 
     ///@brief The conjugate of the less than operator
     ///@param[in] rhs : The right hand side for the comparison
@@ -54,7 +54,7 @@ public:
     ///@return True if the time of arrival for right hand side is later than
     /// that of the left hand side.
     static bool CompareTime(const XiaData *lhs, const XiaData *rhs) {
-        return lhs->GetTimeSansCfd() < rhs->GetTimeSansCfd();
+        return lhs->GetFilterTime() < rhs->GetFilterTime();
     }
 
     ///@brief A method that will compare the unique ID of two XiaData classes
@@ -97,7 +97,7 @@ public:
 
     ///@return The arrival time of the signal without any CFD information in
     /// the calculation
-    double GetTimeSansCfd() const { return timeSansCfd_; }
+    double GetFilterTime() const { return filterTime_; }
 
     ///@return The CFD fractional time in clockticks
     unsigned int GetCfdFractionalTime() const { return cfdTime_; }
@@ -218,7 +218,7 @@ public:
     ///@brief Sets the calculated arrival time of the signal sans the CFD
     /// fractional time components.
     ///@param[in] a : The value to set
-    void SetTimeSansCfd(const double &a) { timeSansCfd_ = a; }
+    void SetFilterTime(const double &a) { filterTime_ = a; }
 
     ///@brief Sets the trace recorded on board
     ///@param[in] a : The value to set
@@ -242,7 +242,7 @@ private:
     double externalTimestamp_; ///!< The external timestamp recorded by the module.
     double filterBaseline_;///Baseline that was recorded with the energy sums
     double time_; ///< The time of arrival using all parts of the time
-    double timeSansCfd_; ///< The time of arrival of the signal sans CFD time.
+    double filterTime_; ///< The time of arrival of the signal sans CFD time.
 
     unsigned int cfdTime_; /// CFD trigger time
     unsigned int chanNum_; /// Channel number.
