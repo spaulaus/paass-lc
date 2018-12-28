@@ -8,6 +8,7 @@ mark_as_advanced(PAASS_UTKSCAN_GAMMA_GATES PAASS_UTKSCAN_ONLINE PAASS_UTKSCAN_TR
 
 # newreadout is needed to account for a change to pixie16 readout
 # structure change on 03/20/08. Is is REQUIRED!!
+# @TODO : Need to determine if this is still required by the scan code.
 add_definitions(-D newreadout)
 
 #utkscan will have Gamma-Gamma gating in the GeProcessor
