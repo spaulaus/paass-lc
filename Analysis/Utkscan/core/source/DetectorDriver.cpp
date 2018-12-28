@@ -217,7 +217,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
 
         //Saves the time in nanoseconds
         chan->SetHighResTime((trace.GetPhase() * Globals::get()->GetAdcClockInSeconds() +
-                chan->GetTimeSansCfd() * Globals::get()->GetFilterClockInSeconds()) * 1e9);
+                chan->GetFilterTime() * Globals::get()->GetFilterClockInSeconds()) * 1e9);
     } else {
         /// otherwise, use the Pixie on-board calculated energy and high res
         /// time is zero.
