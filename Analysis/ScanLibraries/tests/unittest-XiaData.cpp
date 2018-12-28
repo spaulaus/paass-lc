@@ -130,8 +130,8 @@ TEST (Test_CompareTime) {
     lhs.Initialize();
     rhs.Initialize();
 
-    lhs.SetTime(unittest_decoded_data::R30474_250::ts);
-    rhs.SetTime(unittest_decoded_data::R30474_250::ts + 10);
+    lhs.SetFilterTime(unittest_decoded_data::R30474_250::ts);
+    rhs.SetFilterTime(unittest_decoded_data::R30474_250::ts + 10);
 
     CHECK(lhs.CompareTime(&lhs, &rhs));
 }
@@ -164,9 +164,9 @@ TEST (Test_Equality) {
 TEST (Test_LessThanOperator) {
     lhs.Initialize();
     rhs.Initialize();
-    lhs.SetTime(unittest_decoded_data::R30474_250::ts);
+    lhs.SetFilterTime(unittest_decoded_data::R30474_250::ts);
     rhs = lhs;
-    rhs.SetTime(unittest_decoded_data::R30474_250::ts + 10);
+    rhs.SetFilterTime(unittest_decoded_data::R30474_250::ts + 10);
     CHECK(lhs < rhs);
 }
 
