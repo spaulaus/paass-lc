@@ -9,7 +9,7 @@
 void XiaData::Initialize() {
     cfdForceTrig_ = cfdTrigSource_ = isPileup_ = isSaturated_ = isVirtualChannel_ = false;
 
-    filterBaseline_ = energy_ = time_ = timeSansCfd_ = 0.0;
+    filterBaseline_ = energy_ = time_ = filterTime_ = 0.0;
 
     chanNum_ = crateNum_ = cfdTime_ = 0;
     eventTimeHigh_ = eventTimeLow_ = externalTimestamp_ = externalTimeLow_ = externalTimeHigh_ = 0;

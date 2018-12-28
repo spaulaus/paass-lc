@@ -148,7 +148,7 @@ void UtkUnpacker::RawStats(XiaData *event_, DetectorDriver *driver) {
     static double runTimeMsecs = 0, remainNumMsecs = 0;
     static int rowNumSecs = 0, rowNumMsecs = 0;
 
-    runTimeSecs = (event_->GetTime() - GetFirstTime()) * Globals::get()->GetClockInSeconds();
+    runTimeSecs = (event_->GetFilterTime() - GetFirstTime()) * Globals::get()->GetClockInSeconds();
     rowNumSecs = int(runTimeSecs / specNoBins);
     remainNumSecs = runTimeSecs - rowNumSecs * specNoBins;
 

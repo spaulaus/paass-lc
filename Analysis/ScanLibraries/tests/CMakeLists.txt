@@ -21,7 +21,7 @@ add_test(XiaListModeDataMask unittest-XiaListModeDataMask)
 add_executable(unittest-XiaData unittest-XiaData.cpp ../source/XiaData.cpp)
 target_link_libraries(unittest-XiaData UnitTest++ ${LIBS})
 install(TARGETS unittest-XiaData DESTINATION bin/unittests)
-add_test(XiaListModeDataData unittest-XiaData)
+add_test(XiaListModeData unittest-XiaData)
 
 add_executable(unittest-Trace unittest-Trace.cpp)
 target_link_libraries(unittest-Trace UnitTest++ ${LIBS})
