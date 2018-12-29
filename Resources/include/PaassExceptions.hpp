@@ -38,6 +38,30 @@ public:
     IOException(const std::string &msg) : PaassException(msg) {}
 };
 
+///@brief Errors that occur during initialization of an object.
+class InitializationException : public PaassException {
+public:
+    /// Constructor taking the error message as the argument
+    ///@param [in] msg : the error message to output
+    InitializationException(const std::string &msg) : PaassException(msg) {}
+};
+
+///@brief Errors that occur when booting modules
+class BootException : public PaassException {
+public:
+    /// Constructor taking the error message as the argument
+    ///@param [in] msg : the error message to output
+    BootException(const std::string &msg) : PaassException(msg) {}
+};
+
+///@brief Errors that occur when trying to synchronize objects.
+class SynchronizationException : public PaassException {
+public:
+    /// Constructor taking the error message as the argument
+    ///@param [in] msg : the error message to output
+    SynchronizationException(const std::string &msg) : PaassException(msg) {}
+};
+
 ///@brief Errors in the setup of the TreeCorrelator. Including, but not limited to creating new places, accessing places etc.
 class TreeCorrelatorException : public PaassException {
 public:

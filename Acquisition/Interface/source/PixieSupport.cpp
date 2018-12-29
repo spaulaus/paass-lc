@@ -8,8 +8,8 @@
 #include "Display.h"
 
 #include "PixieSupport.h"
-#include "pixie16app_defs.h"
-#include "pixie16app_export.h"
+//#include "pixie16app_defs.h"
+//#include "pixie16app_export.h"
 
 std::string PadStr(const std::string &input_, int width_) {
     std::string output = input_;
@@ -20,7 +20,7 @@ std::string PadStr(const std::string &input_, int width_) {
     return output;
 }
 
-bool BitFlipper::operator()(PixieFunctionParms <std::string> &par) {
+bool BitFlipper::operator()(PixieFunctionParms<std::string> &par) {
     if (bit >= num_toggle_bits) { return false; }
 
     bool *active_bits = new bool[num_toggle_bits];
@@ -46,7 +46,7 @@ bool BitFlipper::operator()(PixieFunctionParms <std::string> &par) {
     }
 
     if (par.pif->WriteSglChanPar(par.par.c_str(), new_csra, par.mod, par.ch)) {
-        par.pif->PrintSglChanPar(par.par.c_str(), par.mod, par.ch, value);
+        par.pif->PrintSglChanPar(par.par.c_str(), par.mod, par.ch, &value);
         return true;
     }
 
@@ -254,7 +254,7 @@ GetTraces::GetTraces(unsigned short *total_data_, size_t total_size_,
     status = false;
 
     // Set initial values.
-    for (unsigned int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+    for (unsigned int i = 0; i < Pixie16::maximumNumberOfChannels; i++) {
         baseline[i] = -1;
         maximum[i] = -9999;
     }
@@ -267,7 +267,7 @@ bool GetTraces::operator()(PixieFunctionParms<int> &par) {
     float temp_val;
 
     // Reset parameters.
-    for (unsigned int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+    for (unsigned int i = 0; i < par.pif->GetConfiguration().GetNumberOfChannels(); i++) {
         baseline[i] = -1;
         maximum[i] = -9999;
     }
@@ -319,7 +319,7 @@ bool GetTraces::operator()(PixieFunctionParms<int> &par) {
 
     // Threshold was not reached. Copy the most recent pulse into
     // the module traces array.
-    for (unsigned int i = 0; i < NUMBER_OF_CHANNELS; i++) {
+    for (unsigned int i = 0; i < par.pif->GetConfiguration().GetNumberOfChannels(); i++) {
         if (i == par.ch) { continue; } // Already did this channel.
 
         if (par.pif->ReadSglChanTrace(trace_data, trace_len, par.mod, i)) {
@@ -350,50 +350,44 @@ bool GetTraces::operator()(PixieFunctionParms<int> &par) {
     return status;
 }
 
-bool ParameterChannelWriter::operator()(
-        PixieFunctionParms <std::pair<std::string, double>> &par) {
+bool ParameterChannelWriter::operator()(PixieFunctionParms<std::pair<std::string, double>> &par) {
     double previousValue;
-    if (par.pif->WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod,
-                                 par.ch, previousValue)) {
-        par.pif->PrintSglChanPar(par.par.first.c_str(), par.mod, par.ch,
-                                 previousValue);
+    if (par.pif->WriteSglChanPar(par.par.first.c_str(), par.par.second, par.mod, par.ch, &previousValue)) {
+        par.pif->PrintSglChanPar(par.par.first.c_str(), par.mod, par.ch, &previousValue);
         return true;
     }
     return false;
 }
 
-bool ParameterModuleWriter::operator()(
-        PixieFunctionParms <std::pair<std::string, unsigned int>> &par) {
+bool ParameterModuleWriter::operator()(PixieFunctionParms<std::pair<std::string, unsigned int>> &par) {
     unsigned int previousValue;
-    if (par.pif->WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod,
-                                previousValue)) {
-        par.pif->PrintSglModPar(par.par.first.c_str(), par.mod, previousValue);
+    if (par.pif->WriteSglModPar(par.par.first.c_str(), par.par.second, par.mod, &previousValue)) {
+        par.pif->PrintSglModPar(par.par.first.c_str(), par.mod, &previousValue);
         return true;
     }
     return false;
 }
 
-bool ParameterChannelReader::operator()(PixieFunctionParms <std::string> &par) {
+bool ParameterChannelReader::operator()(PixieFunctionParms<std::string> &par) {
     par.pif->PrintSglChanPar(par.par.c_str(), par.mod, par.ch);
     return true;
 }
 
-bool ParameterModuleReader::operator()(PixieFunctionParms <std::string> &par) {
+bool ParameterModuleReader::operator()(PixieFunctionParms<std::string> &par) {
     par.pif->PrintSglModPar(par.par.c_str(), par.mod);
     return true;
 }
 
-bool ParameterChannelDumper::operator()(PixieFunctionParms <std::string> &par) {
+bool ParameterChannelDumper::operator()(PixieFunctionParms<std::string> &par) {
     double value;
-    par.pif->ReadSglChanPar(par.par.c_str(), value, (int) par.mod,
-                            (int) par.ch);
-    *file << par.mod << "\t" << par.ch << "\t" << par.par << "\t" << value
+    par.pif->ReadSglChanPar(par.par.c_str(), value, (int) par.mod, (int) par.ch);
+    *file << (int) par.mod << "\t" << par.ch << "\t" << par.par << "\t" << value
           << std::endl;
     return true;
 }
 
-bool ParameterModuleDumper::operator()(PixieFunctionParms <std::string> &par) {
-    PixieInterface::word_t value;
+bool ParameterModuleDumper::operator()(PixieFunctionParms<std::string> &par) {
+    Pixie16::word_t value;
     par.pif->ReadSglModPar(par.par.c_str(), value, (int) par.mod);
     *file << par.mod << "\t" << par.par << "\t" << value << std::endl;
     return true;
@@ -401,21 +395,25 @@ bool ParameterModuleDumper::operator()(PixieFunctionParms <std::string> &par) {
 
 bool OffsetAdjuster::operator()(PixieFunctionParms<int> &par) {
     bool hadError = par.pif->AdjustOffsets(par.mod);
-    for (size_t ch = 0; ch < par.pif->GetNumberChannels(); ch++) {
+    for (size_t ch = 0; ch < par.pif->GetConfiguration().GetNumberOfChannels(); ch++) {
         par.pif->PrintSglChanPar("VOFFSET", par.mod, ch);
     }
 
     return hadError;
 }
 
+/// @TODO Restore this functionality!
 bool TauFinder::operator()(PixieFunctionParms<> &par) {
-    double tau[16];
+/*
+	double tau[16];
 
-    int errorNum = Pixie16TauFinder(par.mod, tau);
-    if (par.ch < 16) {
-        std::cout << "TAU: " << tau[par.ch] << std::endl;
-    }
-    std::cout << "Errno: " << errorNum << std::endl;
+	int errorNum = Pixie16TauFinder(par.mod, tau);
+	if (par.ch < 16) {
+		std::cout << "TAU: " << tau[par.ch] << std::endl;
+	}
+	std::cout << "Errno: " << errorNum << std::endl;
 
-    return (errorNum >= 0);
+   return (errorNum >= 0);
+*/
+    return false;
 }

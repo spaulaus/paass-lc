@@ -75,6 +75,19 @@ TEST(TestIsNumeric) {
     CHECK(!IsNumeric("1.34E-34"));
 }
 
+TEST(RemoveSpaces) {
+    std::string input = "He re is a  string wi h a  bunch o f  spaces!    We'll  rem ove  them , don' t   worry.";
+    RemoveSpaces(input);
+    CHECK_EQUAL("Hereisastringwihabunchofspaces!We'llremovethem,don'tworry.", input);
+
+}
+
+TEST(ToLower) {
+    std::string input = "This is What I Expect to Find!";
+    ToLower(input);
+    CHECK_EQUAL("this is what i expect to find!", input);
+}
+
 int main(int argv, char *argc[]) {
     return (UnitTest::RunAllTests());
 }

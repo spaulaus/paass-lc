@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <bitset>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -18,7 +19,23 @@
 #include <climits>
 #include <cmath>
 
+#include <sys/stat.h>
+#include <unistd.h>
+
+///@TODO : Get rid of this. It's dangerous in a header. WTF Was I thinking???
 using namespace std;
+
+namespace FileManagement {
+    inline bool DoesFileExist(const std::string& name) {
+        ifstream f(name.c_str());
+        return f.good();
+    }
+
+    inline bool DoesFileExistPosix (const std::string& name) {
+        struct stat buffer;
+        return (stat (name.c_str(), &buffer) == 0);
+    }
+}
 
 namespace Filtering {
     /// Implementation of a simple trapezoidal filter, which doesn't use all of the fancy filtering in the class.
