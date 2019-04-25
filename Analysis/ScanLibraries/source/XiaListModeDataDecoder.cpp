@@ -144,8 +144,13 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         data->SetFilterTime(times.first);
         data->SetTime(times.second);
 
-        // One last check to ensure event length matches what we think it
-        // should be.
+        // Some events get a trace length of 32768, this shows up here as 32767. If we encounter a trace length of that
+        // size then we're going to set the trace length to 0. There's never a situation where a trace can have that
+        // many samples. For a 250 Ms/s module that corresponds to a trace length of 131 us.
+        if(traceLength == 32767)
+            traceLength = 0;
+
+        // One last check to ensure event length matches what we think it should be.
         if (traceLength / 2 + headerLength != eventLength) {
             numSkippedBuffers++;
             cerr << "XiaListModeDataDecoder::ReadBuffer : Event"
