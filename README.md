@@ -1,3 +1,5 @@
+**This repository is archived and can now be found at https://github.com/spaulaus/paass**
+
 # Laughing Conqueror - Pixie Acquisition and Analysis Software Suite (PAASS)
 <!-- Author: S. Paulauskas -->
 ## Build Status
